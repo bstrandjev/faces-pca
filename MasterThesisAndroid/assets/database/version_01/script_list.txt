@@ -1,0 +1,13 @@
+#
+# COPYRIGHT 2012 MUSALA SOFT
+#
+# A file defining the updates to be executed to update the schema to version 01:
+# Initial creation of the database tables.
+#
+# This file follows the convention introduced in DatabaseHelper.
+#
+
+01_create_issues_table.ddl
+01_create_categories_table.ddl
+01_create_templates_table.ddl
+01_create_articles_table.ddl

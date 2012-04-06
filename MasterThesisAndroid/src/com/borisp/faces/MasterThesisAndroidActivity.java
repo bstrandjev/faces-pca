@@ -3,7 +3,10 @@ package com.borisp.faces;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -32,6 +35,19 @@ public class MasterThesisAndroidActivity extends Activity {
                 builder.setMessage(R.string.final_message);
                 builder.setPositiveButton(R.string.ok, null);
                 builder.show();
+
+                Intent sendEmailntent = new Intent(Intent.ACTION_SENDTO);
+                sendEmailntent.setType("text/html");
+                sendEmailntent.putExtra(Intent.EXTRA_SUBJECT, "name");
+                String emailBody = new StringBuilder()
+                                .append("<h3><a href=\"" + "link" + "\">" + "name" + "</a></h3>" + "description")
+                                .append("<br><br>" + "Constants.EMAIL_ISSUE" + String.valueOf("issueNumber")
+                                                + " | ").append("publishedDateString").toString();
+                sendEmailntent.putExtra(Intent.EXTRA_TEXT, Html.fromHtml(emailBody));
+                sendEmailntent.putExtra(Intent.EXTRA_TITLE, "name");
+                sendEmailntent.setData(Uri.parse("mailto:bstrandjev@gmail.com"));
+                sendEmailntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                activity.startActivity(sendEmailntent);
             }
         }
     };
