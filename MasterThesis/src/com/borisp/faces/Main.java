@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.text.ParseException;
 
+import com.borisp.faces.classification.ClassificationApplicationPreparator;
 import com.borisp.faces.pca.PcaTransformer;
 import com.borisp.faces.util.ColorPixel;
 import com.borisp.faces.util.GrayscaleConverter;
@@ -37,6 +38,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws ParseException, IOException {
+        ClassificationApplicationPreparator.prepareClassificationApplication();
 //        createTestImages();
 //        PcaTransformer pcaTransformer =
 //                new PcaTransformer(ImageScaler.TARGET_HEIGHT, ImageScaler.TARGET_WIDTH);

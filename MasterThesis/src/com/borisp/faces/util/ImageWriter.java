@@ -49,7 +49,17 @@ public class ImageWriter {
         writeImage(getImageFromArray(imagePixels, w, h), fileName, needScaling);
     }
 
+    /** Prints an image to a file stored in the default image location: {@link #IMAGE_OUT_DIR}. */
     public static void createImage(String fileName, ColorPixel [][] colors, boolean needScaling) {
+        writeImage(loadColorPixelsToImage(colors), fileName, needScaling);
+    }
+
+    /** Prints an image to the specified location. */
+    public static void createImage(File outputFile, ColorPixel [][] colors, boolean needScaling) {
+        writeImage(loadColorPixelsToImage(colors), outputFile, needScaling);
+    }
+
+    private static BufferedImage loadColorPixelsToImage(ColorPixel [][] colors) {
         int w = colors[0].length;
         int h = colors.length;
         int []imagePixels = new int[h * w];
@@ -59,13 +69,17 @@ public class ImageWriter {
                         (colors[i][j].red << 16) | (colors[i][j].green << 8) | colors[i][j].blue;
             }
         }
-        writeImage(getImageFromArray(imagePixels, w, h), fileName, needScaling);
+        return getImageFromArray(imagePixels, w, h);
     }
 
     private static void writeImage(BufferedImage image, String fileName, boolean needScaling) {
+        File outputFile = new File(IMAGE_OUT_DIR + File.separator + fileName);
+        writeImage(image, outputFile, needScaling);
+    }
+
+    private static void writeImage(BufferedImage image, File outputFile, boolean needScaling) {
         try {
             BufferedImage scaledImage = (needScaling) ? ImageScaler.rescaleImage(image) : image;
-            File outputFile = new File(IMAGE_OUT_DIR + File.separator + fileName);
             ImageIO.write(scaledImage, OUT_IMAGE_FORMAT, outputFile);
         } catch (IOException e) {
             System.out.println("The image could not be written");
@@ -73,7 +87,7 @@ public class ImageWriter {
         }
     }
 
-    public static BufferedImage getImageFromArray(int[] pixels, int width, int height) {
+    private static BufferedImage getImageFromArray(int[] pixels, int width, int height) {
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_BGR);
         image.setRGB(0, 0, width, height, pixels, 0, width);
         return image;
