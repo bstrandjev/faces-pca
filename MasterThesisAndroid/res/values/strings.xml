@@ -1,15 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">MasterThesisAndroid</string>
+    <string name="app_name">PortraitClassifier</string>
     <string name="img_description">A sample image</string>
+
     <string name="beautiful">Me like</string>
     <string name="not_beautiful">Me not like</string>
-    <string name="btn_next_label">Next picture</string>
+
+    <!-- Button constants -->
+    <string name="btn_next_label">Next</string>
+    <string name="btn_previous_label">Previous</string>
+    <string name="ok">OK</string>
+
+    <!-- Dialog constants -->
     <string name="no_selection_title">Warning</string>
     <string name="no_selection_message">You should select one of the options for every image!</string>
-    <string name="ok">OK</string>
     <string name="final_title">Message</string>
-    <string name="final_message">All the images were classified</string>
+    <string name="final_message">This was the last image to classify</string>
+    <string name="all_classified_title">Message</string>
+    <string name="all_classified_message">All the images were classified</string>
 
+    <!-- Email constants -->
+    <string name="email_subject">Master thesis</string>
+    <string name="email_dialog_title">Send the results</string>
+    <string name="email_address" formatted="false">bstrandjev@gmail.com</string>
 </resources>

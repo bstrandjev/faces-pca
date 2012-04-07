@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
-import android.content.res.AssetManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.borisp.faces.beans.Face;
 import com.borisp.faces.helpers.IOHelper;
+import com.borisp.faces.helpers.JsonParser;
 
 /**
  * Class responsible for keeping the database up-to date.
@@ -34,19 +35,17 @@ import com.borisp.faces.helpers.IOHelper;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
     // Database constants
-    private static int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 1;
     // Update scripts constants
     private static final String VERSION_UPDATE_SCRIPTS_DIR = "database/version_%02d/";
     private static final String VERSION_UPDATE_SCRIPTS_LIST_FILE = "script_list.txt";
 
     /** Update scripts are stored in the assets directory. */
-    protected AssetManager assets;
-    private boolean foreignKeysEnabled;
+    protected Context context;
 
     public DatabaseHelper(Context context) {
         super(context, DatabaseConstants.DATABASE_NAME, null, DATABASE_VERSION);
-        this.assets = context.getAssets();
-        this.foreignKeysEnabled = false;
+        this.context = context;
     }
 
     @Override
@@ -59,13 +58,37 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase database, int fromVersion, int toVersion) {
         Log.i(DatabaseConstants.LOG_TAG, "Upgrading the database from version " + fromVersion
                 + " to version " + toVersion);
+
         for (int version = fromVersion + 1; version <= toVersion; ++version) {
             Log.v(DatabaseConstants.LOG_TAG, "Upgrading to version " + version);
             List<String> scriptFileNames = getScriptFileNames(version);
             for (String scriptFileName : scriptFileNames) {
                 Log.v(DatabaseConstants.LOG_TAG, "Executing upgrade script: " + scriptFileName);
-                String sqlString = IOHelper.getFileContent(assets, scriptFileName);
+                String sqlString = IOHelper.getFileContent(context.getAssets(), scriptFileName);
                 database.execSQL(sqlString);
+            }
+            executeJavaUpgradeLogic(database, version);
+        }
+    }
+
+    /**
+     * A method defining the in-code logic that should be executing while upgrading.
+     *
+     * As for now the data in the database is erased and loaded from the input json.
+     *
+     * @param database The database on which the upgrade is executed.
+     * @param version The version to which the upgrade is to be executed.
+     */
+    private void executeJavaUpgradeLogic(SQLiteDatabase database, int version) {
+        // This check ensures the logic will be executed only once, not for every version
+        if (version == DATABASE_VERSION) {
+            // clearing the content of the database
+            database.delete(DatabaseConstants.FACES_TABLE, null, null);
+            JsonParser jsonParser = new JsonParser(context);
+            Face [] faces = jsonParser.getInputFaceData();
+            DatabaseAdapterImpl databaseAdapterImpl = new DatabaseAdapterImpl(context);
+            for (Face face : faces) {
+                databaseAdapterImpl.storeFace(database, face);
             }
         }
     }
@@ -80,7 +103,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         List<String> scriptFileNames = new ArrayList<String>();
         String versionDir = String.format(VERSION_UPDATE_SCRIPTS_DIR, version);
         String scriptListFileName = versionDir + VERSION_UPDATE_SCRIPTS_LIST_FILE;
-        String versionScriptListContent = IOHelper.getFileContent(assets, scriptListFileName);
+        String versionScriptListContent =
+                IOHelper.getFileContent(context.getAssets(), scriptListFileName);
         if (versionScriptListContent != null) {
             String[] lines = versionScriptListContent.split("\n");
             for (String line : lines) {
@@ -93,17 +117,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             Log.w(DatabaseConstants.LOG_TAG, "No update script list found for version " + version);
         }
         return scriptFileNames;
-    }
-
-    @Override
-    public void onOpen(SQLiteDatabase db) {
-        super.onOpen(db);
-        if (!db.isReadOnly() && !foreignKeysEnabled) {
-            // Enable foreign key constraints
-            Log.d(DatabaseConstants.LOG_TAG, "enable foreign keys");
-            db.execSQL("PRAGMA foreign_keys=ON;");
-            foreignKeysEnabled = true;
-        }
     }
 }
 

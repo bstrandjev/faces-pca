@@ -7,7 +7,4 @@
 # This file follows the convention introduced in DatabaseHelper.
 #
 
-01_create_issues_table.ddl
-01_create_categories_table.ddl
-01_create_templates_table.ddl
-01_create_articles_table.ddl
+01_create_faces_table.ddl

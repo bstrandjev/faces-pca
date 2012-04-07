@@ -10,4 +10,12 @@ public class DatabaseConstants {
 
     public static final String DATABASE_NAME = "faces_database";
 
+    // Table names
+    public static final String FACES_TABLE = "faces";
+
+    // Column names
+    // Columns for faces
+    public static final String FACES_KEY = "key";
+    public static final String FACES_INDEX = "idx";
+    public static final String FACES_BEAUTIFUL = "beautiful";
 }
