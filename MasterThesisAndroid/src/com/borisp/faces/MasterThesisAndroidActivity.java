@@ -113,11 +113,7 @@ public class MasterThesisAndroidActivity extends Activity {
 
         // Load the radio group accordingly
         RadioGroup radioGroup = (RadioGroup)findViewById(R.id.radio_selection);
-        int checkedId = radioGroup.getCheckedRadioButtonId();
         radioGroup.clearCheck();
-//        if (checkedId != -1) { //clearing the current radio button selection
-//            ((RadioButton)radioGroup.findViewById(checkedId)).setChecked(false);
-//        }
         if (faces[index].getBeautiful() != null) {
             if (faces[index].getBeautiful()) {
                 ((RadioButton)radioGroup.findViewById(R.id.radio_beautiful)).setChecked(true);
