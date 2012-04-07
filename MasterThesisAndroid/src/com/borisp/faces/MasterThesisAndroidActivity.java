@@ -38,22 +38,25 @@ public class MasterThesisAndroidActivity extends Activity {
     /** Used to query the database */
     private DatabaseAdapter databaseAdapter;
 
+    private OnClickListener checkListener = new OnClickListener() {
+        public void onClick(View v) {
+            Button nextButton = (Button) findViewById(R.id.button_next_picture);
+            nextButton.setEnabled(true);
+            nextButton.setFocusable(true);
+        }
+    };
     private OnClickListener nextOnClick = new OnClickListener() {
         public void onClick(View v) {
             Activity activity = MasterThesisAndroidActivity.this;
             RadioGroup radioGroup = (RadioGroup)activity.findViewById(R.id.radio_selection);
             int selected = radioGroup.getCheckedRadioButtonId();
-            if (selected == -1) {
-                showNothingSelectedError();
+            faces[currentPictureIdx].setBeautiful(selected == R.id.radio_beautiful);
+            databaseAdapter.storeFace(faces[currentPictureIdx]);
+            if ((++currentPictureIdx) < faces.length) {
+                loadPicture(currentPictureIdx);
             } else {
-                faces[currentPictureIdx].setBeautiful(selected == R.id.radio_beautiful);
-                databaseAdapter.storeFace(faces[currentPictureIdx]);
-                if ((++currentPictureIdx) < faces.length) {
-                    loadPicture(currentPictureIdx);
-                } else {
-                    classificationFinishedMessage();
-                    sendEmailWithResults();
-                }
+                classificationFinishedMessage();
+                sendEmailWithResults();
             }
         }
     };
@@ -86,10 +89,10 @@ public class MasterThesisAndroidActivity extends Activity {
             showAllClassifiedMessage();
             loadPicture(0);
         }
-        Button nextPictureBtn = (Button) findViewById(R.id.button_next_picture);
-        nextPictureBtn.setOnClickListener(nextOnClick);
-        Button prevPictureBtn = (Button) findViewById(R.id.button_prev_picture);
-        prevPictureBtn.setOnClickListener(prevOnClick);
+        findViewById(R.id.button_next_picture).setOnClickListener(nextOnClick);
+        findViewById(R.id.button_prev_picture).setOnClickListener(prevOnClick);
+        findViewById(R.id.radio_beautiful).setOnClickListener(checkListener);
+        findViewById(R.id.radio_not_beautiful).setOnClickListener(checkListener);
     }
 
     /** Sends an email containing in its body the results of the evaluation. */
@@ -114,7 +117,13 @@ public class MasterThesisAndroidActivity extends Activity {
         // Load the radio group accordingly
         RadioGroup radioGroup = (RadioGroup)findViewById(R.id.radio_selection);
         radioGroup.clearCheck();
+
+        Button nextButton = (Button) findViewById(R.id.button_next_picture);
+        nextButton.setEnabled(false);
+        nextButton.setFocusable(false);
         if (faces[index].getBeautiful() != null) {
+            nextButton.setEnabled(true);
+            nextButton.setFocusable(true);
             if (faces[index].getBeautiful()) {
                 ((RadioButton)radioGroup.findViewById(R.id.radio_beautiful)).setChecked(true);
             } else {
@@ -138,15 +147,6 @@ public class MasterThesisAndroidActivity extends Activity {
     }
 
     // Methods for alert dialogs
-    private void showNothingSelectedError() {
-        Builder builder = new AlertDialog.Builder(this);
-        builder.setIcon(android.R.drawable.ic_dialog_alert);
-        builder.setTitle(R.string.no_selection_title);
-        builder.setMessage(R.string.no_selection_message);
-        builder.setPositiveButton(R.string.ok, null);
-        builder.show();
-    }
-
     private void classificationFinishedMessage() {
         Builder builder = new AlertDialog.Builder(this);
         builder.setIcon(android.R.drawable.ic_dialog_alert);

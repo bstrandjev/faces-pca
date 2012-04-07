@@ -13,8 +13,6 @@
     <string name="ok">OK</string>
 
     <!-- Dialog constants -->
-    <string name="no_selection_title">Warning</string>
-    <string name="no_selection_message">You should select one of the options for every image!</string>
     <string name="final_title">Message</string>
     <string name="final_message">This was the last image to classify</string>
     <string name="all_classified_title">Message</string>
