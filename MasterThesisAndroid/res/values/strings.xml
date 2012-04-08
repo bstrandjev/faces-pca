@@ -21,5 +21,7 @@
     <!-- Email constants -->
     <string name="email_subject">Master thesis</string>
     <string name="email_dialog_title">Send the results</string>
+    <string name="email_text">I have completed your survey. Please check out the results</string>
+    <string name="email_intent_chooser" >Send email&#8230;</string>
     <string name="email_address" formatted="false">bstrandjev@gmail.com</string>
 </resources>

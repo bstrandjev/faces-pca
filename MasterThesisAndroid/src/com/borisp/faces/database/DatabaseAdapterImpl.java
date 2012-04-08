@@ -126,6 +126,7 @@ public class DatabaseAdapterImpl implements DatabaseAdapter {
                 }
                 index++;
             } while (cursor.moveToNext());
+            cursor.close();
             return faces;
         }
         return null;

@@ -1,12 +1,18 @@
 package com.borisp.faces;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URI;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.Html;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -28,8 +34,12 @@ import com.borisp.faces.helpers.JsonParser;
  * @author Boris
  */
 public class MasterThesisAndroidActivity extends Activity {
+    private static final String TAG = "MasterThesisAndroidActivity";
+
     /** The format of the string which will be used to display the number of image */
     private static final String PAGE_NUMBER_FORMAT = "%d/%d";
+    /** The path to which classification json is temporarily stored before attached to email. */
+    private static final String CLASSIFICATION_JSON_TEMP_FILE = "classification.json";
 
     /** The index of the currently displayed element in the {@link #faces} array. */
     private int currentPictureIdx;
@@ -97,20 +107,44 @@ public class MasterThesisAndroidActivity extends Activity {
 
     /** Sends an email containing in its body the results of the evaluation. */
     private void sendEmailWithResults() {
-        JsonParser jsonParser = new JsonParser(this);
-        String emailBody = jsonParser.serializeFaces(faces);
-
+        URI attachmentTextUri = getFacesJsonUri();
         Intent sendEmailntent = new Intent(Intent.ACTION_SENDTO);
         sendEmailntent.setType("text/html");
         sendEmailntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.email_subject));
-        sendEmailntent.putExtra(Intent.EXTRA_TEXT, Html.fromHtml(emailBody));
+        sendEmailntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.email_text));
+        sendEmailntent.putExtra(Intent.EXTRA_STREAM, attachmentTextUri);
         sendEmailntent.putExtra(Intent.EXTRA_TITLE, getString(R.string.email_dialog_title));
         sendEmailntent.setData(Uri.parse("mailto:" + getString(R.string.email_address)));
         sendEmailntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        startActivity(sendEmailntent);
+        startActivity(Intent.createChooser(sendEmailntent,
+                getString(R.string.email_intent_chooser)));
     }
 
+    /** Returns an URI to the classification json temporarily stored in the file system. */
+    private URI getFacesJsonUri() {
+        JsonParser jsonParser = new JsonParser(this);
+        String attachmentText = jsonParser.serializeFaces(faces);
+
+        try {
+            FileOutputStream jsonOut =
+                    openFileOutput(CLASSIFICATION_JSON_TEMP_FILE, Context.MODE_WORLD_WRITEABLE);
+            jsonOut.write(attachmentText.getBytes());
+            jsonOut.flush();
+            jsonOut.close();
+        } catch (FileNotFoundException e) {
+            Log.e(TAG, "The classification json file could not be created", e);
+        } catch (IOException e) {
+            Log.e(TAG, "Error while writing to the classification json", e);
+        }
+        return getFileStreamPath(CLASSIFICATION_JSON_TEMP_FILE).toURI();
+    }
+
+    /**
+     * Displays the picture with the given index. Updates all the inputs on the screen accordingly.
+     *
+     * @param index The index in the faces array of the picture to display.
+     */
     private void loadPicture(int index) {
         faces[index].loadFaceImageView(this, R.id.image_sample);
 
