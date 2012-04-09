@@ -95,7 +95,7 @@ public class MasterThesisAndroidActivity extends Activity {
         if (lastNotRated != -1) {
             this.currentPictureIdx = lastNotRated;
         } else {
-            this.currentPictureIdx = faces.length - 1;
+            this.currentPictureIdx = 0;
             showAllClassifiedMessage();
         }
         loadPicture(currentPictureIdx);

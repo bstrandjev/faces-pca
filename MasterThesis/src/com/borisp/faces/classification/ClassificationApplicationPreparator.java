@@ -21,9 +21,13 @@ public class ClassificationApplicationPreparator {
     /** The path of the images that are to be transported to the classification app. */
     private static final String PATH_TO_MANIPULATED = "images/manipulated";
     // Classification app constants
+
+    /** The directory in which to store the images to be classified. **/
+    public static final String CLASSIFICATION_APP_IMAGE_DIR =
+            "../MasterThesisAndroid/res/drawable/";
     /** The path in which to store the images to be classified. **/
     public static final String CLASSIFICATION_APP_IMAGE_PATH =
-            "../MasterThesisAndroid/res/drawable/img%d.jpg";
+            CLASSIFICATION_APP_IMAGE_DIR + "img%d.jpg";
     /** The path to the input json for the classification app. */
     public static final String CLASSIFICATION_APP_JSON_PATH =
             "../MasterThesisAndroid/assets/faces.json";
@@ -32,6 +36,7 @@ public class ClassificationApplicationPreparator {
         File manipulatedDir = new File(PATH_TO_MANIPULATED);
         List<Face> faces = new ArrayList<Face>();
         int index = 0;
+        clearClassificationAppDir();
         for (File manipulatedFile : manipulatedDir.listFiles()) {
             // skipping the svn files
             if (manipulatedFile.getName().startsWith(".")) {
@@ -41,7 +46,7 @@ public class ClassificationApplicationPreparator {
             Face face = new Face();
             String name = manipulatedFile.getName();
             face.setKey(name.substring(0, name.lastIndexOf(".")));
-            face.setIndex(index++);
+            face.setIndex(index);
             faces.add(face);
 
             ColorPixel[][] imagePixels = ImageReader.getImagePixels(manipulatedFile);
@@ -53,7 +58,7 @@ public class ClassificationApplicationPreparator {
             }
             String classificationAppImagePath = String.format(CLASSIFICATION_APP_IMAGE_PATH, index);
             ImageWriter.createImage(new File(classificationAppImagePath), imagePixels, false);
-
+            index++;
         }
         JsonParser parser = new JsonParser();
         String serializeFaces = parser.serializeFaces(faces);
@@ -62,5 +67,16 @@ public class ClassificationApplicationPreparator {
         jsonOutputStream.write(serializeFaces.getBytes());
         jsonOutputStream.flush();
         jsonOutputStream.close();
+    }
+
+    /** Removes the previous set of images left for classification. */
+    private static void clearClassificationAppDir() {
+        for (File classificationAppImg : new File(CLASSIFICATION_APP_IMAGE_DIR).listFiles()) {
+            // skipping the svn files
+            if (classificationAppImg.getName().startsWith(".")) {
+                continue;
+            }
+            classificationAppImg.delete();
+        }
     }
 }
