@@ -110,25 +110,31 @@ public class DatabaseAdapterImpl implements DatabaseAdapter {
                 DatabaseConstants.FACES_BEAUTIFUL };
         Cursor cursor = database.query(DatabaseConstants.FACES_TABLE, columns, where,
                 whereArgs, null, null, null);
-        if (cursor != null && cursor.moveToFirst()) {
-            Face [] faces = new Face [cursor.getCount()];
-            int keyIdx = cursor.getColumnIndex(DatabaseConstants.FACES_KEY);
-            int indexIdx = cursor.getColumnIndex(DatabaseConstants.FACES_INDEX);
-            int beautifulIdx = cursor.getColumnIndex(DatabaseConstants.FACES_BEAUTIFUL);
+        Face [] faces = null;
+        try {
+            if (cursor != null && cursor.moveToFirst()) {
+                faces = new Face [cursor.getCount()];
+                int keyIdx = cursor.getColumnIndex(DatabaseConstants.FACES_KEY);
+                int indexIdx = cursor.getColumnIndex(DatabaseConstants.FACES_INDEX);
+                int beautifulIdx = cursor.getColumnIndex(DatabaseConstants.FACES_BEAUTIFUL);
 
-            int index = 0;
-            do {
-                faces[index] = new Face();
-                faces[index].setKey(cursor.getString(keyIdx));
-                faces[index].setIndex(cursor.getInt(indexIdx));
-                if (!cursor.isNull(beautifulIdx)) {
-                    faces[index].setBeautiful(cursor.getInt(beautifulIdx) == 1);
-                }
-                index++;
-            } while (cursor.moveToNext());
-            cursor.close();
-            return faces;
+                int index = 0;
+                do {
+                    faces[index] = new Face();
+                    faces[index].setKey(cursor.getString(keyIdx));
+                    faces[index].setIndex(cursor.getInt(indexIdx));
+                    if (!cursor.isNull(beautifulIdx)) {
+                        faces[index].setBeautiful(cursor.getInt(beautifulIdx) == 1);
+                    }
+                    index++;
+                } while (cursor.moveToNext());
+                cursor.close();
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
-        return null;
+        return faces;
     }
 }

@@ -1,6 +1,7 @@
 package com.borisp.faces.beans;
 
 import android.app.Activity;
+import android.util.Log;
 import android.widget.ImageView;
 
 /**
@@ -9,6 +10,7 @@ import android.widget.ImageView;
  * @author Boris
  */
 public class Face {
+    private static final String TAG = "Face";
     private static final String RES_IMAGE_FORMAT = "img%d";
 
     private String key;
@@ -34,6 +36,7 @@ public class Face {
     public void loadFaceImageView(Activity activity, int imageViewId) {
         String currentPictureName = String.format(RES_IMAGE_FORMAT, index);
 
+        Log.i(TAG, "Loading image with name: " + currentPictureName);
         int id = activity.getResources()
                 .getIdentifier(currentPictureName, "drawable", activity.getPackageName());
         ImageView image = (ImageView)activity.findViewById(imageViewId);

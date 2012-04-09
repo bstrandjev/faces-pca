@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical" >
@@ -18,48 +18,57 @@
         android:contentDescription="@string/img_description"
         android:scaleType="centerInside" />
 
-    <RadioGroup
-        android:id="@+id/radio_selection"
-        android:layout_width="fill_parent"
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:orientation="horizontal" >
+        android:layout_width="wrap_content"
+        android:layout_alignParentBottom="true">
 
-        <RadioButton
-            android:id="@+id/radio_beautiful"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="false"
-            android:text="@string/beautiful" />
-
-        <RadioButton
-            android:id="@+id/radio_not_beautiful"
-            android:layout_width="wrap_content"
+        <RadioGroup
+            android:id="@+id/radio_selection"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="30dp"
-            android:checked="false"
-            android:text="@string/not_beautiful" />
-    </RadioGroup>
+            android:orientation="horizontal" >
 
-    <RelativeLayout android:orientation="horizontal" 
-            android:layout_marginTop="50dp"
+            <RadioButton
+                android:id="@+id/radio_beautiful"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:text="@string/beautiful" />
+
+            <RadioButton
+                android:id="@+id/radio_not_beautiful"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:checked="false"
+                android:text="@string/not_beautiful" />
+        </RadioGroup>
+
+        <RelativeLayout
             android:layout_width="fill_parent"
-            android:padding="5dp"
-            android:layout_height="wrap_content" >
-
-        <Button
-            android:id="@+id/button_prev_picture"
-            android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:text="@string/btn_previous_label" />
+            android:layout_marginTop="50dp"
+            android:orientation="horizontal"
+            android:padding="5dp" >
 
-        <Button
-            android:id="@+id/button_next_picture"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:text="@string/btn_next_label" />
-    </RelativeLayout>
+            <Button
+                android:id="@+id/button_prev_picture"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:text="@string/btn_previous_label" />
 
-</LinearLayout>
+            <Button
+                android:id="@+id/button_next_picture"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:text="@string/btn_next_label" />
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

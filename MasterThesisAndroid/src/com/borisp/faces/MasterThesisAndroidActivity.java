@@ -1,17 +1,17 @@
 package com.borisp.faces;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URI;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -62,11 +62,12 @@ public class MasterThesisAndroidActivity extends Activity {
             int selected = radioGroup.getCheckedRadioButtonId();
             faces[currentPictureIdx].setBeautiful(selected == R.id.radio_beautiful);
             databaseAdapter.storeFace(faces[currentPictureIdx]);
-            if ((++currentPictureIdx) < faces.length) {
+            if (currentPictureIdx + 1 < faces.length) {
+                currentPictureIdx++;
                 loadPicture(currentPictureIdx);
             } else {
-                classificationFinishedMessage();
                 sendEmailWithResults();
+                classificationFinishedMessage();
             }
         }
     };
@@ -93,12 +94,12 @@ public class MasterThesisAndroidActivity extends Activity {
         }
         if (lastNotRated != -1) {
             this.currentPictureIdx = lastNotRated;
-            loadPicture(lastNotRated);
         } else {
-            this.currentPictureIdx = 0;
+            this.currentPictureIdx = faces.length - 1;
             showAllClassifiedMessage();
-            loadPicture(0);
         }
+        loadPicture(currentPictureIdx);
+
         findViewById(R.id.button_next_picture).setOnClickListener(nextOnClick);
         findViewById(R.id.button_prev_picture).setOnClickListener(prevOnClick);
         findViewById(R.id.radio_beautiful).setOnClickListener(checkListener);
@@ -107,37 +108,42 @@ public class MasterThesisAndroidActivity extends Activity {
 
     /** Sends an email containing in its body the results of the evaluation. */
     private void sendEmailWithResults() {
-        URI attachmentTextUri = getFacesJsonUri();
-        Intent sendEmailntent = new Intent(Intent.ACTION_SENDTO);
-        sendEmailntent.setType("text/html");
+        Uri attachmentTextUri = getFacesJsonUri();
+        Intent sendEmailntent = new Intent(Intent.ACTION_SEND);
         sendEmailntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.email_subject));
         sendEmailntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.email_text));
+
+        Log.d(TAG, "Sending email with attachment " + attachmentTextUri);
+        sendEmailntent.setType("text/message");
         sendEmailntent.putExtra(Intent.EXTRA_STREAM, attachmentTextUri);
         sendEmailntent.putExtra(Intent.EXTRA_TITLE, getString(R.string.email_dialog_title));
-        sendEmailntent.setData(Uri.parse("mailto:" + getString(R.string.email_address)));
-        sendEmailntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        sendEmailntent.putExtra(Intent.EXTRA_EMAIL,
+                new String[] { getString(R.string.email_address) });
 
         startActivity(Intent.createChooser(sendEmailntent,
                 getString(R.string.email_intent_chooser)));
     }
 
-    /** Returns an URI to the classification json temporarily stored in the file system. */
-    private URI getFacesJsonUri() {
+    /** Returns an Uri to the classification json temporarily stored in the file system. */
+    private Uri getFacesJsonUri() {
         JsonParser jsonParser = new JsonParser(this);
         String attachmentText = jsonParser.serializeFaces(faces);
 
+        File jsonOutFile =
+                new File(Environment.getExternalStorageDirectory().getAbsolutePath(),
+                        CLASSIFICATION_JSON_TEMP_FILE);
         try {
-            FileOutputStream jsonOut =
-                    openFileOutput(CLASSIFICATION_JSON_TEMP_FILE, Context.MODE_WORLD_WRITEABLE);
+            FileOutputStream jsonOut = new FileOutputStream(jsonOutFile);
             jsonOut.write(attachmentText.getBytes());
             jsonOut.flush();
             jsonOut.close();
+            Log.d(TAG, "The attachment file created. Size is: " + jsonOutFile.length());
         } catch (FileNotFoundException e) {
             Log.e(TAG, "The classification json file could not be created", e);
         } catch (IOException e) {
             Log.e(TAG, "Error while writing to the classification json", e);
         }
-        return getFileStreamPath(CLASSIFICATION_JSON_TEMP_FILE).toURI();
+        return Uri.fromFile(jsonOutFile);
     }
 
     /**
