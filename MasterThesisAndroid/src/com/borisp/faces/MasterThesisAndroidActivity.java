@@ -36,6 +36,8 @@ import com.borisp.faces.helpers.JsonParser;
 public class MasterThesisAndroidActivity extends Activity {
     private static final String TAG = "MasterThesisAndroidActivity";
 
+    /** This number is the seed with which we will make the random shuffle. */
+    private static final int RANDOM_SHUFFLE_NUMBER = 100003;
     /** The format of the string which will be used to display the number of image */
     private static final String PAGE_NUMBER_FORMAT = "%d/%d";
     /** The path to which classification json is temporarily stored before attached to email. */
@@ -45,6 +47,9 @@ public class MasterThesisAndroidActivity extends Activity {
     private int currentPictureIdx;
     /** An array storing all the faces from the database */
     private Face [] faces;
+    /** The images are randomly shuffled. */
+    private int [] indices;
+
     /** Used to query the database */
     private DatabaseAdapter databaseAdapter;
 
@@ -60,8 +65,8 @@ public class MasterThesisAndroidActivity extends Activity {
             Activity activity = MasterThesisAndroidActivity.this;
             RadioGroup radioGroup = (RadioGroup)activity.findViewById(R.id.radio_selection);
             int selected = radioGroup.getCheckedRadioButtonId();
-            faces[currentPictureIdx].setBeautiful(selected == R.id.radio_beautiful);
-            databaseAdapter.storeFace(faces[currentPictureIdx]);
+            faces[indices[currentPictureIdx]].setBeautiful(selected == R.id.radio_beautiful);
+            databaseAdapter.storeFace(faces[indices[currentPictureIdx]]);
             if (currentPictureIdx + 1 < faces.length) {
                 currentPictureIdx++;
                 loadPicture(currentPictureIdx);
@@ -84,10 +89,14 @@ public class MasterThesisAndroidActivity extends Activity {
         setContentView(R.layout.main);
         this.databaseAdapter = new DatabaseAdapterImpl(this);
         this.faces = databaseAdapter.loadAllFaces();
+        this.indices = new int[faces.length];
 
+        for (int i = 0; i < faces.length; i++) {
+            indices[i] = (i * RANDOM_SHUFFLE_NUMBER) % faces.length;
+        }
         int lastNotRated = -1;
         for (int i = 0; i < faces.length; i++) {
-            if (faces[i].getBeautiful() == null) {
+            if (faces[indices[i]].getBeautiful() == null) {
                 lastNotRated = i;
                 break;
             }
@@ -95,7 +104,7 @@ public class MasterThesisAndroidActivity extends Activity {
         if (lastNotRated != -1) {
             this.currentPictureIdx = lastNotRated;
         } else {
-            this.currentPictureIdx = 0;
+            this.currentPictureIdx = faces.length - 1;
             showAllClassifiedMessage();
         }
         loadPicture(currentPictureIdx);
@@ -108,7 +117,7 @@ public class MasterThesisAndroidActivity extends Activity {
 
     /** Sends an email containing in its body the results of the evaluation. */
     private void sendEmailWithResults() {
-        Uri attachmentTextUri = getFacesJsonUri();
+        Uri attachmentTextUri = Uri.fromFile(createFacesJsonFile());
         Intent sendEmailntent = new Intent(Intent.ACTION_SEND);
         sendEmailntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.email_subject));
         sendEmailntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.email_text));
@@ -119,19 +128,16 @@ public class MasterThesisAndroidActivity extends Activity {
         sendEmailntent.putExtra(Intent.EXTRA_TITLE, getString(R.string.email_dialog_title));
         sendEmailntent.putExtra(Intent.EXTRA_EMAIL,
                 new String[] { getString(R.string.email_address) });
-
         startActivity(Intent.createChooser(sendEmailntent,
                 getString(R.string.email_intent_chooser)));
     }
 
-    /** Returns an Uri to the classification json temporarily stored in the file system. */
-    private Uri getFacesJsonUri() {
+    /** Creates the File storing the classification json temporarily stored in the file system. */
+    private File createFacesJsonFile() {
         JsonParser jsonParser = new JsonParser(this);
         String attachmentText = jsonParser.serializeFaces(faces);
 
-        File jsonOutFile =
-                new File(Environment.getExternalStorageDirectory().getAbsolutePath(),
-                        CLASSIFICATION_JSON_TEMP_FILE);
+        File jsonOutFile = getFacesJsonFile();
         try {
             FileOutputStream jsonOut = new FileOutputStream(jsonOutFile);
             jsonOut.write(attachmentText.getBytes());
@@ -143,7 +149,24 @@ public class MasterThesisAndroidActivity extends Activity {
         } catch (IOException e) {
             Log.e(TAG, "Error while writing to the classification json", e);
         }
-        return Uri.fromFile(jsonOutFile);
+        return jsonOutFile;
+    }
+
+    @Override
+    public void onBackPressed() {
+        File classificationFile = getFacesJsonFile();
+        if (classificationFile != null) {
+            Log.i(TAG, "Deleting the classification file");
+            classificationFile.delete();
+        }
+        finish();
+        super.onBackPressed();
+    }
+
+    /** Return the path to which the json formatted classification will be stored temporarily. */
+    private File getFacesJsonFile() {
+        return new File(Environment.getExternalStorageDirectory().getAbsolutePath(),
+                CLASSIFICATION_JSON_TEMP_FILE);
     }
 
     /**
@@ -152,7 +175,7 @@ public class MasterThesisAndroidActivity extends Activity {
      * @param index The index in the faces array of the picture to display.
      */
     private void loadPicture(int index) {
-        faces[index].loadFaceImageView(this, R.id.image_sample);
+        faces[indices[index]].loadFaceImageView(this, R.id.image_sample);
 
         // Load the radio group accordingly
         RadioGroup radioGroup = (RadioGroup)findViewById(R.id.radio_selection);
@@ -161,10 +184,10 @@ public class MasterThesisAndroidActivity extends Activity {
         Button nextButton = (Button) findViewById(R.id.button_next_picture);
         nextButton.setEnabled(false);
         nextButton.setFocusable(false);
-        if (faces[index].getBeautiful() != null) {
+        if (faces[indices[index]].getBeautiful() != null) {
             nextButton.setEnabled(true);
             nextButton.setFocusable(true);
-            if (faces[index].getBeautiful()) {
+            if (faces[indices[index]].getBeautiful()) {
                 ((RadioButton)radioGroup.findViewById(R.id.radio_beautiful)).setChecked(true);
             } else {
                 ((RadioButton)radioGroup.findViewById(R.id.radio_not_beautiful)).setChecked(true);
