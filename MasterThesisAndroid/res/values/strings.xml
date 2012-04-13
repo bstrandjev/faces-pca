@@ -14,7 +14,10 @@
 
     <!-- Dialog constants -->
     <string name="final_title">Message</string>
-    <string name="final_message">This was the last image to classify</string>
+    <string name="final_message">This was the last image to classify.\n\n
+Please send an email containing the classifications to Boris.\n\n
+If you do not have internet connection in the moment,
+ you can restart the application and send the email later. </string>
     <string name="all_classified_title">Message</string>
     <string name="all_classified_message">All the images were classified</string>
 

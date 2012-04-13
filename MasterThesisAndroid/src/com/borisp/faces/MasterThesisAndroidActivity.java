@@ -8,6 +8,7 @@ import java.io.IOException;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -58,20 +59,14 @@ public class MasterThesisAndroidActivity extends Activity {
             Button nextButton = (Button) findViewById(R.id.button_next_picture);
             nextButton.setEnabled(true);
             nextButton.setFocusable(true);
+
+            // Load the next picture when radio button is pressed
+            loadNextPicture();
         }
     };
     private OnClickListener nextOnClick = new OnClickListener() {
         public void onClick(View v) {
-            Activity activity = MasterThesisAndroidActivity.this;
-            RadioGroup radioGroup = (RadioGroup)activity.findViewById(R.id.radio_selection);
-            int selected = radioGroup.getCheckedRadioButtonId();
-            faces[indices[currentPictureIdx]].setBeautiful(selected == R.id.radio_beautiful);
-            databaseAdapter.storeFace(faces[indices[currentPictureIdx]]);
-            if (currentPictureIdx + 1 < faces.length) {
-                currentPictureIdx++;
-                loadPicture(currentPictureIdx);
-            } else {
-                sendEmailWithResults();
+            if (!loadNextPicture()) {
                 classificationFinishedMessage();
             }
         }
@@ -170,6 +165,24 @@ public class MasterThesisAndroidActivity extends Activity {
     }
 
     /**
+     * Loads the next picture in the list.
+     *
+     * @return True if there is such, false otherwise.
+     */
+    private boolean loadNextPicture() {
+        RadioGroup radioGroup = (RadioGroup)this.findViewById(R.id.radio_selection);
+        int selected = radioGroup.getCheckedRadioButtonId();
+        faces[indices[currentPictureIdx]].setBeautiful(selected == R.id.radio_beautiful);
+        databaseAdapter.storeFace(faces[indices[currentPictureIdx]]);
+        if (currentPictureIdx + 1 < faces.length) {
+            currentPictureIdx++;
+            loadPicture(currentPictureIdx);
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Displays the picture with the given index. Updates all the inputs on the screen accordingly.
      *
      * @param index The index in the faces array of the picture to display.
@@ -215,7 +228,11 @@ public class MasterThesisAndroidActivity extends Activity {
         builder.setIcon(android.R.drawable.ic_dialog_alert);
         builder.setTitle(R.string.final_title);
         builder.setMessage(R.string.final_message);
-        builder.setPositiveButton(R.string.ok, null);
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                sendEmailWithResults();
+            }
+        });
         builder.show();
     }
 
