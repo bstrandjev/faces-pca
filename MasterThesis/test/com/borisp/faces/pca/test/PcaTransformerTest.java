@@ -25,22 +25,26 @@ public class PcaTransformerTest {
     private static final int FIXTURE_PICTURE_WIDTH = 22;
 
     private class PcaTransformerMock extends PcaTransformer {
+        private File [] imageFiles;
+
         public PcaTransformerMock() {
-            super(FIXTURE_PICTURE_HEIGHT, FIXTURE_PICTURE_WIDTH, FIXTURE_PICTURE_DIRECTORY);
+            super(FIXTURE_PICTURE_HEIGHT, FIXTURE_PICTURE_WIDTH,
+                    new File(FIXTURE_PICTURE_DIRECTORY).listFiles());
+            this.imageFiles = new File(FIXTURE_PICTURE_DIRECTORY).listFiles();
         }
 
         public PcaTransformerMock(String fixtureDirectory) {
-            super(FIXTURE_PICTURE_HEIGHT, FIXTURE_PICTURE_WIDTH, fixtureDirectory);
+            super(FIXTURE_PICTURE_HEIGHT, FIXTURE_PICTURE_WIDTH, new File(fixtureDirectory)
+                    .listFiles());
+            this.imageFiles = new File(fixtureDirectory).listFiles();
         }
 
-        @Override
         protected List<EigenFace> getEigenFacesGrayscale() {
-            return super.getEigenFacesGrayscale();
+            return super.getEigenFacesGrayscale(imageFiles);
         }
 
-        @Override
         protected double[][] getImageGrayscales() {
-            return super.getImageGrayscales();
+            return super.getImageGrayscales(imageFiles);
         }
 
         @Override

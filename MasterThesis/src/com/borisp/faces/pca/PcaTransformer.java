@@ -20,7 +20,6 @@ public class PcaTransformer {
     // Constant
     private final int IMAGE_HEIGHT;
     private final int IMAGE_WIDTH;
-    private final String IMAGES_DIRECTORY;
 
     private double [] average;
     private List<EigenFace> eigenFaces;
@@ -62,14 +61,13 @@ public class PcaTransformer {
     }
 
     public PcaTransformer(int imageHeight, int imageWidth) {
-        this(imageHeight, imageWidth, IMAGES_DIRECTORY_DEFAULT);
+        this(imageHeight, imageWidth, new File(IMAGES_DIRECTORY_DEFAULT).listFiles());
     }
 
-    public PcaTransformer(int imageHeight, int imageWidth, String imageDirectory) {
+    public PcaTransformer(int imageHeight, int imageWidth, File [] imageFiles) {
         this.IMAGE_HEIGHT = imageHeight;
         this.IMAGE_WIDTH = imageWidth;
-        this.IMAGES_DIRECTORY = imageDirectory;
-        this.eigenFaces = getEigenFacesGrayscale();
+        this.eigenFaces = getEigenFacesGrayscale(imageFiles);
     }
 
     public void printProjectedImage(int [][] imageGrayscale, int counted, String fileName) {
@@ -123,8 +121,8 @@ public class PcaTransformer {
     }
 
     /** This method constructs the list of eigen faces out of the training set. */
-    protected List<EigenFace> getEigenFacesGrayscale() {
-        double[][] imageGrayscales = getImageGrayscales();
+    protected List<EigenFace> getEigenFacesGrayscale(File [] imageFiles) {
+        double[][] imageGrayscales = getImageGrayscales(imageFiles);
         double[][] sampleMatrixArray = sampleMatrix(imageGrayscales);
         EigenBean[] eigens = calculateEigens(sampleMatrixArray);
         List<EigenFace> eigenFaces = new ArrayList<EigenFace>();
@@ -202,15 +200,12 @@ public class PcaTransformer {
      * @return An array containing an element for each image. Each image is represented by a one
      *      dimensional array of its pixels.
      */
-    protected double [][] getImageGrayscales() {
-        File imageDirectory = new File(IMAGES_DIRECTORY);
+    protected double [][] getImageGrayscales(File [] imageFiles) {
         List<double []> imageGrayscales = new ArrayList<>();
         int w = IMAGE_WIDTH;
         int h = IMAGE_HEIGHT;
         this.average = new double [h * w];
-        for (String imageFileName : imageDirectory.list()) {
-            String imageFilePath = imageDirectory.getPath() + File.separator + imageFileName;
-            File imageFile = new File(imageFilePath);
+        for (File imageFile : imageFiles) {
             if (imageFile.isDirectory()) {
                 continue;
             }

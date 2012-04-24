@@ -59,7 +59,7 @@ public class ImageWriter {
         writeImage(loadColorPixelsToImage(colors), outputFile, needScaling);
     }
 
-    private static BufferedImage loadColorPixelsToImage(ColorPixel [][] colors) {
+    public static BufferedImage loadColorPixelsToImage(ColorPixel [][] colors) {
         int w = colors[0].length;
         int h = colors.length;
         int []imagePixels = new int[h * w];
@@ -72,8 +72,11 @@ public class ImageWriter {
         return getImageFromArray(imagePixels, w, h);
     }
 
-    private static void writeImage(BufferedImage image, String fileName, boolean needScaling) {
-        File outputFile = new File(IMAGE_OUT_DIR + File.separator + fileName);
+    public static void writeImage(BufferedImage image, String fileName, boolean needScaling) {
+        File outputFile = new File(fileName);
+        if (outputFile.getParentFile() != null) {
+            outputFile.getParentFile().mkdirs();
+        }
         writeImage(image, outputFile, needScaling);
     }
 
