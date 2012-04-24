@@ -31,7 +31,7 @@ public class PcaCoeficient {
     //bi-directional many-to-one association to EigenFace bean
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="eigen_face_fk")
-    private EigenFace eigenFace;
+    private EigenFaceEntity eigenFace;
 
     public Integer getPcaCoeficientId() {
         return pcaCoeficientId;
@@ -57,11 +57,11 @@ public class PcaCoeficient {
         this.manipulatedImage = manipulatedImage;
     }
 
-    public EigenFace getEigenFace() {
+    public EigenFaceEntity getEigenFace() {
         return eigenFace;
     }
 
-    public void setEigenFace(EigenFace eigenFace) {
+    public void setEigenFace(EigenFaceEntity eigenFace) {
         this.eigenFace = eigenFace;
     }
 }

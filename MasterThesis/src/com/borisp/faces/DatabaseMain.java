@@ -6,7 +6,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
 
 import com.borisp.faces.beans.Classification;
-import com.borisp.faces.beans.EigenFace;
+import com.borisp.faces.beans.EigenFaceEntity;
 import com.borisp.faces.beans.Image;
 import com.borisp.faces.beans.ManipulatedImage;
 import com.borisp.faces.beans.Manipulation;
@@ -15,18 +15,19 @@ import com.borisp.faces.beans.Transformation;
 import com.borisp.faces.beans.User;
 import com.borisp.faces.database.InitialRecorder;
 import com.borisp.faces.database.ManipulationCreator;
+import com.borisp.faces.database.PcaDatabaseHelper;
 
 public class DatabaseMain {
     public static void main(String[] args) throws IOException {
         SessionFactory sessionFactory = initializeSessionFactory();
-        executeManipulation(sessionFactory, false);
+        doPcaTransform(sessionFactory);
     }
 
     @SuppressWarnings("deprecation")
     private static SessionFactory initializeSessionFactory() {
         AnnotationConfiguration configuration = new AnnotationConfiguration();
         configuration.addAnnotatedClass(Classification.class);
-        configuration.addAnnotatedClass(EigenFace.class);
+        configuration.addAnnotatedClass(EigenFaceEntity.class);
         configuration.addAnnotatedClass(Image.class);
         configuration.addAnnotatedClass(ManipulatedImage.class);
         configuration.addAnnotatedClass(Manipulation.class);
@@ -51,6 +52,7 @@ public class DatabaseMain {
     }
 
     private static void doPcaTransform(SessionFactory sessionFactory) {
-
+        PcaDatabaseHelper pcaDatabaseHelper = new PcaDatabaseHelper();
+        pcaDatabaseHelper.conductPcaTransform(sessionFactory);
     }
 }

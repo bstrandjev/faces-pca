@@ -10,7 +10,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -24,7 +23,6 @@ public class ManipulatedImage {
     @Column(name = "manipulated_images_pk")
     private Integer manipulatedImageId;
 
-    @Lob
     @Column(name = "manipulated_img_path")
     private String manipulatedImagePath;
 

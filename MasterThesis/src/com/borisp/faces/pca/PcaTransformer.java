@@ -29,6 +29,9 @@ public class PcaTransformer {
         public double[] eigenFacePixels;
         public Double eigenValue;
 
+        public EigenFace() {
+        }
+
         public EigenFace(EigenBean eigenBean, double[][] imageGrayscales) {
             this.eigenValue = eigenBean.eigenValue;
             int w = IMAGE_WIDTH;
@@ -70,12 +73,12 @@ public class PcaTransformer {
         this.eigenFaces = getEigenFacesGrayscale(imageFiles);
     }
 
-    public void printProjectedImage(int [][] imageGrayscale, int counted, String fileName) {
-        double [] projection = getProjectedImage(imageGrayscale, counted);
-        ImageWriter.createImage("projected" + File.separator + fileName,
-                normalizeForPrinting(projection), IMAGE_HEIGHT, IMAGE_WIDTH,
-                false);
-    }
+//    public void printProjectedImage(int [][] imageGrayscale, int counted, String fileName) {
+//        double [] projection = getProjectedImage(imageGrayscale, counted);
+//        ImageWriter.createImage("projected" + File.separator + fileName,
+//                normalizeForPrinting(projection), IMAGE_HEIGHT, IMAGE_WIDTH,
+//                false);
+//    }
 
     /** Calculates the projection of the given image in restricted PCA space. */
     protected double[] getProjectedImage(int [][] imageGrayscale, int counted) {
@@ -109,15 +112,8 @@ public class PcaTransformer {
         return res;
     }
 
-    /** A method that can be called to display the eigen faces calculated from the training set. */
-    public void printEigenFaces() {
-        int idx = 1;
-        for (EigenFace eigenFace : eigenFaces) {
-            ImageWriter.createImage(String.format("eigen_face%03d.jpg", idx),
-                    normalizeForPrinting(eigenFace.eigenFacePixels), IMAGE_HEIGHT, IMAGE_WIDTH,
-                    false);
-            idx++;
-        }
+    public List<EigenFace> getEigenFaces() {
+        return eigenFaces;
     }
 
     /** This method constructs the list of eigen faces out of the training set. */
@@ -152,24 +148,6 @@ public class PcaTransformer {
             eigens[i].eigenValue = realEigenvalues[i];
         }
         return eigens;
-    }
-
-    /**
-     * A method that changes the eigen face pixels so that they fit in the range [0, 255].
-     * It does some tweaking of pixel values, so it should be used only for preparing for printing.
-     */
-    private double[] normalizeForPrinting(double[] eigenFace) {
-        double[] toRet = eigenFace.clone();
-        double maxm = 0.0;
-        double minm = Double.MIN_VALUE;
-        for (int i = 0; i < toRet.length; i++) {
-            maxm = Math.max(maxm, toRet[i]);
-            minm = Math.min(minm, toRet[i]);
-        }
-        for (int i = 0; i < toRet.length; i++) {
-            toRet[i] = ((toRet[i] - minm)* 255.0) / (maxm - minm);
-        }
-        return toRet;
     }
 
     /** Calculate the auxiliary matrix L as per the article. */

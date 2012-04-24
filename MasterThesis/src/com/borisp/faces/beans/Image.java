@@ -9,7 +9,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -25,7 +24,6 @@ public class Image {
     @Column(name = "image_key")
     private String key;
 
-    @Lob
     @Column(name = "real_image_path")
     private String imagePath;
 

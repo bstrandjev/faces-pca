@@ -15,18 +15,21 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.borisp.faces.util.EigenFaceBinaryConverter;
+import com.borisp.faces.util.PersistenceHelper;
+
 @Entity
 @Table(name = "eigen_faces")
 /** A bean representing a single eigen face. */
-public class EigenFace {
+public class EigenFaceEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "eigen_faces_pk")
     private Integer eigenFaceId;
 
     @Lob
-    @Column(name = "eigen_face_img_path")
-    private String eigenFaceImagePath;
+    @Column(name = "eigen_face")
+    private byte[] eigenFace;
 
     @Column(name = "eigen_value")
     private Double eigenValue;
@@ -73,11 +76,19 @@ public class EigenFace {
         this.pcaCoeficients = pcaCoeficients;
     }
 
-    public String getEigenFaceImagePath() {
-        return eigenFaceImagePath;
+    protected String getEigenFace() {
+        return PersistenceHelper.getContentFromByte(eigenFace);
     }
 
-    public void setEigenFaceImagePath(String eigenFaceImagePath) {
-        this.eigenFaceImagePath = eigenFaceImagePath;
+    protected void setEigenFace(String binaryValue) {
+        this.eigenFace = PersistenceHelper.getContentfromString(binaryValue);
+    }
+
+    public double[] getFacePixels() {
+        return EigenFaceBinaryConverter.constructEigenface(this.eigenFace);
+    }
+
+    public void setFacePixels(double [] facePixels) {
+        this.eigenFace = EigenFaceBinaryConverter.getEigenFaceBytes(facePixels);
     }
 }

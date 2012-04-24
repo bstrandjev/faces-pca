@@ -31,7 +31,7 @@ public class Transformation {
     // bi-directional many-to-one association to Classification bean
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "transformation",
                cascade = { CascadeType.DETACH, CascadeType.REMOVE }, orphanRemoval = true)
-    private List<EigenFace> eigenFaces;
+    private List<EigenFaceEntity> eigenFaces;
 
     public Integer getTransformationId() {
         return transformationId;
@@ -49,11 +49,11 @@ public class Transformation {
         this.manipulation = manipulation;
     }
 
-    public List<EigenFace> getEigenFaces() {
+    public List<EigenFaceEntity> getEigenFaces() {
         return eigenFaces;
     }
 
-    public void setEigenFaces(List<EigenFace> eigenFaces) {
+    public void setEigenFaces(List<EigenFaceEntity> eigenFaces) {
         this.eigenFaces = eigenFaces;
     }
 }

@@ -35,8 +35,8 @@ import com.borisp.faces.util.ImageWriter;
  * @author Boris
  */
 public class ManipulationCreator {
-    private static final String IS_GOOD_FILE_PATTERN = "images/manipulation_%2d/good/%s";
-    private static final String IS_BAD_FILE_PATTERN = "images/manipulation_%2d/bad/%s";
+    private static final String IS_GOOD_FILE_PATTERN = "images/manipulation_%02d/good/%s";
+    private static final String IS_BAD_FILE_PATTERN = "images/manipulation_%02d/bad/%s";
 
     private BufferedImage manipulatedImage;
     private Manipulation manipulation;

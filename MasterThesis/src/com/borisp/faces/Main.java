@@ -85,7 +85,7 @@ public class Main {
             }
             ColorPixel[][] imagePixels = ImageReader.getImagePixels(imageFile);
             int [][] grayscale = GrayscaleConverter.getImageGrayscale(imagePixels);
-            pcaTransformer.printProjectedImage(grayscale, 15, imageFileName);
+            //pcaTransformer.printProjectedImage(grayscale, 15, imageFileName);
         }
     }
 }
