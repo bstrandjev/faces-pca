@@ -58,7 +58,6 @@ public class ManipulationCreator {
             }
             List<ManipulatedImage> manipulatedImages = manipulation.getManipulatedImages();
             this.currentImageIdx = manipulatedImages != null ? manipulatedImages.size() : 0;
-            this.currentImageIdx = 25;
         }
 
         public String getCurrentImageLabel() {
@@ -88,7 +87,7 @@ public class ManipulationCreator {
         }
 
         public boolean moveIterator() {
-            if (currentImageIdx + 1 < initialImages.size() && currentImageIdx < 26) {
+            if (currentImageIdx + 1 < initialImages.size()) {
                 currentImageIdx++;
                 return true;
             } else {
