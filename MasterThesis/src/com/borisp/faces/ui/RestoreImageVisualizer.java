@@ -4,6 +4,7 @@ import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -111,6 +112,8 @@ public class RestoreImageVisualizer extends JFrame {
     public RestoreImageVisualizer(Transformation transformation) {
         this.eigenFaces = transformation.getEigenFaces();
         this.manipulatedImages = transformation.getManipulation().getManipulatedImages();
+        // sorting the eigen faces in descending order of the eigen values
+        Collections.sort(eigenFaces, Collections.reverseOrder());
 
         JPanel panel = new RestoreImagePanel();
         getContentPane().add(panel);

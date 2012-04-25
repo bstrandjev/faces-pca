@@ -93,10 +93,8 @@ public class PcaDatabaseHelper {
 
     /** A method that can be used to visualize the eigen faces of specified transformation. */
     public void demonstrateTransformation(int transformationId, SessionFactory sessionFactory) {
-        Session session = sessionFactory.getCurrentSession();
-        session.beginTransaction();
-
-        Transformation transformation = getTransformationById(transformationId, session);
+        Transformation transformation =
+                DatabaseHelper.getTransformationById(transformationId, sessionFactory);
         new EigenFaceDemonstrator(transformation);
     }
 
@@ -105,10 +103,8 @@ public class PcaDatabaseHelper {
      * given transformation.
      */
     public void demonstrateProjection(int transformationId, SessionFactory sessionFactory) {
-        Session session = sessionFactory.getCurrentSession();
-        session.beginTransaction();
-
-        Transformation transformation = getTransformationById(transformationId, session);
+        Transformation transformation =
+                DatabaseHelper.getTransformationById(transformationId, sessionFactory);
         new RestoreImageVisualizer(transformation);
     }
 
@@ -133,13 +129,6 @@ public class PcaDatabaseHelper {
         return imageFiles;
     }
 
-    /** Retrieves the transformation from the database having the given id */
-    private Transformation getTransformationById(int transformationId, Session session) {
-        Query query =
-                session.createQuery("from Transformation t where t.transformationId = :id");
-        query.setInteger("id", transformationId);
-        return (Transformation) query.uniqueResult();
-    }
     /**
      * A method that stores the given eigen face in the database.
      *

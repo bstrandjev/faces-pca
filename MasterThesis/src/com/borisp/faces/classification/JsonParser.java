@@ -25,4 +25,14 @@ public class JsonParser {
     public String serializeFaces(List<Face> faces) {
         return gson.toJson(faces);
     }
+
+    /**
+     * Deserializes the given json string to its corresponding array of {@link Face}s.
+     *
+     * @param facesJson The serialized version of the faces array.
+     * @return The deserialized array.
+     */
+    public Face[] deserializeFaces(String facesJson) {
+        return gson.fromJson(facesJson, Face[].class);
+    }
 }

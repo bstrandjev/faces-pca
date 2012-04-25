@@ -52,11 +52,22 @@ public class EigenFaceDemonstrator extends JFrame {
         @Override
         public void paintComponent(Graphics g) {
             EigenFaceDemonstrator.this.setTitle("Eigen face number " + (currentIdx + 1));
+
+            previousButton.setEnabled(true);
+            nextButton.setEnabled(true);
+            if (currentIdx == 0) {
+                previousButton.setEnabled(false);
+            }
+            if (currentIdx == eigenFaces.length - 1) {
+                nextButton.setEnabled(false);
+            }
+
             int imageHeight = ImageScaler.TARGET_HEIGHT;
             int imageWidth = ImageScaler.TARGET_WIDTH;
             BufferedImage image =
                     ImageConstructor.createImage(eigenFaces[currentIdx].normalizeForPrinting(),
                             imageHeight, imageWidth);
+
             g.drawImage(image, IMAGE_BEG_X, IMAGE_BEG_Y, imageWidth, imageHeight, null);
             g.drawLine(IMAGE_BEG_X - 1, IMAGE_BEG_Y - 1, IMAGE_BEG_X + imageWidth + 1,
                     IMAGE_BEG_Y - 1);
@@ -77,14 +88,6 @@ public class EigenFaceDemonstrator extends JFrame {
                 } else {
                     System.out.println("Previous selected");
                     currentIdx--;
-                }
-                previousButton.setEnabled(true);
-                nextButton.setEnabled(true);
-                if (currentIdx == 0) {
-                    previousButton.setEnabled(false);
-                }
-                if (currentIdx == eigenFaces.length - 1) {
-                    nextButton.setEnabled(false);
                 }
                 EigenFaceDemonstratorPanel.this.repaint();
             }

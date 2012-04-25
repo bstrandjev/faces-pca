@@ -13,16 +13,20 @@ import com.borisp.faces.beans.Manipulation;
 import com.borisp.faces.beans.PcaCoeficient;
 import com.borisp.faces.beans.Transformation;
 import com.borisp.faces.beans.User;
+import com.borisp.faces.database.ClassificationDatabaseHelper;
 import com.borisp.faces.database.InitialRecorder;
 import com.borisp.faces.database.ManipulationCreator;
 import com.borisp.faces.database.PcaDatabaseHelper;
+import com.borisp.faces.weka.WekaContentCreator;
 
 public class DatabaseMain {
     public static void main(String[] args) throws IOException {
         SessionFactory sessionFactory = initializeSessionFactory();
-        doPcaTransform(sessionFactory);
+//        doPcaTransform(sessionFactory);
 //        demonstrateTransformation(sessionFactory);
 //        demonstrateProjection(sessionFactory);
+        recordClassification(sessionFactory);
+        generateWekaInput(sessionFactory);
     }
 
     @SuppressWarnings("deprecation")
@@ -60,11 +64,20 @@ public class DatabaseMain {
 
     private static void demonstrateTransformation(SessionFactory sessionFactory) {
         PcaDatabaseHelper pcaDatabaseHelper = new PcaDatabaseHelper();
-        pcaDatabaseHelper.demonstrateTransformation(5, sessionFactory);
+        pcaDatabaseHelper.demonstrateTransformation(7, sessionFactory);
     }
 
     private static void demonstrateProjection(SessionFactory sessionFactory) {
         PcaDatabaseHelper pcaDatabaseHelper = new PcaDatabaseHelper();
-        pcaDatabaseHelper.demonstrateProjection(5, sessionFactory);
+        pcaDatabaseHelper.demonstrateProjection(7, sessionFactory);
+    }
+
+    private static void recordClassification(SessionFactory sessionFactory) {
+        ClassificationDatabaseHelper classificationHelper = new ClassificationDatabaseHelper();
+        classificationHelper.recordClassification("szymon", 1, sessionFactory);
+    }
+
+    private static void generateWekaInput(SessionFactory sessionFactory) throws IOException {
+        WekaContentCreator.generateWekaInput("szymon", 1, 7, sessionFactory);
     }
 }

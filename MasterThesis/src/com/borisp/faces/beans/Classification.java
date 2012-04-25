@@ -29,7 +29,7 @@ public class Classification {
 
     //bi-directional many-to-one association to User bean
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="user")
+    @JoinColumn(name="user_fk")
     private User user;
 
     public Integer getClassificationId() {
