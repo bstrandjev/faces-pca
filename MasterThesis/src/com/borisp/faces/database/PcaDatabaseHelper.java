@@ -31,7 +31,10 @@ import com.borisp.faces.util.ImageWriter;
  */
 public class PcaDatabaseHelper {
     private static final String EGIEN_FACE_FILE_PATTERN =
-            "images/manipulation_%02d/egen_faces/face%03d.jpg";
+            "images/manipulation_%02d/eigen_faces/face%03d.jpg";
+
+    private static final String AVERAGE_FACE_FILE_PATTERN =
+            "images/manipulation_%02d/average_image.jpg";
 
     private Manipulation manipulation;
 
@@ -40,14 +43,21 @@ public class PcaDatabaseHelper {
         File[] imageFiles = getLastManipulationImages(sessionFactory);
         PcaTransformer pcaTransformer = new PcaTransformer(ImageScaler.TARGET_HEIGHT,
                 ImageScaler.TARGET_WIDTH, imageFiles);
+        double [] averageFacePixels = pcaTransformer.getAverageFace();
 
         Session session = sessionFactory.getCurrentSession();
         session.beginTransaction();
         Transformation transformation = new Transformation();
         transformation.setManipulation(manipulation);
-        transformation.setAverageFacePixels(pcaTransformer.getAverageFace());
+        transformation.setAverageFacePixels(averageFacePixels);
         session.save(transformation);
         session.getTransaction().commit();
+
+        // Outputting the average image for debugging purposes.
+        String averageImageFilePath = String.format(AVERAGE_FACE_FILE_PATTERN,
+                manipulation.getManipulationIndex());
+        ImageWriter.createImage(averageImageFilePath, averageFacePixels, ImageScaler.TARGET_HEIGHT,
+                ImageScaler.TARGET_WIDTH, false);
 
         session = sessionFactory.getCurrentSession();
         session.beginTransaction();

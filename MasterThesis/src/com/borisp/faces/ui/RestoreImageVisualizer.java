@@ -99,6 +99,8 @@ public class RestoreImageVisualizer extends JFrame {
                 facesConsidered = newFacesConsidered;
                 return true;
             } catch (NumberFormatException error) {
+                numberOfFacesField.setText(String.valueOf(facesConsidered));
+                manipulatedImageIndexField.setText(String.valueOf(currentIdx));
                 error.printStackTrace();
                 return false;
             }

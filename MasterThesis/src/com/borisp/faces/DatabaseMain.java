@@ -20,9 +20,9 @@ import com.borisp.faces.database.PcaDatabaseHelper;
 public class DatabaseMain {
     public static void main(String[] args) throws IOException {
         SessionFactory sessionFactory = initializeSessionFactory();
-//        doPcaTransform(sessionFactory);
+        doPcaTransform(sessionFactory);
 //        demonstrateTransformation(sessionFactory);
-        demonstrateProjection(sessionFactory);
+//        demonstrateProjection(sessionFactory);
     }
 
     @SuppressWarnings("deprecation")

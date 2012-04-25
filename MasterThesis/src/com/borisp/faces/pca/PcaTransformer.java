@@ -13,7 +13,6 @@ import com.borisp.faces.beans.ManipulatedImage;
 import com.borisp.faces.util.ColorPixel;
 import com.borisp.faces.util.GrayscaleConverter;
 import com.borisp.faces.util.ImageReader;
-import com.borisp.faces.util.ImageWriter;
 
 public class PcaTransformer {
     /** The directory which stores the manipulated sample pictures. */
@@ -238,8 +237,6 @@ public class PcaTransformer {
                 average[i * w + j] /= imageCount;
             }
         }
-        // debug output of the image
-        ImageWriter.createImage("average.jpg", average, h, w, false);
         for (double [] dGrayscale : imageGrayscales) {
             for (int i = 0; i < h; i++) {
                 for (int j = 0; j < w; j++) {
