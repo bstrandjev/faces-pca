@@ -10,17 +10,15 @@ import java.nio.ByteBuffer;
  */
 public class EigenFaceBinaryConverter {
 
-    public static byte [] getEigenFaceBytes(double [] facePixels) {
+    public static byte [] getFaceBytes(double [] facePixels) {
         ByteBuffer byteBuffer = ByteBuffer.allocate(facePixels.length * 8);
         for (int i = 0; i < facePixels.length; i++) {
             byteBuffer.putDouble(facePixels[i]);
         }
-        byte [] bytes = byteBuffer.array();
-        double[] constructEigenface = constructEigenface(bytes);
-        return bytes;
+        return byteBuffer.array();
     }
 
-    public static double[] constructEigenface(byte [] bytes){
+    public static double[] constructFaceFromBytes(byte [] bytes){
         ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
         double [] toReturn = new double[bytes.length / 8];
         for (int i = 0; i < toReturn.length; i++) {

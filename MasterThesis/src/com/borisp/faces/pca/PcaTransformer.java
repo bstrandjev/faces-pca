@@ -8,6 +8,8 @@ import java.util.List;
 import Jama.EigenvalueDecomposition;
 import Jama.Matrix;
 
+import com.borisp.faces.beans.EigenFaceEntity;
+import com.borisp.faces.beans.ManipulatedImage;
 import com.borisp.faces.util.ColorPixel;
 import com.borisp.faces.util.GrayscaleConverter;
 import com.borisp.faces.util.ImageReader;
@@ -73,26 +75,38 @@ public class PcaTransformer {
         this.eigenFaces = getEigenFacesGrayscale(imageFiles);
     }
 
-//    public void printProjectedImage(int [][] imageGrayscale, int counted, String fileName) {
-//        double [] projection = getProjectedImage(imageGrayscale, counted);
-//        ImageWriter.createImage("projected" + File.separator + fileName,
-//                normalizeForPrinting(projection), IMAGE_HEIGHT, IMAGE_WIDTH,
-//                false);
-//    }
+    private PcaTransformer(int imageHeight, int imageWidth, List<EigenFaceEntity> eigenFaceEntities) {
+        this.IMAGE_HEIGHT = imageHeight;
+        this.IMAGE_WIDTH = imageWidth;
+        this.average = eigenFaceEntities.get(0).getTransformation().getAverageFacePixels();
+        this.eigenFaces = new ArrayList<EigenFace>();
+        for (EigenFaceEntity eigenFaceEntity : eigenFaceEntities) {
+            EigenFace eigenFace = new EigenFace();
+            eigenFace.eigenFacePixels = eigenFaceEntity.getFacePixels();
+            eigenFace.eigenValue = eigenFaceEntity.getEigenValue();
+            eigenFaces.add(eigenFace);
+        }
+    }
 
-    /** Calculates the projection of the given image in restricted PCA space. */
-    protected double[] getProjectedImage(int [][] imageGrayscale, int counted) {
-        double [] projection = new double[eigenFaces.get(0).eigenFacePixels.length];
-        double [] coeficients = getPcaCoeficients(imageGrayscale);
-        for (int i = 0; i < counted; i++) {
-            for (int j = 0; j < projection.length; j++) {
-                projection[j] += coeficients[i] * eigenFaces.get(i).eigenFacePixels[j];
-            }
-        }
-        for (int i = 0; i < projection.length; i++) {
-            projection[i] += average[i];
-        }
-        return projection;
+    /**
+     * Returns the projected image when using the given eigen faces as base.
+     *
+     * @param manipulatedImage The image which will be projected in the eigen face space.
+     * @param eigenFaceEntities A list containing the eigen faces to be used.
+     * @param counted The number of eigen faces which to consider. Only the first {@code counted}
+     *        eigen faces according to their corresponding eigen values will be considered.
+     * @return double array representing the projected image pixels.
+     */
+    public static double[] getProjectedImage(ManipulatedImage manipulatedImage,
+            List<EigenFaceEntity> eigenFaceEntities, int counted) {
+        File manipulatedImageFile = new File(manipulatedImage.getManipulatedImagePath());
+        int[][] grayscales = GrayscaleConverter.getImageGrayscale(ImageReader
+                .getImagePixels(manipulatedImageFile));
+        // sorting the eigen faces in descending order of the eigen values
+        Collections.sort(eigenFaceEntities, Collections.reverseOrder());
+        PcaTransformer pcaTransformer = new PcaTransformer(grayscales.length, grayscales[0].length,
+                eigenFaceEntities);
+        return pcaTransformer.getProjectedImage(grayscales, counted);
     }
 
     /** Does an actual transformation from image to coeficients. */
@@ -114,6 +128,25 @@ public class PcaTransformer {
 
     public List<EigenFace> getEigenFaces() {
         return eigenFaces;
+    }
+
+    public double[] getAverageFace() {
+        return average;
+    }
+
+    /** Calculates the projection of the given image in restricted PCA space. */
+    protected double[] getProjectedImage(int [][] imageGrayscale, int counted) {
+        double [] projection = new double[eigenFaces.get(0).eigenFacePixels.length];
+        double [] coeficients = getPcaCoeficients(imageGrayscale);
+        for (int i = 0; i < counted; i++) {
+            for (int j = 0; j < projection.length; j++) {
+                projection[j] += coeficients[i] * eigenFaces.get(i).eigenFacePixels[j];
+            }
+        }
+        for (int i = 0; i < projection.length; i++) {
+            projection[i] += average[i];
+        }
+        return projection;
     }
 
     /** This method constructs the list of eigen faces out of the training set. */

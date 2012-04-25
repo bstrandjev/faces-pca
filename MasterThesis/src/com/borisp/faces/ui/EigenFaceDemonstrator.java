@@ -22,7 +22,7 @@ import com.borisp.faces.util.ImageConstructor;
  *
  * @author Boris
  */
-public class EigenFaceDemonstrator  extends JFrame {
+public class EigenFaceDemonstrator extends JFrame {
     private static final long serialVersionUID = 1L;
 
     private EigenFaceEntity[] eigenFaces;

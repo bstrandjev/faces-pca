@@ -10,9 +10,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import com.borisp.faces.util.EigenFaceBinaryConverter;
+import com.borisp.faces.util.PersistenceHelper;
 
 @Entity
 @Table(name = "transformations")
@@ -22,6 +26,10 @@ public class Transformation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "transformations_pk")
     private Integer transformationId;
+
+    @Lob
+    @Column(name = "average_face")
+    private byte[] averageFace;
 
     //bi-directional many-to-one association to Manipulation bean
     @ManyToOne(fetch = FetchType.LAZY)
@@ -55,5 +63,21 @@ public class Transformation {
 
     public void setEigenFaces(List<EigenFaceEntity> eigenFaces) {
         this.eigenFaces = eigenFaces;
+    }
+
+    protected String getAverageFace() {
+        return PersistenceHelper.getContentFromByte(averageFace);
+    }
+
+    protected void setAverageFace(String binaryValue) {
+        this.averageFace = PersistenceHelper.getContentfromString(binaryValue);
+    }
+
+    public double[] getAverageFacePixels() {
+        return EigenFaceBinaryConverter.constructFaceFromBytes(this.averageFace);
+    }
+
+    public void setAverageFacePixels(double [] facePixels) {
+        this.averageFace = EigenFaceBinaryConverter.getFaceBytes(facePixels);
     }
 }

@@ -108,10 +108,10 @@ public class EigenFaceEntity implements Comparable<EigenFaceEntity> {
     }
 
     public double[] getFacePixels() {
-        return EigenFaceBinaryConverter.constructEigenface(this.eigenFace);
+        return EigenFaceBinaryConverter.constructFaceFromBytes(this.eigenFace);
     }
 
     public void setFacePixels(double [] facePixels) {
-        this.eigenFace = EigenFaceBinaryConverter.getEigenFaceBytes(facePixels);
+        this.eigenFace = EigenFaceBinaryConverter.getFaceBytes(facePixels);
     }
 }
