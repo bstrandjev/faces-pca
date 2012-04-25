@@ -21,7 +21,7 @@ import com.borisp.faces.util.PersistenceHelper;
 @Entity
 @Table(name = "eigen_faces")
 /** A bean representing a single eigen face. */
-public class EigenFaceEntity {
+public class EigenFaceEntity implements Comparable<EigenFaceEntity> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "eigen_faces_pk")
@@ -43,6 +43,29 @@ public class EigenFaceEntity {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "eigenFace",
                cascade = { CascadeType.DETACH, CascadeType.REMOVE }, orphanRemoval = true)
     private List<PcaCoeficient> pcaCoeficients;
+
+    /**
+     * A method that changes the eigen face pixels so that they fit in the range [0, 255].
+     * It does some tweaking of pixel values, so it should be used only for preparing for printing.
+     */
+    public double[] normalizeForPrinting() {
+        double[] toRet = getFacePixels().clone();
+        double maxm = 0.0;
+        double minm = Double.MIN_VALUE;
+        for (int i = 0; i < toRet.length; i++) {
+            maxm = Math.max(maxm, toRet[i]);
+            minm = Math.min(minm, toRet[i]);
+        }
+        for (int i = 0; i < toRet.length; i++) {
+            toRet[i] = ((toRet[i] - minm)* 255.0) / (maxm - minm);
+        }
+        return toRet;
+    }
+
+    @Override
+    public int compareTo(EigenFaceEntity o) {
+        return Double.compare(eigenValue, o.eigenValue);
+    }
 
     public Integer getEigenFaceId() {
         return eigenFaceId;

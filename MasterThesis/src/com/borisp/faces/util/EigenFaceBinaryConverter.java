@@ -1,5 +1,7 @@
 package com.borisp.faces.util;
 
+import java.nio.ByteBuffer;
+
 
 /**
  * Class defining methods to convert images to / from binary array.
@@ -9,26 +11,20 @@ package com.borisp.faces.util;
 public class EigenFaceBinaryConverter {
 
     public static byte [] getEigenFaceBytes(double [] facePixels) {
-        int n = facePixels.length;
-        byte [] bytes = new byte[n * 8];
-        for (int i = 0; i < n; i++) {
-            long l = Double.doubleToLongBits(facePixels[i]);
-            for (int j = 0; j < 8; j++) {
-                bytes[i * 8 + j] = (byte)((l >> j) & 0xFF);
-            }
+        ByteBuffer byteBuffer = ByteBuffer.allocate(facePixels.length * 8);
+        for (int i = 0; i < facePixels.length; i++) {
+            byteBuffer.putDouble(facePixels[i]);
         }
+        byte [] bytes = byteBuffer.array();
+        double[] constructEigenface = constructEigenface(bytes);
         return bytes;
     }
 
     public static double[] constructEigenface(byte [] bytes){
+        ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
         double [] toReturn = new double[bytes.length / 8];
-        int n = toReturn.length;
-        for (int i = 0; i < n; i++) {
-            long l = 0;
-            for (int j = 0; j < 8; j++) {
-                l |= (long)bytes[i * 8 + j] << j;
-            }
-            toReturn[i] = Double.longBitsToDouble(l);
+        for (int i = 0; i < toReturn.length; i++) {
+            toReturn[i] = byteBuffer.getDouble();
         }
         return toReturn;
     }

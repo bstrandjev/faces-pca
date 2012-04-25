@@ -23,6 +23,7 @@ import com.borisp.faces.initial_manipulation.ImageScaler;
 import com.borisp.faces.ui.ManipulationEvaluatorUI;
 import com.borisp.faces.util.ColorPixel;
 import com.borisp.faces.util.GrayscaleConverter;
+import com.borisp.faces.util.ImageConstructor;
 import com.borisp.faces.util.ImageReader;
 import com.borisp.faces.util.ImageWriter;
 
@@ -144,7 +145,7 @@ public class ManipulationCreator {
         }
         ColorPixel[][] croppedImage = cropper.cropImage(grayscalePixels, faceRegion);
         manipulatedImage =
-                ImageScaler.rescaleImage(ImageWriter.loadColorPixelsToImage(croppedImage));
+                ImageScaler.rescaleImage(ImageConstructor.createImage(croppedImage));
         return manipulatedImage;
     }
 

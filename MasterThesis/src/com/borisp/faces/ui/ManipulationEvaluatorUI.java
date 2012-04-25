@@ -14,7 +14,6 @@ import com.borisp.faces.database.ManipulationCreator.ManipulationIterator;
 public class ManipulationEvaluatorUI extends JFrame {
     private static final long serialVersionUID = 1L;
 
-
     private ManipulationIterator manipulationIterator;
 
     private class ManipulationEvaluatorPanel extends JPanel {
@@ -81,6 +80,7 @@ public class ManipulationEvaluatorUI extends JFrame {
         JPanel panel = new ManipulationEvaluatorPanel();
         getContentPane().add(panel);
         setSize(180, 230);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
     }
 

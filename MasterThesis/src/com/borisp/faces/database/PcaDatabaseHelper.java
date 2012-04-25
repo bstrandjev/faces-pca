@@ -17,6 +17,7 @@ import com.borisp.faces.beans.Transformation;
 import com.borisp.faces.initial_manipulation.ImageScaler;
 import com.borisp.faces.pca.PcaTransformer;
 import com.borisp.faces.pca.PcaTransformer.EigenFace;
+import com.borisp.faces.ui.EigenFaceDemonstrator;
 import com.borisp.faces.util.ColorPixel;
 import com.borisp.faces.util.GrayscaleConverter;
 import com.borisp.faces.util.ImageReader;
@@ -57,7 +58,7 @@ public class PcaDatabaseHelper {
             eigenFaceEntities[i].setTransformation(transformation);
 
             session.save(eigenFaceEntities[i]);
-            printEigenFace(eigenFaces.get(i), i);
+            printEigenFace(eigenFaceEntities[i], i);
         }
 
         List<ManipulatedImage> manipulatedImages = manipulation.getManipulatedImages();
@@ -76,6 +77,14 @@ public class PcaDatabaseHelper {
             }
         }
         session.getTransaction().commit();
+    }
+
+    public void demonstrateTransformation(int transformationId, SessionFactory sessionFactory) {
+        Session session = sessionFactory.getCurrentSession();
+        session.beginTransaction();
+
+        Transformation transformation = getTransformationById(transformationId, session);
+        new EigenFaceDemonstrator(transformation);
     }
 
     /** Constructs an array containing all the images associated with the last successful manipulation. */
@@ -99,15 +108,22 @@ public class PcaDatabaseHelper {
         return imageFiles;
     }
 
+    /** Retrieves the transformation from the database having the given id */
+    private Transformation getTransformationById(int transformationId, Session session) {
+        Query query =
+                session.createQuery("from Transformation t where t.transformationId = :id");
+        query.setInteger("id", transformationId);
+        return (Transformation) query.uniqueResult();
+    }
     /**
      * A method that stores the given eigen face in the database.
      *
      * The faces are also recorded in the file system but the images are just approximations,
      * because some of the pixel values can not be displayed properly in an image.
      */
-    private void printEigenFace(EigenFace eigenFace, int idx) {
+    private void printEigenFace(EigenFaceEntity eigenFaceEntity, int idx) {
         ImageWriter.createImage(constructFaceFilePath(idx),
-                normalizeForPrinting(eigenFace.eigenFacePixels), ImageScaler.TARGET_HEIGHT,
+                eigenFaceEntity.normalizeForPrinting(), ImageScaler.TARGET_HEIGHT,
                 ImageScaler.TARGET_WIDTH, false);
     }
 
@@ -115,23 +131,4 @@ public class PcaDatabaseHelper {
     private String constructFaceFilePath(int idx) {
         return String.format(EGIEN_FACE_FILE_PATTERN, manipulation.getManipulationIndex(), idx);
     }
-
-    /**
-     * A method that changes the eigen face pixels so that they fit in the range [0, 255].
-     * It does some tweaking of pixel values, so it should be used only for preparing for printing.
-     */
-    private double[] normalizeForPrinting(double[] eigenFace) {
-        double[] toRet = eigenFace.clone();
-        double maxm = 0.0;
-        double minm = Double.MIN_VALUE;
-        for (int i = 0; i < toRet.length; i++) {
-            maxm = Math.max(maxm, toRet[i]);
-            minm = Math.min(minm, toRet[i]);
-        }
-        for (int i = 0; i < toRet.length; i++) {
-            toRet[i] = ((toRet[i] - minm)* 255.0) / (maxm - minm);
-        }
-        return toRet;
-    }
-
 }
