@@ -74,10 +74,10 @@ public class DatabaseMain {
 
     private static void recordClassification(SessionFactory sessionFactory) {
         ClassificationDatabaseHelper classificationHelper = new ClassificationDatabaseHelper();
-        classificationHelper.recordClassification("szymon", 1, sessionFactory);
+        classificationHelper.recordClassification("borisp", 1, sessionFactory);
     }
 
     private static void generateWekaInput(SessionFactory sessionFactory) throws IOException {
-        WekaContentCreator.generateWekaInput("szymon", 1, 7, sessionFactory);
+        WekaContentCreator.generateWekaInput("borisp", 1, 7, sessionFactory);
     }
 }
