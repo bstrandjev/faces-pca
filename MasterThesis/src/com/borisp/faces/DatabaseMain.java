@@ -17,6 +17,7 @@ import com.borisp.faces.database.ClassificationDatabaseHelper;
 import com.borisp.faces.database.InitialRecorder;
 import com.borisp.faces.database.ManipulationCreator;
 import com.borisp.faces.database.PcaDatabaseHelper;
+import com.borisp.faces.neural.NeuralNetworkExperimenter;
 import com.borisp.faces.weka.WekaContentCreator;
 
 public class DatabaseMain {
@@ -25,8 +26,9 @@ public class DatabaseMain {
 //        doPcaTransform(sessionFactory);
 //        demonstrateTransformation(sessionFactory);
 //        demonstrateProjection(sessionFactory);
-        recordClassification(sessionFactory);
-        generateWekaInput(sessionFactory);
+//        recordClassification(sessionFactory);
+//        generateWekaInput(sessionFactory);
+        neuralExperiment(sessionFactory);
     }
 
     @SuppressWarnings("deprecation")
@@ -78,6 +80,10 @@ public class DatabaseMain {
     }
 
     private static void generateWekaInput(SessionFactory sessionFactory) throws IOException {
-        WekaContentCreator.generateWekaInput("borisp", 1, 7, sessionFactory);
+        WekaContentCreator.generateWekaInput("borisp", 7, sessionFactory);
+    }
+
+    private static void neuralExperiment(SessionFactory sessionFactory) throws IOException {
+        NeuralNetworkExperimenter.evaluateNetwork("szymon", 7, sessionFactory);
     }
 }

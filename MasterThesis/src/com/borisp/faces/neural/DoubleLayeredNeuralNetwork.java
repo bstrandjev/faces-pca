@@ -1,7 +1,5 @@
 package com.borisp.faces.neural;
 
-import java.util.List;
-
 import com.borisp.faces.neural.perceptrons.IdentityPerceptron;
 import com.borisp.faces.neural.perceptrons.Perceptron;
 import com.borisp.faces.neural.perceptrons.SigmaPerceptron;
@@ -20,6 +18,9 @@ public class DoubleLayeredNeuralNetwork implements NeuralNetwork {
     private double eta;
     private double inertia;
 
+    private double[] maximumMeasures;
+    private double[] minimumMeasures;
+
     /**
      * (re-)initializes the neural network with the given number of perceptrons.
      * <p>
@@ -31,23 +32,40 @@ public class DoubleLayeredNeuralNetwork implements NeuralNetwork {
      * @param inertia The inertia to use during the learning algorithm
      */
     public DoubleLayeredNeuralNetwork(int inputPerceptronNumber, int middlePerceptronNumber,
-            double eta, double inertia) {
+            int outputPerceptronNumber, double eta, double inertia) {
         this.eta = eta;
         this.inertia = inertia;
 
-        allocatePerceptrons(inputPerceptronNumber, middlePerceptronNumber, 2);
-
+        allocatePerceptrons(inputPerceptronNumber, middlePerceptronNumber, outputPerceptronNumber);
     }
 
     @Override
-    public void learnExamples(List<Example> examples) {
+    public void learnExamples(Example[] examples) {
+        initializeNormalizationFactors(examples);
         for (Example example : examples) {
             learnExample(example);
         }
     }
 
+    private void initializeNormalizationFactors(Example[] examples) {
+        this.minimumMeasures = new double[inputPerceptrons.length];
+        this.maximumMeasures = new double[inputPerceptrons.length];
+
+        for (int i = 0; i < maximumMeasures.length; i++) {
+            minimumMeasures[i] = Double.POSITIVE_INFINITY;
+            maximumMeasures[i] = Double.NEGATIVE_INFINITY;
+        }
+
+        for (Example example : examples) {
+            for (int i = 0; i < minimumMeasures.length; i++) {
+                minimumMeasures[i] = Math.min(minimumMeasures[i], example.measures[i]);
+                maximumMeasures[i] = Math.max(maximumMeasures[i], example.measures[i]);
+            }
+        }
+    }
+
     @Override
-    public boolean classifyExample(Example example) {
+    public int classifyExample(Example example) {
         setOutputs(example.measures);
 
         double maxm = Double.NEGATIVE_INFINITY;
@@ -58,7 +76,7 @@ public class DoubleLayeredNeuralNetwork implements NeuralNetwork {
                 maxIdx = i;
             }
         }
-        return maxIdx == 0;
+        return maxIdx;
     }
 
     /** Allocates all the arrays that will be used in the process of learning. */
@@ -85,12 +103,11 @@ public class DoubleLayeredNeuralNetwork implements NeuralNetwork {
     private void learnExample(Example example) {
         setOutputs(example.measures);
 
-        double[] outputVector = { 0.1, 0.1 };
-        if (example.classification) {
-            outputVector[0] = 0.9;
-        } else {
-            outputVector[1] = 0.9;
+        double[] outputVector = new double[outputPerceptrons.length];
+        for (int i = 0; i < outputVector.length; i++) {
+            outputVector[i] = 0.1;
         }
+        outputVector[example.classification] = 0.9;
 
         setErrors(outputVector);
         modifyWeights();
@@ -107,7 +124,7 @@ public class DoubleLayeredNeuralNetwork implements NeuralNetwork {
         double[] inputsOut = new double[inputPerceptrons.length];
         double[] tempV = new double[1];
         for (int i = 0; i < inputPerceptrons.length; i++) {
-            tempV[0] = input[i];
+            tempV[0] = (input[i] - minimumMeasures[i]) / (maximumMeasures[i] - minimumMeasures[i]);
             inputPerceptrons[i].setOutput(tempV);
             inputsOut[i] = inputPerceptrons[i].output;
         }

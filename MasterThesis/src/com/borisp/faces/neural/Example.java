@@ -7,5 +7,5 @@ package com.borisp.faces.neural;
  */
 public class Example {
     public double [] measures;
-    public boolean classification;
+    public int classification;
 }

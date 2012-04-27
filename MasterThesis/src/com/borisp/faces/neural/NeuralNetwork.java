@@ -1,6 +1,5 @@
 package com.borisp.faces.neural;
 
-import java.util.List;
 
 /**
  * A interface for neural network. Currently the supported neural network is with binary output.
@@ -13,7 +12,7 @@ public interface NeuralNetwork {
      *
      * @param examples the examples to insert in the network.
      */
-    public void learnExamples(List<Example> examples);
+    public void learnExamples(Example[] examples);
 
     /**
      * Returns the estimated classification of the given example (also in its corresponding field).
@@ -22,5 +21,5 @@ public interface NeuralNetwork {
      *        after the method return will be loaded with the estimated classification.
      * @return The classification of the given example.
      */
-    public boolean classifyExample(Example example);
+    public int classifyExample(Example example);
 }
