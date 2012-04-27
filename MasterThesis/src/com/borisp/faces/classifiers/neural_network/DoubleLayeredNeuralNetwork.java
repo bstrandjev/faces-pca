@@ -63,6 +63,7 @@ public class DoubleLayeredNeuralNetwork implements ClassifierInterface {
             array[i] = list.get(i);
         }
     }
+
     private void initializeNormalizationFactors(Example[] examples) {
         this.minimumMeasures = new double[inputPerceptrons.length];
         this.maximumMeasures = new double[inputPerceptrons.length];

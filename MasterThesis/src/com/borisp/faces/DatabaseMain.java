@@ -84,6 +84,6 @@ public class DatabaseMain {
     }
 
     private static void neuralExperiment(SessionFactory sessionFactory) throws IOException {
-        ClassifierExperimenter.evaluateNetwork("selen", 7, sessionFactory);
+        ClassifierExperimenter.evaluateNetwork("borisp", 7, sessionFactory);
     }
 }

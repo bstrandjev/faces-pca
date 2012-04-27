@@ -14,7 +14,7 @@ import com.borisp.faces.classifiers.neural_network.DoubleLayeredNeuralNetwork;
  * @author Boris
  */
 public class ClassifierExperimenter {
-    private static final int NUMBER_OF_EXPERIMENTS = 6;
+    private static final int NUMBER_OF_EXPERIMENTS = 20;
     private static final int COUNTED_EIGEN_FACES = 6;
     private static final int OUTPUT_CLASSES = 2;
 

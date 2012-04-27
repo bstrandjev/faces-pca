@@ -3,12 +3,12 @@ package com.borisp.faces.database;
 import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
 
+import com.borisp.faces.android_ui.Face;
+import com.borisp.faces.android_ui.JsonParser;
 import com.borisp.faces.beans.Classification;
 import com.borisp.faces.beans.ManipulatedImage;
 import com.borisp.faces.beans.Manipulation;
 import com.borisp.faces.beans.User;
-import com.borisp.faces.classification.Face;
-import com.borisp.faces.classification.JsonParser;
 import com.borisp.faces.util.IOHelper;
 
 public class ClassificationDatabaseHelper {
