@@ -13,11 +13,11 @@ import com.borisp.faces.beans.Manipulation;
 import com.borisp.faces.beans.PcaCoeficient;
 import com.borisp.faces.beans.Transformation;
 import com.borisp.faces.beans.User;
+import com.borisp.faces.classifiers.ClassifierExperimenter;
 import com.borisp.faces.database.ClassificationDatabaseHelper;
 import com.borisp.faces.database.InitialRecorder;
 import com.borisp.faces.database.ManipulationCreator;
 import com.borisp.faces.database.PcaDatabaseHelper;
-import com.borisp.faces.neural.NeuralNetworkExperimenter;
 import com.borisp.faces.weka.WekaContentCreator;
 
 public class DatabaseMain {
@@ -84,6 +84,6 @@ public class DatabaseMain {
     }
 
     private static void neuralExperiment(SessionFactory sessionFactory) throws IOException {
-        NeuralNetworkExperimenter.evaluateNetwork("szymon", 7, sessionFactory);
+        ClassifierExperimenter.evaluateNetwork("selen", 7, sessionFactory);
     }
 }
