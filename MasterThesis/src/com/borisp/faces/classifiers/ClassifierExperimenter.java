@@ -15,7 +15,7 @@ import com.borisp.faces.classifiers.neural_network.DoubleLayeredNeuralNetwork;
  */
 public class ClassifierExperimenter {
     private static final int NUMBER_OF_EXPERIMENTS = 20;
-    private static final int COUNTED_EIGEN_FACES = 6;
+    private static final int COUNTED_EIGEN_FACES = 20;
     private static final int OUTPUT_CLASSES = 2;
 
     private enum Classifiers {
@@ -29,7 +29,7 @@ public class ClassifierExperimenter {
     private static final double INERTIA = 0.05;
 
     /** Conducts experiment using the neural network. */
-    public static void evaluateNetwork(String username, int transformationId,
+    public static void evaluateClassifier(String username, int transformationId,
             SessionFactory sessionFactory) {
         List<Example> examples = ClassifierInputPreparator.generateClassifierInput(username,
                 transformationId, COUNTED_EIGEN_FACES, sessionFactory);
