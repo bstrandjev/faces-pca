@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.hibernate.SessionFactory;
 
+import com.borisp.faces.classifiers.identity.IdentityClassifier;
 import com.borisp.faces.classifiers.nearest_n.NearestNeighbours;
 import com.borisp.faces.classifiers.neural_network.DoubleLayeredNeuralNetwork;
 
@@ -15,15 +16,15 @@ import com.borisp.faces.classifiers.neural_network.DoubleLayeredNeuralNetwork;
  */
 public class ClassifierExperimenter {
     private static final int NUMBER_OF_EXPERIMENTS = 20;
-    private static final int COUNTED_EIGEN_FACES = 20;
+    private static final int COUNTED_EIGEN_FACES = 9;
     private static final int OUTPUT_CLASSES = 2;
 
     private enum Classifiers {
-        NEURAL_NETWORK, NEAREST_NEIGHBOURS;
+        NEURAL_NETWORK, NEAREST_NEIGHBOURS, IDENTITY;
     }
 
     // Neural network constants
-    private static final int MIDDLE_LAYER_PERCEPTRONS = 3;
+    private static final int MIDDLE_LAYER_PERCEPTRONS = 4;
     private static final int VERIFICATION_EXAMPLE_COUNT = 20;
     private static final double ETA = 0.2;
     private static final double INERTIA = 0.05;
@@ -46,28 +47,48 @@ public class ClassifierExperimenter {
                     verificationSet[i - trainingSet.length] = examples.get(i);
                 }
             }
-            totalPrecision += conductExperiment(trainingSet, verificationSet,
-                    Classifiers.NEAREST_NEIGHBOURS);
+            totalPrecision += conductExperiment(trainingSet, verificationSet, Classifiers.IDENTITY,
+                    Classifiers.NEAREST_NEIGHBOURS, Classifiers.NEURAL_NETWORK);
         }
         System.out.println("The total precision is: " + totalPrecision / NUMBER_OF_EXPERIMENTS);
     }
 
     /**
      * Conducts a single experiment and returns the precision of its classification.
+     * <p>
+     * Experiment with every given classifier type is conducted and a selection based on the
+     * majoritarity vote is done.
      *
      * @param trainingSet The training set to use.
      * @param verificationSet The verification set to use.
-     * @param classifier The classifier type which to experiment with.
+     * @param classifiers The classifier types which to experiment with.
      * @return The precision found during the experiment.
      */
     private static double conductExperiment(Example[] trainingSet, Example[] verificationSet,
-            Classifiers classifierType) {
-        ClassifierInterface classifier = getClassifierInstance(classifierType);
-        classifier.learnExamples(trainingSet);
+            Classifiers... classifierTypes) {
+        ClassifierInterface [] classifiers = new ClassifierInterface[classifierTypes.length];
+        int idx = 0;
+        for (Classifiers classifierType : classifierTypes) {
+            classifiers[idx] = getClassifierInstance(classifierType);
+            classifiers[idx].learnExamples(trainingSet);
+            idx++;
+        }
         int [][] classifiedCnt = new int [OUTPUT_CLASSES][OUTPUT_CLASSES];
         for (Example example : verificationSet) {
             int tmpClassification = example.classification;
-            classifiedCnt[tmpClassification][classifier.classifyExample(example)]++;
+            int [] cnts = new int[OUTPUT_CLASSES];
+            for (ClassifierInterface classifier: classifiers) {
+                cnts[classifier.classifyExample(example)]++;
+            }
+            int maxCnt = -1;
+            int maxIdx = -1;
+            for (int i = 0; i < OUTPUT_CLASSES; i++) {
+                if (cnts[i] > maxCnt) {
+                    maxCnt = cnts[i];
+                    maxIdx = i;
+                }
+            }
+            classifiedCnt[tmpClassification][maxIdx]++;
         }
         int good = 0;
         int all = 0;
@@ -93,6 +114,8 @@ public class ClassifierExperimenter {
                     OUTPUT_CLASSES, ETA, INERTIA);
         case NEAREST_NEIGHBOURS:
             return new NearestNeighbours(COUNTED_EIGEN_FACES);
+        case IDENTITY:
+            return new IdentityClassifier();
         }
         return null;
     }
