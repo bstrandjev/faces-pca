@@ -17,8 +17,6 @@ import com.borisp.faces.beans.Transformation;
 import com.borisp.faces.initial_manipulation.ImageScaler;
 import com.borisp.faces.pca.PcaTransformer;
 import com.borisp.faces.pca.PcaTransformer.EigenFace;
-import com.borisp.faces.ui.EigenFaceDemonstrator;
-import com.borisp.faces.ui.RestoreImageVisualizer;
 import com.borisp.faces.util.ColorPixel;
 import com.borisp.faces.util.GrayscaleConverter;
 import com.borisp.faces.util.ImageReader;
@@ -89,23 +87,6 @@ public class PcaDatabaseHelper {
             }
         }
         session.getTransaction().commit();
-    }
-
-    /** A method that can be used to visualize the eigen faces of specified transformation. */
-    public void demonstrateTransformation(int transformationId, SessionFactory sessionFactory) {
-        Transformation transformation =
-                DatabaseHelper.getTransformationById(transformationId, sessionFactory);
-        new EigenFaceDemonstrator(transformation);
-    }
-
-    /**
-     * A method that can be used to evaluate the precision of projection in the eigen face space of
-     * given transformation.
-     */
-    public void demonstrateProjection(int transformationId, SessionFactory sessionFactory) {
-        Transformation transformation =
-                DatabaseHelper.getTransformationById(transformationId, sessionFactory);
-        new RestoreImageVisualizer(transformation);
     }
 
     /** Constructs an array containing all the images associated with the last successful manipulation. */

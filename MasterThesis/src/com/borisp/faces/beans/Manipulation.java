@@ -1,6 +1,8 @@
 package com.borisp.faces.beans;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -17,6 +19,10 @@ import javax.persistence.Table;
 @Table(name = "manipulations")
 /** A bean for representing manipulation: a operation that crops and resizes the images. */
 public class Manipulation {
+    private static final String DATE_FORMAT_STRING = "yyyy-MM-dd HH:mm";
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(DATE_FORMAT_STRING);
+    private static final String MANIPULATION_LABEL_FORMAT = "%02d %s";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "manipulations_pk")
@@ -32,6 +38,12 @@ public class Manipulation {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "manipulation",
                cascade = { CascadeType.DETACH, CascadeType.REMOVE }, orphanRemoval = true)
     private List<ManipulatedImage> manipulatedImages;
+
+    @Override
+    public String toString() {
+        String dateCreated = DATE_FORMAT.format(new Date(getCreated().getTime()));
+        return String.format(MANIPULATION_LABEL_FORMAT, getManipulationIndex(), dateCreated);
+    }
 
     public Integer getManipualtionId() {
         return manipualtionId;

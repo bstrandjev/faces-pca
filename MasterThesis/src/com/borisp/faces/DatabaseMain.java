@@ -18,17 +18,19 @@ import com.borisp.faces.database.ClassificationDatabaseHelper;
 import com.borisp.faces.database.InitialRecorder;
 import com.borisp.faces.database.ManipulationCreator;
 import com.borisp.faces.database.PcaDatabaseHelper;
+import com.borisp.faces.ui.BasicFrame;
 import com.borisp.faces.weka.WekaContentCreator;
 
 public class DatabaseMain {
     public static void main(String[] args) throws IOException {
-        SessionFactory sessionFactory = initializeSessionFactory();
+        new BasicFrame();
+//        SessionFactory sessionFactory = initializeSessionFactory();
 //        doPcaTransform(sessionFactory);
 //        demonstrateTransformation(sessionFactory);
 //        demonstrateProjection(sessionFactory);
 //        recordClassification(sessionFactory);
 //        generateWekaInput(sessionFactory);
-        neuralExperiment(sessionFactory);
+//        neuralExperiment(sessionFactory);
     }
 
     @SuppressWarnings("deprecation")
@@ -62,16 +64,6 @@ public class DatabaseMain {
     private static void doPcaTransform(SessionFactory sessionFactory) {
         PcaDatabaseHelper pcaDatabaseHelper = new PcaDatabaseHelper();
         pcaDatabaseHelper.conductPcaTransform(sessionFactory);
-    }
-
-    private static void demonstrateTransformation(SessionFactory sessionFactory) {
-        PcaDatabaseHelper pcaDatabaseHelper = new PcaDatabaseHelper();
-        pcaDatabaseHelper.demonstrateTransformation(7, sessionFactory);
-    }
-
-    private static void demonstrateProjection(SessionFactory sessionFactory) {
-        PcaDatabaseHelper pcaDatabaseHelper = new PcaDatabaseHelper();
-        pcaDatabaseHelper.demonstrateProjection(7, sessionFactory);
     }
 
     private static void recordClassification(SessionFactory sessionFactory) {

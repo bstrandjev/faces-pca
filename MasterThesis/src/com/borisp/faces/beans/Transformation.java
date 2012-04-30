@@ -41,6 +41,11 @@ public class Transformation {
                cascade = { CascadeType.DETACH, CascadeType.REMOVE }, orphanRemoval = true)
     private List<EigenFaceEntity> eigenFaces;
 
+    @Override
+    public String toString() {
+        return getManipulation() + " " + getTransformationId();
+    }
+
     public Integer getTransformationId() {
         return transformationId;
     }
