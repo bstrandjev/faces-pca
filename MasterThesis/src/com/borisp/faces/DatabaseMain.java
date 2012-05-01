@@ -1,6 +1,7 @@
 package com.borisp.faces;
 
 import java.io.IOException;
+import java.text.ParseException;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
@@ -21,7 +22,7 @@ import com.borisp.faces.ui.BasicFrame;
 import com.borisp.faces.weka.WekaContentCreator;
 
 public class DatabaseMain {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ParseException {
         new BasicFrame();
 //        SessionFactory sessionFactory = initializeSessionFactory();
 //        doPcaTransform(sessionFactory);
@@ -73,8 +74,4 @@ public class DatabaseMain {
     private static void generateWekaInput(SessionFactory sessionFactory) throws IOException {
         WekaContentCreator.generateWekaInput("borisp", 7, sessionFactory);
     }
-
-//    private static void neuralExperiment(SessionFactory sessionFactory) throws IOException {
-//        ClassifierExperimenter.evaluateClassifier("szymon", 7, sessionFactory);
-//    }
 }

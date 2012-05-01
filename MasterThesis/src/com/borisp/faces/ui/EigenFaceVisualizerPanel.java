@@ -26,7 +26,7 @@ public class EigenFaceVisualizerPanel extends JPanel {
     private static final String TITLE_FORMAT = "Eigen face number %03d";
     private static final String NEXT_LABEL = "next";
     private static final String PREV_LABEL = "previous";
-    private static final int IMAGE_BEG_X = 70;
+    private static final int IMAGE_BEG_X = 25;
     private static final int IMAGE_BEG_Y = 48;
 
     private JButton nextButton;
@@ -68,14 +68,12 @@ public class EigenFaceVisualizerPanel extends JPanel {
                         imageHeight, imageWidth);
 
         g.drawImage(image, IMAGE_BEG_X, IMAGE_BEG_Y, imageWidth, imageHeight, null);
-        g.drawLine(IMAGE_BEG_X - 1, IMAGE_BEG_Y - 1, IMAGE_BEG_X + imageWidth + 1,
-                IMAGE_BEG_Y - 1);
-        g.drawLine(IMAGE_BEG_X - 1, IMAGE_BEG_Y - 1, IMAGE_BEG_X - 1, IMAGE_BEG_Y + imageHeight
-                + 1);
-        g.drawLine(IMAGE_BEG_X + imageWidth + 1, IMAGE_BEG_Y - 1, IMAGE_BEG_X + imageWidth + 1,
-                IMAGE_BEG_Y + imageHeight + 1);
-        g.drawLine(IMAGE_BEG_X - 1, IMAGE_BEG_Y + imageHeight + 1,
-                IMAGE_BEG_X + imageWidth + 1, IMAGE_BEG_Y + imageHeight + 1);
+        g.drawLine(IMAGE_BEG_X - 1, IMAGE_BEG_Y - 1, IMAGE_BEG_X + imageWidth, IMAGE_BEG_Y - 1);
+        g.drawLine(IMAGE_BEG_X - 1, IMAGE_BEG_Y - 1, IMAGE_BEG_X - 1, IMAGE_BEG_Y + imageHeight + 1);
+        g.drawLine(IMAGE_BEG_X + imageWidth, IMAGE_BEG_Y - 1, IMAGE_BEG_X + imageWidth, IMAGE_BEG_Y
+                + imageHeight);
+        g.drawLine(IMAGE_BEG_X - 1, IMAGE_BEG_Y + imageHeight, IMAGE_BEG_X + imageWidth,
+                IMAGE_BEG_Y + imageHeight);
     }
 
     private ActionListener radioButtonListener = new ActionListener() {

@@ -1,5 +1,6 @@
 package com.borisp.faces.ui;
 
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -41,7 +42,23 @@ public class BasicFrame extends JFrame{
 
     // Frame constants
     private static final int FRAME_WIDTH = 260;
-    private static final int FRAME_HEIGHT = 300;
+    private static final int FRAME_HEIGHT = 500;
+
+    // Face display panel coordinates:
+    private static final int BEG_X = 40;
+    private static final int BEG_Y = 80;
+    private static final int PANEL_WIDTH = 160;
+    private static final int PANEL_HEIGHT = 400;
+
+    private static final int PROJECTION_BEG_X = 30;
+    private static final int PROJECTION_BEG_Y = 80;
+    private static final int PROJECTION_WIDTH = 190;
+    private static final int PROJECTION_HEIGHT = 400;
+
+    private static final int EXPERIMENTS_BEG_X = 0;
+    private static final int EXPERIMENTS_BEG_Y = 20;
+    private static final int EXPERIMENTS_WIDTH = 260;
+    private static final int EXPERIMENTS_HEIGHT = 440;
 
     // Menu constants
     private static final String VISUALIZATION_MENU_LABEL = "Visualize";
@@ -95,6 +112,7 @@ public class BasicFrame extends JFrame{
         setSize(FRAME_WIDTH, FRAME_HEIGHT);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
+        setLayout(null);
         displayManipulation();
     }
 
@@ -126,6 +144,7 @@ public class BasicFrame extends JFrame{
                     BasicFrame.this.remove(currentPanel);
                 }
                 currentPanel = new EigenFaceVisualizerPanel(transformation, BasicFrame.this);
+                currentPanel.setBounds(BEG_X, BEG_Y, PANEL_WIDTH, PANEL_HEIGHT);
                 BasicFrame.this.getContentPane().add(currentPanel);
 
                 BasicFrame.this.validate();
@@ -144,6 +163,8 @@ public class BasicFrame extends JFrame{
                     BasicFrame.this.remove(currentPanel);
                 }
                 currentPanel = new ProjectionVisualizerPanel(transformation, BasicFrame.this);
+                currentPanel.setBounds(PROJECTION_BEG_X, PROJECTION_BEG_Y, PROJECTION_WIDTH,
+                        PROJECTION_HEIGHT);
                 BasicFrame.this.getContentPane().add(currentPanel);
 
                 BasicFrame.this.validate();
@@ -177,7 +198,9 @@ public class BasicFrame extends JFrame{
                 }
                 currentPanel = new ExperimentRunnerPanel(transformation, user, BasicFrame.this,
                         sessionFactory);
-                BasicFrame.this.getContentPane().add(currentPanel);
+                currentPanel.setBounds(EXPERIMENTS_BEG_X, EXPERIMENTS_BEG_Y, EXPERIMENTS_WIDTH,
+                        EXPERIMENTS_HEIGHT);
+                BasicFrame.this.getContentPane().add(currentPanel, BorderLayout.CENTER);
 
                 BasicFrame.this.validate();
                 BasicFrame.this.repaint();
@@ -194,6 +217,7 @@ public class BasicFrame extends JFrame{
             BasicFrame.this.remove(currentPanel);
         }
         currentPanel = new ManipulationVisualizerPanel(manipulation, BasicFrame.this);
+        currentPanel.setBounds(BEG_X, BEG_Y, PANEL_WIDTH, PANEL_HEIGHT);
         BasicFrame.this.getContentPane().add(currentPanel);
 
         BasicFrame.this.validate();

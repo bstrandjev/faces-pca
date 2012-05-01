@@ -33,7 +33,7 @@ public class ProjectionVisualizerPanel extends JPanel {
     private static final String NUMBER_OF_FACES_LABEL = "Num faces";
     private static final String MANIPULATED_IMAGE_IDX_DEFAULT = "    1";
     private static final String MANIPULATED_IMAGE_IDX_LABEL = "Image Idx";
-    private static final int IMAGE_BEG_X = 70;
+    private static final int IMAGE_BEG_X = 40;
     private static final int IMAGE_BEG_Y = 70;
 
     private JButton calculateButton;
@@ -73,14 +73,12 @@ public class ProjectionVisualizerPanel extends JPanel {
         BufferedImage image = ImageConstructor.createImage(projectedImage, imageHeight,
                 imageWidth);
         g.drawImage(image, IMAGE_BEG_X, IMAGE_BEG_Y, imageWidth, imageHeight, null);
-        g.drawLine(IMAGE_BEG_X - 1, IMAGE_BEG_Y - 1, IMAGE_BEG_X + imageWidth + 1,
-                IMAGE_BEG_Y - 1);
-        g.drawLine(IMAGE_BEG_X - 1, IMAGE_BEG_Y - 1, IMAGE_BEG_X - 1, IMAGE_BEG_Y + imageHeight
-                + 1);
-        g.drawLine(IMAGE_BEG_X + imageWidth + 1, IMAGE_BEG_Y - 1, IMAGE_BEG_X + imageWidth + 1,
-                IMAGE_BEG_Y + imageHeight + 1);
-        g.drawLine(IMAGE_BEG_X - 1, IMAGE_BEG_Y + imageHeight + 1,
-                IMAGE_BEG_X + imageWidth + 1, IMAGE_BEG_Y + imageHeight + 1);
+        g.drawLine(IMAGE_BEG_X - 1, IMAGE_BEG_Y - 1, IMAGE_BEG_X + imageWidth, IMAGE_BEG_Y - 1);
+        g.drawLine(IMAGE_BEG_X - 1, IMAGE_BEG_Y - 1, IMAGE_BEG_X - 1, IMAGE_BEG_Y + imageHeight);
+        g.drawLine(IMAGE_BEG_X + imageWidth, IMAGE_BEG_Y - 1, IMAGE_BEG_X + imageWidth, IMAGE_BEG_Y
+                + imageHeight);
+        g.drawLine(IMAGE_BEG_X - 1, IMAGE_BEG_Y + imageHeight, IMAGE_BEG_X + imageWidth,
+                IMAGE_BEG_Y + imageHeight);
     }
 
     private ActionListener recalculateButtonListener = new ActionListener() {

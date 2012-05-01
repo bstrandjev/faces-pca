@@ -15,8 +15,6 @@ import com.borisp.faces.classifiers.neural_network.DoubleLayeredNeuralNetwork;
  * @author Boris
  */
 public abstract class ClassifierExperimenter {
-    private static final int NUMBER_OF_EXPERIMENTS = 20;
-    private static final int COUNTED_EIGEN_FACES = 9;
     private static final int OUTPUT_CLASSES = 2;
 
     public static enum Classifiers {
@@ -24,19 +22,23 @@ public abstract class ClassifierExperimenter {
     }
 
     // Neural network constants
-    private static final int MIDDLE_LAYER_PERCEPTRONS = 4;
     private static final int VERIFICATION_EXAMPLE_COUNT = 20;
     private static final double ETA = 0.2;
     private static final double INERTIA = 0.05;
 
+    private int countedEigenFaces;
+
     /** Conducts experiment using the neural network. */
     public void evaluateClassifier(String username, int transformationId,
-            SessionFactory sessionFactory, Classifiers [] classifiers) {
+            SessionFactory sessionFactory, Classifiers[] classifiers, int numberOfExperiments,
+            int countedEigenFaces) {
+        this.countedEigenFaces = countedEigenFaces;
+
         List<Example> examples = ClassifierInputPreparator.generateClassifierInput(username,
-                transformationId, COUNTED_EIGEN_FACES, sessionFactory);
+                transformationId, countedEigenFaces, sessionFactory);
 
         double totalPrecision = 0;
-        for (int o = 0; o < NUMBER_OF_EXPERIMENTS; o++) {
+        for (int o = 0; o < numberOfExperiments; o++) {
             Collections.shuffle(examples);
             Example [] trainingSet = new Example[examples.size() - VERIFICATION_EXAMPLE_COUNT];
             Example [] verificationSet = new Example[VERIFICATION_EXAMPLE_COUNT];
@@ -49,7 +51,7 @@ public abstract class ClassifierExperimenter {
             }
             totalPrecision += conductExperiment(trainingSet, verificationSet, classifiers);
         }
-        appendToOutput("The total precision is: " + totalPrecision / NUMBER_OF_EXPERIMENTS + "\n");
+        appendToOutput("The total precision is: " + totalPrecision / numberOfExperiments + "\n");
     }
 
     /**
@@ -106,13 +108,23 @@ public abstract class ClassifierExperimenter {
         return precision;
     }
 
-    private static ClassifierInterface getClassifierInstance(Classifiers classifier) {
+    private ClassifierInterface getClassifierInstance(Classifiers classifier) {
         switch (classifier) {
         case NEURAL_NETWORK:
-            return new DoubleLayeredNeuralNetwork(COUNTED_EIGEN_FACES, MIDDLE_LAYER_PERCEPTRONS,
+            int middleLayeredCount = 3;
+            if (countedEigenFaces >= 9) {
+                middleLayeredCount++;
+            }
+            if (countedEigenFaces >= 15) {
+                middleLayeredCount++;
+            }
+            if (countedEigenFaces >= 20) {
+                middleLayeredCount++;
+            }
+            return new DoubleLayeredNeuralNetwork(countedEigenFaces, middleLayeredCount,
                     OUTPUT_CLASSES, ETA, INERTIA);
         case NEAREST_NEIGHBOURS:
-            return new NearestNeighbours(COUNTED_EIGEN_FACES);
+            return new NearestNeighbours(countedEigenFaces);
         case IDENTITY:
             return new IdentityClassifier();
         }

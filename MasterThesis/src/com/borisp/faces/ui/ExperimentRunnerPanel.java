@@ -10,9 +10,11 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 import org.hibernate.SessionFactory;
 
@@ -37,13 +39,20 @@ public class ExperimentRunnerPanel extends JPanel implements ActionListener {
     private static final String PERFECT_CLASSIFIER_LABEL = "Perfect classifier";
     // Text area constants
     private static final int TEXT_AREA_COLUMNS = 20;
-    private static final int TEXT_AREA_ROWS = 9;
+    private static final int TEXT_AREA_ROWS = 16;
+    // Text field lables
+    private static final String NUMBER_OF_FACES_LABEL = "Used faces";
+    private static final String NUMBER_OF_EXPERIMENTS_LABEL = "Experiments";
+    private static final String NUMBER_OF_FACES_DEFAULT = "  20";
+    private static final String NUMBER_OF_EXPERIMENTS_DEFAULT = " 20";
 
     private JFrame parentFrame;
     private JTextArea textArea;
     private JCheckBox nearestNeighbourCheckbox;
     private JCheckBox neuralNetworkCheckbox;
     private JCheckBox perfectClassifierCheckbox;
+    private JTextField numberOfFacesField;
+    private JTextField numberOfExperimentsField;
 
     private String username;
     private int transformationId;
@@ -78,6 +87,9 @@ public class ExperimentRunnerPanel extends JPanel implements ActionListener {
         this.perfectClassifierCheckbox.setMnemonic(KeyEvent.VK_P);
         this.perfectClassifierCheckbox.setSelected(true);
 
+        this.numberOfFacesField = new JTextField(NUMBER_OF_FACES_DEFAULT);
+        this.numberOfExperimentsField = new JTextField(NUMBER_OF_EXPERIMENTS_DEFAULT);
+
         JButton runExperimentsButton = new JButton(RUN_EXPERIMENTS_BUTTON_LABEL);
         runExperimentsButton.addActionListener(this);
 
@@ -88,6 +100,10 @@ public class ExperimentRunnerPanel extends JPanel implements ActionListener {
         this.textArea.setWrapStyleWord(true);
         this.textArea.setEditable(false);
 
+        add(new JLabel(NUMBER_OF_FACES_LABEL));
+        add(numberOfFacesField);
+        add(new JLabel(NUMBER_OF_EXPERIMENTS_LABEL));
+        add(numberOfExperimentsField);
         add(nearestNeighbourCheckbox);
         add(neuralNetworkCheckbox);
         add(perfectClassifierCheckbox);
@@ -132,8 +148,10 @@ public class ExperimentRunnerPanel extends JPanel implements ActionListener {
                 for (int i = 0; i < classifierArray.length; i++) {
                     classifierArray[i] = classifiers.get(i);
                 }
+                int numberOfExperiments = Integer.valueOf(numberOfExperimentsField.getText().trim());
+                int numberOfFaces  = Integer.valueOf(numberOfFacesField.getText().trim());
                 experimenter.evaluateClassifier(username, transformationId, sessionFactory,
-                        classifierArray);
+                        classifierArray, numberOfExperiments, numberOfFaces);
             }
         }).start();
 
