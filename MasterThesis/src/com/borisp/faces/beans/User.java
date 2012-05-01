@@ -29,6 +29,11 @@ public class User {
                cascade = { CascadeType.DETACH, CascadeType.REMOVE }, orphanRemoval = true)
     private List<Classification> classifications;
 
+    @Override
+    public String toString() {
+        return name;
+    }
+
     public Integer getUserId() {
         return userId;
     }

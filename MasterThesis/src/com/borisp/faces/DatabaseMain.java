@@ -13,7 +13,6 @@ import com.borisp.faces.beans.Manipulation;
 import com.borisp.faces.beans.PcaCoeficient;
 import com.borisp.faces.beans.Transformation;
 import com.borisp.faces.beans.User;
-import com.borisp.faces.classifiers.ClassifierExperimenter;
 import com.borisp.faces.database.ClassificationDatabaseHelper;
 import com.borisp.faces.database.InitialRecorder;
 import com.borisp.faces.database.ManipulationCreator;
@@ -75,7 +74,7 @@ public class DatabaseMain {
         WekaContentCreator.generateWekaInput("borisp", 7, sessionFactory);
     }
 
-    private static void neuralExperiment(SessionFactory sessionFactory) throws IOException {
-        ClassifierExperimenter.evaluateClassifier("szymon", 7, sessionFactory);
-    }
+//    private static void neuralExperiment(SessionFactory sessionFactory) throws IOException {
+//        ClassifierExperimenter.evaluateClassifier("szymon", 7, sessionFactory);
+//    }
 }

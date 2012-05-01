@@ -58,7 +58,6 @@ public class NearestNeighbours implements ClassifierInterface {
                 bestK = i;
             }
         }
-        System.out.println("Chosen k:" + bestK);
         this.k = bestK;
     }
 

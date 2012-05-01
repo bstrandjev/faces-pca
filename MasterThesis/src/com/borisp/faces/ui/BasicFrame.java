@@ -51,6 +51,11 @@ public class BasicFrame extends JFrame{
     private static final String SHOW_TRANSFORMATION_LABEL = "Show eigen faces";
     private static final String SHOW_PROJECTIONS_LABEL = "Show projections";
 
+    private static final String EXPERIMENTS_MENU_LABEL = "Experiments";
+    private static final String RUN_EXPERIMENTS_LABEL = "Run experiment";
+    private static final String EXPERIMENTS_MENU_DESCRIPTION =
+            "All operations connected to experiment running";
+
     // Dialog constants
     private static final String SELECT_MANIPULATION_TEXT =
             "Please select the appropriate manipulation";
@@ -58,12 +63,17 @@ public class BasicFrame extends JFrame{
     private static final String SELECT_TRANSFORMATION_TEXT =
             "Please select the appropriate transformation";
     private static final String SELECT_TRANSFORMATION_HEADER = "Select transformation";
+    private static final String SELECT_USER_TEXT =
+            "Please select the user whose classification to use";
+    private static final String SELECT_USER_HEADER = "Select user";
 
     // Sql constants
     /** A string for selecting all the manipulations from the database. */
     private static final String SELECT_ALL_MANIPULATIONS_SQL_QUERY = "from Manipulation m";
     /** A string for selecting all the transformations from the database. */
     private static final String SELECT_ALL_TRANSFORMATIONS_SQL_QUERY = "from Transformation t";
+    /** A string for selecting all the users from the database. */
+    private static final String SELECT_ALL_USERS_SQL_QUERY = "from User u";
 
     /** The single instance of the session factory to use for all database calls. */
     private SessionFactory sessionFactory;
@@ -80,10 +90,12 @@ public class BasicFrame extends JFrame{
         //Build the visualization menu.
 
         menuBar.add(buildVisualizationMenu());
+        menuBar.add(buildExperimentsMenu());
         setJMenuBar(menuBar);
         setSize(FRAME_WIDTH, FRAME_HEIGHT);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
+        displayManipulation();
     }
 
     /** Constructs the menu for the visualizations. */
@@ -99,15 +111,7 @@ public class BasicFrame extends JFrame{
 
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                Manipulation manipulation = chooseManipulation();
-                if (currentPanel != null) {
-                    BasicFrame.this.remove(currentPanel);
-                }
-                currentPanel = new ManipulationVisualizerPanel(manipulation, BasicFrame.this);
-                BasicFrame.this.getContentPane().add(currentPanel);
-
-                BasicFrame.this.validate();
-                BasicFrame.this.repaint();
+                displayManipulation();
             }
         });
 
@@ -153,6 +157,49 @@ public class BasicFrame extends JFrame{
         return visualizationMenu;
     }
 
+    /** Constructs the menu for the experiments. */
+    private JMenu buildExperimentsMenu() {
+        JMenu experimentsMenu = new JMenu(EXPERIMENTS_MENU_LABEL);
+        experimentsMenu.setMnemonic(KeyEvent.VK_E);
+        experimentsMenu.getAccessibleContext().setAccessibleDescription(
+                EXPERIMENTS_MENU_DESCRIPTION);
+
+        JMenuItem runExperimentsItem = new JMenuItem(RUN_EXPERIMENTS_LABEL);
+        runExperimentsItem.setMnemonic(KeyEvent.VK_R);
+        runExperimentsItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                User user = chooseUser();
+                Transformation transformation = chooseTransformation();
+                if (currentPanel != null) {
+                    BasicFrame.this.remove(currentPanel);
+                }
+                currentPanel = new ExperimentRunnerPanel(transformation, user, BasicFrame.this,
+                        sessionFactory);
+                BasicFrame.this.getContentPane().add(currentPanel);
+
+                BasicFrame.this.validate();
+                BasicFrame.this.repaint();
+            }
+        });
+
+        experimentsMenu.add(runExperimentsItem);
+        return experimentsMenu;
+    }
+
+    private void displayManipulation() {
+        Manipulation manipulation = chooseManipulation();
+        if (currentPanel != null) {
+            BasicFrame.this.remove(currentPanel);
+        }
+        currentPanel = new ManipulationVisualizerPanel(manipulation, BasicFrame.this);
+        BasicFrame.this.getContentPane().add(currentPanel);
+
+        BasicFrame.this.validate();
+        BasicFrame.this.repaint();
+    }
+
     @SuppressWarnings("deprecation")
     private SessionFactory initializeSessionFactory() {
         AnnotationConfiguration configuration = new AnnotationConfiguration();
@@ -189,20 +236,38 @@ public class BasicFrame extends JFrame{
         Session session = sessionFactory.getCurrentSession();
         session.beginTransaction();
         Query query = session.createQuery(SELECT_ALL_TRANSFORMATIONS_SQL_QUERY);
-        List<Transformation> manipulations = new ArrayList<Transformation>();
+        List<Transformation> transformations = new ArrayList<Transformation>();
         for (Iterator<?> it = query.iterate(); it.hasNext();) {
-            manipulations.add((Transformation) it.next());
+            transformations.add((Transformation) it.next());
         }
 
-        return (Transformation) objectChooserHelper(manipulations, SELECT_TRANSFORMATION_TEXT,
+        return (Transformation) objectChooserHelper(transformations, SELECT_TRANSFORMATION_TEXT,
                 SELECT_TRANSFORMATION_HEADER);
     }
 
-    private Object objectChooserHelper(List<? extends Object> objects, String text, String header) {
-        Object [] objectArray = objects.toArray();
+    /** Creates a dialog for selecting user. */
+    private User chooseUser() {
+        Session session = sessionFactory.getCurrentSession();
+        session.beginTransaction();
+        Query query = session.createQuery(SELECT_ALL_USERS_SQL_QUERY);
+        List<User> users = new ArrayList<User>();
+        for (Iterator<?> it = query.iterate(); it.hasNext();) {
+            users.add((User) it.next());
+        }
 
-        return JOptionPane.showInputDialog(this, text, header, JOptionPane.PLAIN_MESSAGE, null,
-                objectArray, objectArray[0]);
+        return (User) objectChooserHelper(users, SELECT_USER_TEXT,
+                SELECT_USER_HEADER);
+    }
+
+    private Object objectChooserHelper(List<? extends Object> objects, String text, String header) {
+        if (objects.size() > 1) {
+            Object [] objectArray = objects.toArray();
+
+            return JOptionPane.showInputDialog(this, text, header, JOptionPane.PLAIN_MESSAGE, null,
+                    objectArray, objectArray[0]);
+        } else {
+            return objects.get(0);
+        }
     }
 
 }
