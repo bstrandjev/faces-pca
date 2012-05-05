@@ -7,7 +7,7 @@ import com.borisp.faces.classifiers.Example;
  *
  * @author Boris
  */
-public class EuclidNearestNeighborBase {
+public class NearestNeighborBase {
     protected Example [] examples;
 
     /** Auxiliary class that should allow for finding the nearest points. */
@@ -27,7 +27,7 @@ public class EuclidNearestNeighborBase {
     }
 
     /** Calculates the distance between to examples. */
-    private double distance(Example ex1, Example ex2) {
+    protected double distance(Example ex1, Example ex2) {
         double sum = 0;
         for (int i = 0; i < ex1.measures.length; i++) {
             sum += (ex1.measures[i] - ex2.measures[i]) * (ex1.measures[i] - ex2.measures[i]);

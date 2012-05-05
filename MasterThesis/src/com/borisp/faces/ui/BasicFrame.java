@@ -4,8 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -15,10 +13,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
-import org.hibernate.classic.Session;
 
 import com.borisp.faces.beans.Classification;
 import com.borisp.faces.beans.EigenFaceEntity;
@@ -28,6 +24,7 @@ import com.borisp.faces.beans.Manipulation;
 import com.borisp.faces.beans.PcaCoeficient;
 import com.borisp.faces.beans.Transformation;
 import com.borisp.faces.beans.User;
+import com.borisp.faces.database.DatabaseHelper;
 
 /**
  * This is the basic frame to use for all the application's visualizations.
@@ -85,14 +82,6 @@ public class BasicFrame extends JFrame{
     private static final String SELECT_USER_TEXT =
             "Please select the user whose classification to use";
     private static final String SELECT_USER_HEADER = "Select user";
-
-    // Sql constants
-    /** A string for selecting all the manipulations from the database. */
-    private static final String SELECT_ALL_MANIPULATIONS_SQL_QUERY = "from Manipulation m";
-    /** A string for selecting all the transformations from the database. */
-    private static final String SELECT_ALL_TRANSFORMATIONS_SQL_QUERY = "from Transformation t";
-    /** A string for selecting all the users from the database. */
-    private static final String SELECT_ALL_USERS_SQL_QUERY = "from User u";
 
     /** The single instance of the session factory to use for all database calls. */
     private SessionFactory sessionFactory;
@@ -288,44 +277,22 @@ public class BasicFrame extends JFrame{
 
     /** Creates a dialog for selecting manipulation. */
     private Manipulation chooseManipulation() {
-        Session session = sessionFactory.getCurrentSession();
-        session.beginTransaction();
-        Query query = session.createQuery(SELECT_ALL_MANIPULATIONS_SQL_QUERY);
-        List<Manipulation> manipulations = new ArrayList<Manipulation>();
-        for (Iterator<?> it = query.iterate(); it.hasNext();) {
-            manipulations.add((Manipulation) it.next());
-        }
-
-        return (Manipulation) objectChooserHelper(manipulations, SELECT_MANIPULATION_TEXT,
+        return (Manipulation) objectChooserHelper(
+                DatabaseHelper.getAllManipulations(sessionFactory), SELECT_MANIPULATION_TEXT,
                 SELECT_MANIPULATION_HEADER);
     }
 
     /** Creates a dialog for selecting manipulation. */
     private Transformation chooseTransformation() {
-        Session session = sessionFactory.getCurrentSession();
-        session.beginTransaction();
-        Query query = session.createQuery(SELECT_ALL_TRANSFORMATIONS_SQL_QUERY);
-        List<Transformation> transformations = new ArrayList<Transformation>();
-        for (Iterator<?> it = query.iterate(); it.hasNext();) {
-            transformations.add((Transformation) it.next());
-        }
-
-        return (Transformation) objectChooserHelper(transformations, SELECT_TRANSFORMATION_TEXT,
+        return (Transformation) objectChooserHelper(
+                DatabaseHelper.getAllTransformations(sessionFactory), SELECT_TRANSFORMATION_TEXT,
                 SELECT_TRANSFORMATION_HEADER);
     }
 
     /** Creates a dialog for selecting user. */
     private User chooseUser() {
-        Session session = sessionFactory.getCurrentSession();
-        session.beginTransaction();
-        Query query = session.createQuery(SELECT_ALL_USERS_SQL_QUERY);
-        List<User> users = new ArrayList<User>();
-        for (Iterator<?> it = query.iterate(); it.hasNext();) {
-            users.add((User) it.next());
-        }
-
-        return (User) objectChooserHelper(users, SELECT_USER_TEXT,
-                SELECT_USER_HEADER);
+        return (User) objectChooserHelper(DatabaseHelper.getAllUsers(sessionFactory),
+                SELECT_USER_TEXT, SELECT_USER_HEADER);
     }
 
     private Object objectChooserHelper(List<? extends Object> objects, String text, String header) {

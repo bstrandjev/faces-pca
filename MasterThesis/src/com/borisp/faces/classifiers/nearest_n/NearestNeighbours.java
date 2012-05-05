@@ -12,9 +12,9 @@ import com.borisp.faces.classifiers.Example;
  *
  * @author Boris
  */
-public class NearestNeighbours extends EuclidNearestNeighborBase implements ClassifierInterface {
-    private int k;
-    private int numClasses;
+public class NearestNeighbours extends NearestNeighborBase implements ClassifierInterface {
+    protected int k;
+    protected int numClasses;
 
     /**
      * @param numClasses The number of classes of classification.
@@ -50,7 +50,7 @@ public class NearestNeighbours extends EuclidNearestNeighborBase implements Clas
     }
 
     /** A auxiliary function for classifying example. */
-    private int classifyExampleHelper(Example example, boolean ignoreFirst) {
+    protected int classifyExampleHelper(Example example, boolean ignoreFirst) {
         VectorToClassifiedPoint [] points = new VectorToClassifiedPoint[examples.length];
         for (int i = 0; i < examples.length; i++) {
             points[i] = new VectorToClassifiedPoint(example, examples[i]);

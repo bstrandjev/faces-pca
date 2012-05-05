@@ -1,12 +1,17 @@
 package com.borisp.faces.classifiers;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import org.hibernate.SessionFactory;
 
 import com.borisp.faces.classifiers.identity.IdentityClassifier;
+import com.borisp.faces.classifiers.nearest_n.CorrelationNearestNeighbours;
 import com.borisp.faces.classifiers.nearest_n.NearestNeighbours;
+import com.borisp.faces.classifiers.nearest_n.WeightedNearestNeighbours;
 import com.borisp.faces.classifiers.neural_network.DoubleLayeredNeuralNetwork;
 
 /**
@@ -15,31 +20,65 @@ import com.borisp.faces.classifiers.neural_network.DoubleLayeredNeuralNetwork;
  * @author Boris
  */
 public abstract class ClassifierExperimenter {
-    private static final int OUTPUT_CLASSES = 2;
-
     public static enum Classifiers {
-        NEURAL_NETWORK, NEAREST_NEIGHBOURS, IDENTITY;
+        NEURAL_NETWORK("Neural network"),
+        NEAREST_NEIGHBOURS("Nearest neighbor"),
+        WEIGHTED_NEAREST_NEIGHBOURS("Weighted nn"),
+        CORRELATED_NEAREST_NEIGHBOURS("Correlated nn"),
+        IDENTITY("Perfect classifier");
+
+        private String label;
+        private Classifiers(String label) {
+            this.label = label;
+        }
+
+        public String getLabel() {
+            return label;
+        }
     }
 
+    private static final int OUTPUT_CLASSES = 2;
+    private static final int RAND_SEED = 123434;
     // Neural network constants
     private static final int VERIFICATION_EXAMPLE_COUNT = 20;
     private static final double ETA = 0.2;
     private static final double INERTIA = 0.05;
 
     private int countedEigenFaces;
+    private Random rand;
 
     /** Conducts experiment using any of the classifiers defined in {@link Classifiers}. */
     public void evaluateClassifier(String username, int transformationId,
             SessionFactory sessionFactory, Classifiers[] classifiers, int numberOfExperiments,
             int countedEigenFaces) {
-        this.countedEigenFaces = countedEigenFaces;
-
         List<Example> examples = ClassifierInputPreparator.generateClassifierInput(username,
                 transformationId, countedEigenFaces, sessionFactory);
+        evaluateClassifierHelper(examples, classifiers, numberOfExperiments, countedEigenFaces);
+    }
 
+    /** Conducts experiment using any of the classifiers defined in {@link Classifiers}. */
+    public void evaluateClassifier(List<Example> inExamples, Classifiers[] classifiers,
+            int numberOfExperiments, int countedEigenFaces) {
+
+        List<Example> examples = new ArrayList<Example>();
+        for (int i = 0; i < inExamples.size(); i++) {
+            Example example = new Example();
+            example.classification = inExamples.get(i).classification;
+            example.measures = Arrays.copyOf(inExamples.get(i).measures, countedEigenFaces);
+            examples.add(example);
+        }
+
+        evaluateClassifierHelper(examples, classifiers, numberOfExperiments, countedEigenFaces);
+    }
+
+
+    private void evaluateClassifierHelper(List<Example> examples, Classifiers[] classifiers,
+            int numberOfExperiments, int countedEigenFaces) {
+        this.rand = new Random(RAND_SEED);
+        this.countedEigenFaces = countedEigenFaces;
         double totalPrecision = 0;
         for (int o = 0; o < numberOfExperiments; o++) {
-            Collections.shuffle(examples);
+            Collections.shuffle(examples, rand);
             Example [] trainingSet = new Example[examples.size() - VERIFICATION_EXAMPLE_COUNT];
             Example [] verificationSet = new Example[VERIFICATION_EXAMPLE_COUNT];
             for (int i = 0; i < examples.size(); i++) {
@@ -51,9 +90,10 @@ public abstract class ClassifierExperimenter {
             }
             totalPrecision += conductExperiment(trainingSet, verificationSet, classifiers);
         }
-        appendToOutput("The total precision is: " + totalPrecision / numberOfExperiments + "\n");
-    }
+        appendToOutput(String.format("The total precision is: %.7f\n", totalPrecision
+                / numberOfExperiments));
 
+    }
     /**
      * Conducts a single experiment and returns the precision of its classification.
      * <p>
@@ -124,7 +164,11 @@ public abstract class ClassifierExperimenter {
             return new DoubleLayeredNeuralNetwork(countedEigenFaces, middleLayeredCount,
                     OUTPUT_CLASSES, ETA, INERTIA);
         case NEAREST_NEIGHBOURS:
-            return new NearestNeighbours(countedEigenFaces);
+            return new NearestNeighbours(OUTPUT_CLASSES);
+        case WEIGHTED_NEAREST_NEIGHBOURS:
+            return new WeightedNearestNeighbours(OUTPUT_CLASSES);
+        case CORRELATED_NEAREST_NEIGHBOURS:
+            return new CorrelationNearestNeighbours(OUTPUT_CLASSES);
         case IDENTITY:
             return new IdentityClassifier();
         }

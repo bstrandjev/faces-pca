@@ -14,16 +14,19 @@ import com.borisp.faces.beans.Manipulation;
 import com.borisp.faces.beans.PcaCoeficient;
 import com.borisp.faces.beans.Transformation;
 import com.borisp.faces.beans.User;
+import com.borisp.faces.classifiers.LongClassifierExperimenter;
 import com.borisp.faces.database.ClassificationDatabaseHelper;
 import com.borisp.faces.database.InitialRecorder;
 import com.borisp.faces.database.ManipulationCreator;
 import com.borisp.faces.database.PcaDatabaseHelper;
-import com.borisp.faces.ui.BasicFrame;
 import com.borisp.faces.weka.WekaContentCreator;
 
 public class DatabaseMain {
     public static void main(String[] args) throws IOException, ParseException {
-        new BasicFrame();
+        SessionFactory sessionFactory = initializeSessionFactory();
+        LongClassifierExperimenter longClassifierExperimenter = new LongClassifierExperimenter();
+        longClassifierExperimenter.executeExperiments(sessionFactory);
+//        new BasicFrame();
 //        SessionFactory sessionFactory = initializeSessionFactory();
 //        doPcaTransform(sessionFactory);
 //        demonstrateTransformation(sessionFactory);

@@ -3,14 +3,14 @@ package com.borisp.faces.recognizer;
 import java.util.Arrays;
 
 import com.borisp.faces.classifiers.Example;
-import com.borisp.faces.classifiers.nearest_n.EuclidNearestNeighborBase;
+import com.borisp.faces.classifiers.nearest_n.NearestNeighborBase;
 
 /**
  * A class that can be used to recognize objects based on nearest neighbor algorithm.
  *
  * @author Boris
  */
-public class NearestNeighbourRecognizer extends EuclidNearestNeighborBase {
+public class NearestNeighbourRecognizer extends NearestNeighborBase {
 
     /**
      * @param examples The examples of the training set. Their classifications should coincide with

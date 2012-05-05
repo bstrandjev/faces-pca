@@ -3,7 +3,6 @@ package com.borisp.faces.ui;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,10 +32,6 @@ public class ClassifierExperimentRunnerPanel extends JPanel implements ActionLis
 
     private static final String PANEL_TITLE = "Classification experiments";
     private static final String RUN_EXPERIMENTS_BUTTON_LABEL = "Run experiments";
-    // Checkbox labels
-    private static final String NEAREST_NEIGHBOR_LABEL = "Nearest neighbor";
-    private static final String NEURAL_NETWORK_LABEL = "Neural network";
-    private static final String PERFECT_CLASSIFIER_LABEL = "Perfect classifier";
     // Text area constants
     private static final int TEXT_AREA_COLUMNS = 20;
     private static final int TEXT_AREA_ROWS = 16;
@@ -48,9 +43,7 @@ public class ClassifierExperimentRunnerPanel extends JPanel implements ActionLis
 
     private JFrame parentFrame;
     private JTextArea textArea;
-    private JCheckBox nearestNeighbourCheckbox;
-    private JCheckBox neuralNetworkCheckbox;
-    private JCheckBox perfectClassifierCheckbox;
+    private JCheckBox []checkboxes;
     private JTextField numberOfFacesField;
     private JTextField numberOfExperimentsField;
 
@@ -75,17 +68,11 @@ public class ClassifierExperimentRunnerPanel extends JPanel implements ActionLis
         this.parentFrame = parentFrame;
         this.parentFrame.setTitle(PANEL_TITLE);
 
-        this.nearestNeighbourCheckbox = new JCheckBox(NEAREST_NEIGHBOR_LABEL);
-        this.nearestNeighbourCheckbox.setMnemonic(KeyEvent.VK_G);
-        this.nearestNeighbourCheckbox.setSelected(true);
-
-        this.neuralNetworkCheckbox = new JCheckBox(NEURAL_NETWORK_LABEL);
-        this.neuralNetworkCheckbox.setMnemonic(KeyEvent.VK_W);
-        this.neuralNetworkCheckbox.setSelected(true);
-
-        this.perfectClassifierCheckbox = new JCheckBox(PERFECT_CLASSIFIER_LABEL);
-        this.perfectClassifierCheckbox.setMnemonic(KeyEvent.VK_P);
-        this.perfectClassifierCheckbox.setSelected(true);
+        this.checkboxes = new JCheckBox[Classifiers.values().length];
+        for (int i = 0; i < checkboxes.length; i++) {
+            this.checkboxes[i] = new JCheckBox(Classifiers.values()[i].getLabel());
+            this.checkboxes[i].setSelected(true);
+        }
 
         this.numberOfFacesField = new JTextField(NUMBER_OF_FACES_DEFAULT);
         this.numberOfExperimentsField = new JTextField(NUMBER_OF_EXPERIMENTS_DEFAULT);
@@ -104,9 +91,9 @@ public class ClassifierExperimentRunnerPanel extends JPanel implements ActionLis
         add(numberOfFacesField);
         add(new JLabel(NUMBER_OF_EXPERIMENTS_LABEL));
         add(numberOfExperimentsField);
-        add(nearestNeighbourCheckbox);
-        add(neuralNetworkCheckbox);
-        add(perfectClassifierCheckbox);
+        for (JCheckBox checkbox : checkboxes) {
+            add(checkbox);
+        }
         add(runExperimentsButton);
 
         // Adding the text area
@@ -123,16 +110,11 @@ public class ClassifierExperimentRunnerPanel extends JPanel implements ActionLis
     public void actionPerformed(ActionEvent e) {
         //textArea.setText("");
         final List<Classifiers> classifiers = new ArrayList<Classifiers>();
-        if (nearestNeighbourCheckbox.isSelected()) {
-            classifiers.add(Classifiers.NEAREST_NEIGHBOURS);
+        for (int i = 0; i < checkboxes.length; i++) {
+            if (checkboxes[i].isSelected()) {
+                classifiers.add(Classifiers.values()[i]);
+            }
         }
-        if (neuralNetworkCheckbox.isSelected()) {
-            classifiers.add(Classifiers.NEURAL_NETWORK);
-        }
-        if (perfectClassifierCheckbox.isSelected()) {
-            classifiers.add(Classifiers.IDENTITY);
-        }
-
         new Thread(new Runnable() {
             @Override
             public void run() {

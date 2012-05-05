@@ -2,6 +2,7 @@ package com.borisp.faces.database;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.hibernate.Query;
@@ -22,6 +23,14 @@ import com.borisp.faces.beans.User;
  * @author Boris
  */
 public class DatabaseHelper {
+
+    // Query constants
+    /** A string for selecting all the manipulations from the database. */
+    private static final String SELECT_ALL_MANIPULATIONS_SQL_QUERY = "from Manipulation m";
+    /** A string for selecting all the transformations from the database. */
+    private static final String SELECT_ALL_TRANSFORMATIONS_SQL_QUERY = "from Transformation t";
+    /** A string for selecting all the users from the database. */
+    private static final String SELECT_ALL_USERS_SQL_QUERY = "from User u";
 
     /** A method for fetching manipulation based on manipulation index. */
     public static Manipulation getManipulationByIndex(int manipulationIndex,
@@ -104,5 +113,46 @@ public class DatabaseHelper {
         }
 
         return toReturn;
+    }
+
+    /** Returns all the manipulations in the database. */
+    public static List<Manipulation> getAllManipulations(SessionFactory sessionFactory) {
+        Session session = sessionFactory.getCurrentSession();
+        session.beginTransaction();
+        Query query = session.createQuery(SELECT_ALL_MANIPULATIONS_SQL_QUERY);
+        List<Manipulation> manipulations = new ArrayList<Manipulation>();
+        for (Iterator<?> it = query.iterate(); it.hasNext();) {
+            manipulations.add((Manipulation) it.next());
+        }
+        return manipulations;
+    }
+
+    /** Returns all the transformations in the database. */
+    public static List<Transformation> getAllTransformations(SessionFactory sessionFactory) {
+        Session session = sessionFactory.getCurrentSession();
+        session.beginTransaction();
+        Query query = session.createQuery(SELECT_ALL_TRANSFORMATIONS_SQL_QUERY);
+        List<Transformation> transformations = new ArrayList<Transformation>();
+        for (Iterator<?> it = query.iterate(); it.hasNext();) {
+            transformations.add((Transformation) it.next());
+        }
+        return transformations;
+    }
+
+    /** Returns all the users in the database. */
+    public static List<User> getAllUsers(SessionFactory sessionFactory) {
+        Session session = sessionFactory.getCurrentSession();
+        session.beginTransaction();
+        Query query = session.createQuery(SELECT_ALL_USERS_SQL_QUERY);
+        List<User> users = new ArrayList<User>();
+        for (Iterator<?> it = query.iterate(); it.hasNext();) {
+            users.add((User) it.next());
+        }
+        return users;
+    }
+
+    /** Returns the first transformation from the DB> Throws if no such exists. */
+    public static Transformation getFirstTransformation(SessionFactory sessionFactory) {
+        return getAllTransformations(sessionFactory).get(0);
     }
 }

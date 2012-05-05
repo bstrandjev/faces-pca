@@ -1,9 +1,5 @@
 package com.borisp.faces.classifiers.neural_network;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import com.borisp.faces.classifiers.ClassifierInterface;
 import com.borisp.faces.classifiers.Example;
 
@@ -50,17 +46,6 @@ public class DoubleLayeredNeuralNetwork implements ClassifierInterface {
             for (Example example : examples) {
                 learnExample(example);
             }
-        }
-    }
-
-    private static void randomShuffleArray(Object [] array) {
-        List<Object> list = new ArrayList<Object>();
-        for (Object obj: array) {
-            list.add(obj);
-        }
-        Collections.shuffle(list);
-        for (int i = 0; i < array.length; i++) {
-            array[i] = list.get(i);
         }
     }
 
