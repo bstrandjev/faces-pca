@@ -67,6 +67,7 @@ public class BasicFrame extends JFrame{
     private static final String SHOW_MANIPULATION_LABEL = "Show manipulation";
     private static final String SHOW_TRANSFORMATION_LABEL = "Show eigen faces";
     private static final String SHOW_PROJECTIONS_LABEL = "Show projections";
+    private static final String NOISE_DEMONSTRATOR_LABEL = "Show images with noise";
 
     private static final String EXPERIMENTS_MENU_LABEL = "Experiments";
     private static final String CLASSIFICATION_EXPERIMENTS_LABEL = "Classification experiments";
@@ -135,7 +136,7 @@ public class BasicFrame extends JFrame{
         });
 
         JMenuItem transformationDisplayItem = new JMenuItem(SHOW_TRANSFORMATION_LABEL);
-        transformationDisplayItem.setMnemonic(KeyEvent.VK_T);
+        transformationDisplayItem.setMnemonic(KeyEvent.VK_E);
         transformationDisplayItem.addActionListener(new ActionListener() {
 
             @Override
@@ -173,9 +174,30 @@ public class BasicFrame extends JFrame{
             }
         });
 
+        JMenuItem noiseDisplayItem = new JMenuItem(NOISE_DEMONSTRATOR_LABEL);
+        noiseDisplayItem.setMnemonic(KeyEvent.VK_N);
+        noiseDisplayItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                Manipulation manipulation = chooseManipulation();
+                if (currentPanel != null) {
+                    BasicFrame.this.remove(currentPanel);
+                }
+                currentPanel = new NoiseImageVisualizer(manipulation, BasicFrame.this);
+                currentPanel.setBounds(PROJECTION_BEG_X, PROJECTION_BEG_Y, PROJECTION_WIDTH,
+                        PROJECTION_HEIGHT);
+                BasicFrame.this.getContentPane().add(currentPanel);
+
+                BasicFrame.this.validate();
+                BasicFrame.this.repaint();
+            }
+        });
+
         visualizationMenu.add(manipulationDisplayItem);
         visualizationMenu.add(transformationDisplayItem);
         visualizationMenu.add(projectionDisplayItem);
+        visualizationMenu.add(noiseDisplayItem);
         return visualizationMenu;
     }
 

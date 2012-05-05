@@ -36,6 +36,19 @@ public class ImageConstructor {
         return getImageFromArray(imagePixels, w, h);
     }
 
+    /** Creates an image from two-dimensional grayscale array. */
+    public static BufferedImage createImage(int [][] grayScale) {
+        int w = grayScale[0].length;
+        int h = grayScale.length;
+        int []imagePixels = new int[h * w];
+        for (int i  = 0; i < h; i++) {
+            for (int j = 0; j < w; j++) {
+                imagePixels[i * w + j] = ((1 << 16) | (1 << 8) | 1) * grayScale[i][j];
+            }
+        }
+        return getImageFromArray(imagePixels, w, h);
+    }
+
     /** Creates an image stored in file from two-dimensional grayscale array. */
     public static BufferedImage createImage(double[] grayScale, int h, int w) {
         int []imagePixels = new int[grayScale.length];
