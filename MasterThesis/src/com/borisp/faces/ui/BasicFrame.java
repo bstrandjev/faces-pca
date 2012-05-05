@@ -69,7 +69,8 @@ public class BasicFrame extends JFrame{
     private static final String SHOW_PROJECTIONS_LABEL = "Show projections";
 
     private static final String EXPERIMENTS_MENU_LABEL = "Experiments";
-    private static final String RUN_EXPERIMENTS_LABEL = "Run experiment";
+    private static final String CLASSIFICATION_EXPERIMENTS_LABEL = "Classification experiments";
+    private static final String RECOGNITION_EXPERIMENTS_LABEL = "Recognition experiments";
     private static final String EXPERIMENTS_MENU_DESCRIPTION =
             "All operations connected to experiment running";
 
@@ -185,9 +186,9 @@ public class BasicFrame extends JFrame{
         experimentsMenu.getAccessibleContext().setAccessibleDescription(
                 EXPERIMENTS_MENU_DESCRIPTION);
 
-        JMenuItem runExperimentsItem = new JMenuItem(RUN_EXPERIMENTS_LABEL);
-        runExperimentsItem.setMnemonic(KeyEvent.VK_R);
-        runExperimentsItem.addActionListener(new ActionListener() {
+        JMenuItem classificationExperimentsItem = new JMenuItem(CLASSIFICATION_EXPERIMENTS_LABEL);
+        classificationExperimentsItem.setMnemonic(KeyEvent.VK_C);
+        classificationExperimentsItem.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent arg0) {
@@ -196,7 +197,28 @@ public class BasicFrame extends JFrame{
                 if (currentPanel != null) {
                     BasicFrame.this.remove(currentPanel);
                 }
-                currentPanel = new ExperimentRunnerPanel(transformation, user, BasicFrame.this,
+                currentPanel = new ClassifierExperimentRunnerPanel(transformation, user,
+                        BasicFrame.this, sessionFactory);
+                currentPanel.setBounds(EXPERIMENTS_BEG_X, EXPERIMENTS_BEG_Y, EXPERIMENTS_WIDTH,
+                        EXPERIMENTS_HEIGHT);
+                BasicFrame.this.getContentPane().add(currentPanel, BorderLayout.CENTER);
+
+                BasicFrame.this.validate();
+                BasicFrame.this.repaint();
+            }
+        });
+
+        JMenuItem recognitionExperimentsItem = new JMenuItem(RECOGNITION_EXPERIMENTS_LABEL);
+        recognitionExperimentsItem.setMnemonic(KeyEvent.VK_G);
+        recognitionExperimentsItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                Transformation transformation = chooseTransformation();
+                if (currentPanel != null) {
+                    BasicFrame.this.remove(currentPanel);
+                }
+                currentPanel = new RecognizerExperimentRunnerPanel(transformation, BasicFrame.this,
                         sessionFactory);
                 currentPanel.setBounds(EXPERIMENTS_BEG_X, EXPERIMENTS_BEG_Y, EXPERIMENTS_WIDTH,
                         EXPERIMENTS_HEIGHT);
@@ -207,7 +229,8 @@ public class BasicFrame extends JFrame{
             }
         });
 
-        experimentsMenu.add(runExperimentsItem);
+        experimentsMenu.add(recognitionExperimentsItem);
+        experimentsMenu.add(classificationExperimentsItem);
         return experimentsMenu;
     }
 

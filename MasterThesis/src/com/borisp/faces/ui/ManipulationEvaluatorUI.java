@@ -57,10 +57,8 @@ public class ManipulationEvaluatorUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (e.getActionCommand().equals(GOOD_LABEL)) {
-                    System.out.println("Good selected");
                     manipulationIterator.recordGoodState(true);
                 } else {
-                    System.out.println("Bad selected");
                     manipulationIterator.recordGoodState(false);
                 }
                 isGood.setSelected(false);

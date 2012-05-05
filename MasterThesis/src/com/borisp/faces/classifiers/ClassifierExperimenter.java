@@ -28,7 +28,7 @@ public abstract class ClassifierExperimenter {
 
     private int countedEigenFaces;
 
-    /** Conducts experiment using the neural network. */
+    /** Conducts experiment using any of the classifiers defined in {@link Classifiers}. */
     public void evaluateClassifier(String username, int transformationId,
             SessionFactory sessionFactory, Classifiers[] classifiers, int numberOfExperiments,
             int countedEigenFaces) {

@@ -24,14 +24,14 @@ import com.borisp.faces.classifiers.ClassifierExperimenter;
 import com.borisp.faces.classifiers.ClassifierExperimenter.Classifiers;
 
 /**
- * Defines a UI for displaying the results of test run.
+ * Defines a UI for displaying the results of classification experiments.
  *
  * @author Boris
  */
-public class ExperimentRunnerPanel extends JPanel implements ActionListener {
+public class ClassifierExperimentRunnerPanel extends JPanel implements ActionListener {
     private static final long serialVersionUID = 1L;
 
-    private static final String PANEL_TITLE = "Run experiments";
+    private static final String PANEL_TITLE = "Classification experiments";
     private static final String RUN_EXPERIMENTS_BUTTON_LABEL = "Run experiments";
     // Checkbox labels
     private static final String NEAREST_NEIGHBOR_LABEL = "Nearest neighbor";
@@ -66,7 +66,7 @@ public class ExperimentRunnerPanel extends JPanel implements ActionListener {
      * @param parentFrame The frame that will contain he panel. Used for callback functions.
      * @param sessionFactory The session factory to use for the database calls.
      */
-    public ExperimentRunnerPanel(Transformation transformation, User user, JFrame parentFrame,
+    public ClassifierExperimentRunnerPanel(Transformation transformation, User user, JFrame parentFrame,
             SessionFactory sessionFactory) {
         this.username = user.getName();
         this.transformationId = transformation.getTransformationId();

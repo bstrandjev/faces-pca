@@ -10,6 +10,7 @@ import Jama.Matrix;
 
 import com.borisp.faces.beans.EigenFaceEntity;
 import com.borisp.faces.beans.ManipulatedImage;
+import com.borisp.faces.beans.Transformation;
 import com.borisp.faces.util.ColorPixel;
 import com.borisp.faces.util.GrayscaleConverter;
 import com.borisp.faces.util.ImageReader;
@@ -72,6 +73,26 @@ public class PcaTransformer {
         this.IMAGE_HEIGHT = imageHeight;
         this.IMAGE_WIDTH = imageWidth;
         this.eigenFaces = getEigenFacesGrayscale(imageFiles);
+    }
+
+    public PcaTransformer(int imageHeight, int imageWidth, Transformation transformation) {
+        this.IMAGE_HEIGHT = imageHeight;
+        this.IMAGE_WIDTH = imageWidth;
+        this.average = transformation.getAverageFacePixels();
+        this.eigenFaces = new ArrayList<EigenFace>();
+        for (EigenFaceEntity eigenFaceEntity : transformation.getEigenFaces()) {
+            EigenFace eigenFace = new EigenFace();
+            eigenFace.eigenFacePixels = eigenFaceEntity.getFacePixels();
+            eigenFace.eigenValue = eigenFaceEntity.getEigenValue();
+            eigenFaces.add(eigenFace);
+        }
+        Collections.sort(eigenFaces);
+//        System.out.println(">>>>>>>>>");
+//        for (int i = 0; i < eigenFaces.size(); i++) {
+//            System.out.print(eigenFaces.get(i).eigenValue + " ");
+//        }
+//        System.out.println();
+//        System.out.println("<<<<<");
     }
 
     private PcaTransformer(int imageHeight, int imageWidth, List<EigenFaceEntity> eigenFaceEntities) {

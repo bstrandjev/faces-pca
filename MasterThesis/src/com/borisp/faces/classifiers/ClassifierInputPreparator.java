@@ -15,9 +15,11 @@ import com.borisp.faces.database.DatabaseHelper;
 public class ClassifierInputPreparator {
 
     /**
-     * Creates an array of {@link Example}s for all classifications of a user for transformation.
+     * Creates a list of {@link Example}s for all classifications of a user for transformation.
      *
      * @param username The username of the user that did the classification to use as input
+     * @param transformationId The if of the transformation to use to transform the input
+     * @param countedEigenFaces The number of dimensions which to include in the analysis
      * @param sessionFactory A session factory to use for the database connections.
      */
     public static List<Example> generateClassifierInput(String username, int transformationId,
@@ -34,7 +36,6 @@ public class ClassifierInputPreparator {
             List<PcaCoeficient> pcaCoeficients = DatabaseHelper.getPcaCoeficients(
                     classification.getManipulatedImage(), transformation, sessionFactory);
             Example example = new Example();
-            example = new Example();
             example.measures = new double[countedEigenFaces];
             for (int i = 0; i < countedEigenFaces; i++) {
                 example.measures[i] = pcaCoeficients.get(i).getCoeficient();
