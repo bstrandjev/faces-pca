@@ -34,7 +34,7 @@ public class LongClassifierExperimenter {
     // Regex constant
     private static final String SOUGHT_FOR_STRING = "The total precision is: ";
 
-    private static final int NUMBER_OF_EXPERIMENTS = 40;
+    private static final int NUMBER_OF_EXPERIMENTS = 60;
 
     /** The file in which output is to be added. */
     private FileWriter outputFile;
@@ -76,10 +76,10 @@ public class LongClassifierExperimenter {
         this.users = DatabaseHelper.getAllUsers(sessionFactory);
         this.transformation = DatabaseHelper.getFirstTransformation(sessionFactory);
         this.numberOfFaces = transformation.getManipulation().getManipulatedImages().size();
-        this.numberOfFaces = 20;
         prepareExampleCache(sessionFactory);
         for (Classifiers classifier : Classifiers.values()) {
-            if (classifier.equals(Classifiers.IDENTITY)) {
+            if (classifier.equals(Classifiers.IDENTITY)
+                    || classifier.equals(Classifiers.NEURAL_NETWORK)) {
                 continue;
             }
             solveForClassifier(classifier, sessionFactory);
@@ -111,7 +111,7 @@ public class LongClassifierExperimenter {
             for (int i = 0; i < NAME_MAX_LENGTH - user.getName().length(); i++) {
                 outputFile.append(" ");
             }
-            for (int i = 10; i <= numberOfFaces; i++) {
+            for (int i = 1; i <= numberOfFaces; i++) {
                 System.out.print(i + " ");
                 classifierExperimenter.evaluateClassifier(userExamples.get(user.getName()),
                         classifiers, NUMBER_OF_EXPERIMENTS, i);
