@@ -6,12 +6,12 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.text.ParseException;
 
+import com.borisp.faces.initial_manipulation.ImageManipulator;
 import com.borisp.faces.pca.PcaTransformer;
 import com.borisp.faces.util.ColorPixel;
 import com.borisp.faces.util.GrayscaleConverter;
 import com.borisp.faces.util.ImageReader;
 import com.borisp.faces.util.ImageWriter;
-import com.google.gson.Gson;
 
 public class Main {
     private static final String MANIPULATED_IMAGES_DIRECTORY_DEFAULT = "images" + File.separator
@@ -38,10 +38,10 @@ public class Main {
     }
 
     public static void main(String[] args) throws ParseException, IOException {
-        String json = "[[123.3, 234.5], [234.1, 456.5]]";
-        Gson gson = new Gson();
-        double [][] points = gson.fromJson(json, double[][].class);
-        System.out.println(points[1][1]);
+//        String json = "[[123.3, 234.5], [234.1, 456.5]]";
+//        Gson gson = new Gson();
+//        double [][] points = gson.fromJson(json, double[][].class);
+//        System.out.println(points[1][1]);
         //ClassificationApplicationPreparator.prepareClassificationApplication();
 //        createTestImages();
 //        PcaTransformer pcaTransformer =
@@ -49,8 +49,8 @@ public class Main {
 //        findProjectImages(pcaTransformer);
 //        findImageCoeficients(pcaTransformer);
 //        pcaTransformer.printEigenFaces();
-//        ImageManipulator imageManipulator = new ImageManipulator();
-//        imageManipulator.manipulateImages();
+        ImageManipulator imageManipulator = new ImageManipulator();
+        imageManipulator.manipulateImages();
     }
 
     private static void findImageCoeficients(PcaTransformer pcaTransformer) throws IOException {

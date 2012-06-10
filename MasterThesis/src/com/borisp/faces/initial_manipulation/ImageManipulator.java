@@ -23,7 +23,7 @@ public class ImageManipulator {
             }
             ColorPixel[][] imagePixels = ImageReader.getImagePixels(imageFile);
             int[][] grayscale = GrayscaleConverter.getImageGrayscale(imagePixels);
-            CropRegion faceRegion = FaceDetector.findFace(grayscale);
+            CropRegion faceRegion = FaceDetector.findFace(grayscale, true);
             ImageCropper cropper = new ImageCropper();
             ImageWriter.createImage(imageFileName, cropper.cropImage(imagePixels, faceRegion), true);
         }

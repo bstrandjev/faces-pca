@@ -36,6 +36,17 @@ public class ImageWriter {
         writeImage(ImageConstructor.createImage(grayScale), fileName, needScaling);
     }
 
+    /**
+     * Creates an image stored in file from two-dimensional grayscale array.
+     *
+     * @param fileName The name of the file in which the image will be stored (only name, not path).
+     * @param grayScale The grayscale image pixels.
+     * @param needScaling whether the image should be scaled to fit prespecified dimensions
+     */
+    public static void createImage(String fileName, int [][] grayScale, boolean needScaling) {
+        writeImage(ImageConstructor.createImage(grayScale), fileName, needScaling);
+    }
+
     /** Prints an image to a file stored in the default image location: {@link #IMAGE_OUT_DIR}. */
     public static void createImage(String fileName, ColorPixel [][] colors, boolean needScaling) {
         writeImage(ImageConstructor.createImage(colors), fileName, needScaling);

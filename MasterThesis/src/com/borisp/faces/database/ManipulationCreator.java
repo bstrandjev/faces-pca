@@ -134,7 +134,7 @@ public class ManipulationCreator {
         File imageFile = new File(imageFilePath);
         ColorPixel[][] imagePixels = ImageReader.getImagePixels(imageFile);
         int[][] grayscale = GrayscaleConverter.getImageGrayscale(imagePixels);
-        faceRegion = FaceDetector.findFace(grayscale);
+        faceRegion = FaceDetector.findFace(grayscale, false);
 
         ImageCropper cropper = new ImageCropper();
         ColorPixel[][] grayscalePixels = new ColorPixel[grayscale.length][grayscale[0].length];
