@@ -4,8 +4,8 @@
     <string name="app_name">PortraitClassifier</string>
     <string name="img_description">A sample image</string>
 
-    <string name="beautiful">Me like</string>
-    <string name="not_beautiful">Me not like</string>
+    <string name="beautiful">Beautiful</string>
+    <string name="not_beautiful">Not beautiful</string>
 
     <!-- Button constants -->
     <string name="btn_next_label">Next</string>

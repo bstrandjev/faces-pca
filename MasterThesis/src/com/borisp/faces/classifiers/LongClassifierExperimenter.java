@@ -35,8 +35,8 @@ public class LongClassifierExperimenter {
     private static final String SOUGHT_FOR_STRING = "The total precision is: ";
     private static final int NUMBER_OF_EXPERIMENTS = 40;
     // Restriction constants
-    private static final int TEST_START_INDEX = 20;
-    private static final int TEST_LIMIT_INDEX = 60;
+    private static final int TEST_START_INDEX = 1;
+    private static final int TEST_LIMIT_INDEX = 100;
 
     /** The file in which output is to be added. */
     private FileWriter outputFile;
@@ -81,7 +81,7 @@ public class LongClassifierExperimenter {
         prepareExampleCache(sessionFactory);
         for (Classifiers classifier : Classifiers.values()) {
             if (classifier.equals(Classifiers.IDENTITY)
-                    || !classifier.equals(Classifiers.NEURAL_NETWORK)) {
+                    || classifier.equals(Classifiers.NEURAL_NETWORK)) {
                 continue;
             }
             solveForClassifier(classifier, sessionFactory);
@@ -109,6 +109,9 @@ public class LongClassifierExperimenter {
         Classifiers[] classifiers = { classifier };
         for (User user : users) {
             System.out.println("the user " + user.getName());
+            if (!user.getName().equals("rand")) {
+                continue;
+            }
             outputFile.append(user.getName());
             for (int i = 0; i < NAME_MAX_LENGTH - user.getName().length(); i++) {
                 outputFile.append(" ");
