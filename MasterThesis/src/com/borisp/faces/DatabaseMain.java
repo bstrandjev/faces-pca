@@ -75,6 +75,6 @@ public class DatabaseMain {
     }
 
     private static void generateWekaInput(SessionFactory sessionFactory) throws IOException {
-        WekaContentCreator.generateWekaInput("borisp", 7, sessionFactory);
+        WekaContentCreator.generateWekaInput("rand", 7, sessionFactory);
     }
 }
