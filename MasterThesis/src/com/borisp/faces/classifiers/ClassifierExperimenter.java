@@ -9,6 +9,7 @@ import java.util.Random;
 import org.hibernate.SessionFactory;
 
 import com.borisp.faces.classifiers.identity.IdentityClassifier;
+import com.borisp.faces.classifiers.naive_baies.NaiveBaies;
 import com.borisp.faces.classifiers.nearest_n.CorrelationNearestNeighbours;
 import com.borisp.faces.classifiers.nearest_n.NearestNeighbours;
 import com.borisp.faces.classifiers.nearest_n.WeightedNearestNeighbours;
@@ -25,6 +26,7 @@ public abstract class ClassifierExperimenter {
         NEAREST_NEIGHBOURS("Nearest neighbor"),
         WEIGHTED_NEAREST_NEIGHBOURS("Weighted nn"),
         CORRELATED_NEAREST_NEIGHBOURS("Correlated nn"),
+        NAIVE_BAIES("Naive baies"),
         IDENTITY("Perfect classifier");
 
         private String label;
@@ -43,6 +45,8 @@ public abstract class ClassifierExperimenter {
     private static final int VERIFICATION_EXAMPLE_COUNT = 20;
     private static final double ETA = 0.2;
     private static final double INERTIA = 0.05;
+    // Naive baies constatns
+    private static final int DISCRETE_SEGMENTS = 5;
 
     private int countedEigenFaces;
     private Random rand;
@@ -169,6 +173,8 @@ public abstract class ClassifierExperimenter {
             return new WeightedNearestNeighbours(OUTPUT_CLASSES);
         case CORRELATED_NEAREST_NEIGHBOURS:
             return new CorrelationNearestNeighbours(OUTPUT_CLASSES);
+        case NAIVE_BAIES:
+            return new NaiveBaies(DISCRETE_SEGMENTS);
         case IDENTITY:
             return new IdentityClassifier();
         }
