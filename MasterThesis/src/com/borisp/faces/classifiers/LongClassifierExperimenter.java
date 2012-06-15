@@ -36,7 +36,7 @@ public class LongClassifierExperimenter {
     private static final int NUMBER_OF_EXPERIMENTS = 40;
     // Restriction constants
     private static final int TEST_START_INDEX = 1;
-    private static final int TEST_LIMIT_INDEX = 100;
+    private static final int TEST_LIMIT_INDEX = 102;
 
     /** The file in which output is to be added. */
     private FileWriter outputFile;
@@ -81,7 +81,7 @@ public class LongClassifierExperimenter {
         prepareExampleCache(sessionFactory);
         for (Classifiers classifier : Classifiers.values()) {
             if (classifier.equals(Classifiers.IDENTITY)
-                    || !classifier.equals(Classifiers.NAIVE_BAIES)) {
+                    || !classifier.equals(Classifiers.WEIGHTED_NEAREST_NEIGHBOURS)) {
                 continue;
             }
             solveForClassifier(classifier, sessionFactory);

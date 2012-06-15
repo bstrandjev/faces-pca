@@ -3,6 +3,7 @@ package com.borisp.faces.classifiers;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -42,7 +43,7 @@ public abstract class ClassifierExperimenter {
     private static final int OUTPUT_CLASSES = 2;
     private static final int RAND_SEED = 123434;
     // Neural network constants
-    private static final int VERIFICATION_EXAMPLE_COUNT = 20;
+    private static final int VERIFICATION_EXAMPLE_COUNT = 30;
     private static final double ETA = 0.2;
     private static final double INERTIA = 0.05;
     // Naive baies constatns
@@ -55,8 +56,10 @@ public abstract class ClassifierExperimenter {
     public void evaluateClassifier(String username, int transformationId,
             SessionFactory sessionFactory, Classifiers[] classifiers, int numberOfExperiments,
             int countedEigenFaces) {
-        List<Example> examples = ClassifierInputPreparator.generateClassifierInput(username,
+        List<Example> examples = ClassifierInputPreparator.generateClassifierPcaInput(username,
                 transformationId, countedEigenFaces, sessionFactory);
+//        List<Example> examples = ClassifierInputPreparator.generateClassifierManipulationInput(
+//                username, transformationId, sessionFactory);
         evaluateClassifierHelper(examples, classifiers, numberOfExperiments, countedEigenFaces);
     }
 
@@ -82,22 +85,75 @@ public abstract class ClassifierExperimenter {
         this.countedEigenFaces = countedEigenFaces;
         double totalPrecision = 0;
         for (int o = 0; o < numberOfExperiments; o++) {
-            Collections.shuffle(examples, rand);
             Example [] trainingSet = new Example[examples.size() - VERIFICATION_EXAMPLE_COUNT];
             Example [] verificationSet = new Example[VERIFICATION_EXAMPLE_COUNT];
-            for (int i = 0; i < examples.size(); i++) {
-                if (i < trainingSet.length) {
-                    trainingSet[i] = examples.get(i);
-                } else {
-                    verificationSet[i - trainingSet.length] = examples.get(i);
-                }
-            }
+            chooseProportionalExperimentSets(examples, trainingSet, verificationSet);
             totalPrecision += conductExperiment(trainingSet, verificationSet, classifiers);
         }
         appendToOutput(String.format("The total precision is: %.7f\n", totalPrecision
                 / numberOfExperiments));
-
     }
+
+    /**
+     * Chooses the training and verification sets for an experiment, keeping the class proportion.
+     *
+     * @param examples The examples to chose from.
+     * @param trainingSet An output array for the training set - it should be resized accordingly.
+     * @param verificationSet An output array for the verification set - it should be resized
+     *        accordingly.
+     */
+    private void chooseProportionalExperimentSets(List<Example> examples, Example[] trainingSet,
+            Example[] verificationSet) {
+        List<List<Example>> classExamples = new LinkedList<List<Example>>();
+        for (int i = 0; i < OUTPUT_CLASSES; i++) {
+            classExamples.add(new LinkedList<Example>());
+        }
+        int[] classCounts = new int[OUTPUT_CLASSES];
+        for (Example example : examples) {
+            classExamples.get(example.classification).add(example);
+            classCounts[example.classification]++;
+        }
+        for (int i = 0; i < OUTPUT_CLASSES; i++) {
+            Collections.shuffle(classExamples.get(i), rand);
+        }
+
+        // choose the train set elements
+        int idx = 0;
+        int[] classIndices = new int[OUTPUT_CLASSES];
+        for (int i = 0; i < OUTPUT_CLASSES; i++) {
+            for (int j = 0; j < (classCounts[i] * trainingSet.length) / examples.size(); j++) {
+                trainingSet[idx++] = classExamples.get(i).get(classIndices[i]++);
+            }
+        }
+        while (idx < trainingSet.length) {
+            int classIdx = rand.nextInt(OUTPUT_CLASSES);
+            if (classIndices[classIdx] < classCounts[classIdx]) {
+                trainingSet[idx++] = classExamples.get(classIdx).get(classIndices[classIdx]++);
+            }
+        }
+
+        idx = 0;
+        for (int i = 0; i < OUTPUT_CLASSES; i++) {
+            while (classIndices[i] < classCounts[i]) {
+                verificationSet[idx++] = classExamples.get(i).get(classIndices[i]++);
+            }
+        }
+        randomShuffleArray(trainingSet);
+        randomShuffleArray(verificationSet);
+    }
+
+    /** Random shuffles the given array. */
+    private void randomShuffleArray(Object [] array) {
+        List<Object> list = new ArrayList<Object>();
+        for (Object obj: array) {
+            list.add(obj);
+        }
+        Collections.shuffle(list);
+        for (int i = 0; i < array.length; i++) {
+            array[i] = list.get(i);
+        }
+    }
+
     /**
      * Conducts a single experiment and returns the precision of its classification.
      * <p>

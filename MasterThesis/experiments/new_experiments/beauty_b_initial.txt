@@ -1,0 +1,61 @@
+  4   2 
+  5  19 
+Precision: 0.7666666666666667
+  3   3 
+  1  23 
+Precision: 0.8666666666666667
+  6   1 
+  2  21 
+Precision: 0.9
+  3   4 
+  2  21 
+Precision: 0.8
+  3   3 
+  4  20 
+Precision: 0.7666666666666667
+  4   3 
+  2  21 
+Precision: 0.8333333333333334
+  3   3 
+  1  23 
+Precision: 0.8666666666666667
+  4   2 
+  3  21 
+Precision: 0.8333333333333334
+  5   1 
+  2  22 
+Precision: 0.9
+  4   2 
+  7  17 
+Precision: 0.7
+  4   2 
+  4  20 
+Precision: 0.8
+  5   2 
+  1  22 
+Precision: 0.9
+  3   4 
+  5  18 
+Precision: 0.7
+  6   1 
+  6  17 
+Precision: 0.7666666666666667
+  4   3 
+  1  22 
+Precision: 0.8666666666666667
+  3   3 
+  2  22 
+Precision: 0.8333333333333334
+  6   0 
+  3  21 
+Precision: 0.9
+  4   2 
+  4  20 
+Precision: 0.8
+  4   3 
+  2  21 
+Precision: 0.8333333333333334
+  6   1 
+  1  22 
+Precision: 0.9333333333333333
+The total precision is: 0.8283333
