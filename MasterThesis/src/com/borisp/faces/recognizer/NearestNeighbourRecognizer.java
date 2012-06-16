@@ -2,7 +2,7 @@ package com.borisp.faces.recognizer;
 
 import java.util.Arrays;
 
-import com.borisp.faces.classifiers.Example;
+import com.borisp.faces.classifiers.examples.Example;
 import com.borisp.faces.classifiers.nearest_n.NearestNeighborBase;
 
 /**

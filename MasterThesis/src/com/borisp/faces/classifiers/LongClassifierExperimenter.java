@@ -15,6 +15,7 @@ import com.borisp.faces.beans.PcaCoeficient;
 import com.borisp.faces.beans.Transformation;
 import com.borisp.faces.beans.User;
 import com.borisp.faces.classifiers.ClassifierExperimenter.Classifiers;
+import com.borisp.faces.classifiers.examples.Example;
 import com.borisp.faces.database.DatabaseHelper;
 
 /**

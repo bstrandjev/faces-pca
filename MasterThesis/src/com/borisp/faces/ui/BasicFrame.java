@@ -64,10 +64,12 @@ public class BasicFrame extends JFrame{
     private static final String SHOW_MANIPULATION_LABEL = "Show manipulation";
     private static final String SHOW_TRANSFORMATION_LABEL = "Show eigen faces";
     private static final String SHOW_PROJECTIONS_LABEL = "Show projections";
+    private static final String SHOW_SCREE_PLOT_LABEL = "Show scree plot";
     private static final String NOISE_DEMONSTRATOR_LABEL = "Show images with noise";
 
     private static final String EXPERIMENTS_MENU_LABEL = "Experiments";
     private static final String CLASSIFICATION_EXPERIMENTS_LABEL = "Classification experiments";
+    private static final String ALGORITM_COMPARISON_LABEL = "Algorithm comparison";
     private static final String RECOGNITION_EXPERIMENTS_LABEL = "Recognition experiments";
     private static final String EXPERIMENTS_MENU_DESCRIPTION =
             "All operations connected to experiment running";
@@ -183,10 +185,22 @@ public class BasicFrame extends JFrame{
             }
         });
 
+        JMenuItem screePlotItem = new JMenuItem(SHOW_SCREE_PLOT_LABEL);
+        screePlotItem.setMnemonic(KeyEvent.VK_S);
+        screePlotItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                Transformation transformation = chooseTransformation();
+                ScreePlotVisualizer.createScreePlot(transformation);
+            }
+        });
+
         visualizationMenu.add(manipulationDisplayItem);
         visualizationMenu.add(transformationDisplayItem);
         visualizationMenu.add(projectionDisplayItem);
         visualizationMenu.add(noiseDisplayItem);
+        visualizationMenu.add(screePlotItem);
         return visualizationMenu;
     }
 
@@ -208,7 +222,29 @@ public class BasicFrame extends JFrame{
                 if (currentPanel != null) {
                     BasicFrame.this.remove(currentPanel);
                 }
-                currentPanel = new ClassifierExperimentRunnerPanel(transformation, user,
+                currentPanel = new ClassifierExperimenterRunnerPanel(transformation, user,
+                        BasicFrame.this, sessionFactory);
+                currentPanel.setBounds(EXPERIMENTS_BEG_X, EXPERIMENTS_BEG_Y, EXPERIMENTS_WIDTH,
+                        EXPERIMENTS_HEIGHT);
+                BasicFrame.this.getContentPane().add(currentPanel, BorderLayout.CENTER);
+
+                BasicFrame.this.validate();
+                BasicFrame.this.repaint();
+            }
+        });
+
+        JMenuItem algoritmComparisonItem = new JMenuItem(ALGORITM_COMPARISON_LABEL);
+        algoritmComparisonItem.setMnemonic(KeyEvent.VK_A);
+        algoritmComparisonItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                User user = chooseUser();
+                Transformation transformation = chooseTransformation();
+                if (currentPanel != null) {
+                    BasicFrame.this.remove(currentPanel);
+                }
+                currentPanel = new AlgorithmComparatorPanel(transformation, user,
                         BasicFrame.this, sessionFactory);
                 currentPanel.setBounds(EXPERIMENTS_BEG_X, EXPERIMENTS_BEG_Y, EXPERIMENTS_WIDTH,
                         EXPERIMENTS_HEIGHT);
@@ -242,6 +278,7 @@ public class BasicFrame extends JFrame{
 
         experimentsMenu.add(recognitionExperimentsItem);
         experimentsMenu.add(classificationExperimentsItem);
+        experimentsMenu.add(algoritmComparisonItem);
         return experimentsMenu;
     }
 

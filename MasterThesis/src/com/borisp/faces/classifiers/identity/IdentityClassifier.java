@@ -1,7 +1,7 @@
 package com.borisp.faces.classifiers.identity;
 
 import com.borisp.faces.classifiers.ClassifierInterface;
-import com.borisp.faces.classifiers.Example;
+import com.borisp.faces.classifiers.examples.Example;
 
 /**
  * Return the real example classification without any calculations.

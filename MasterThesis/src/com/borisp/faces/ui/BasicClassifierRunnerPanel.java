@@ -27,11 +27,9 @@ import com.borisp.faces.classifiers.ClassifierExperimenter.Classifiers;
  *
  * @author Boris
  */
-public class ClassifierExperimentRunnerPanel extends JPanel implements ActionListener {
+public abstract class BasicClassifierRunnerPanel extends JPanel implements ActionListener {
     private static final long serialVersionUID = 1L;
 
-    private static final String PANEL_TITLE = "Classification experiments";
-    private static final String RUN_EXPERIMENTS_BUTTON_LABEL = "Run experiments";
     // Text area constants
     private static final int TEXT_AREA_COLUMNS = 20;
     private static final int TEXT_AREA_ROWS = 16;
@@ -42,7 +40,7 @@ public class ClassifierExperimentRunnerPanel extends JPanel implements ActionLis
     private static final String NUMBER_OF_EXPERIMENTS_DEFAULT = " 20";
 
     private JFrame parentFrame;
-    private JTextArea textArea;
+    protected JTextArea textArea;
     private JCheckBox []checkboxes;
     private JTextField numberOfFacesField;
     private JTextField numberOfExperimentsField;
@@ -59,14 +57,14 @@ public class ClassifierExperimentRunnerPanel extends JPanel implements ActionLis
      * @param parentFrame The frame that will contain he panel. Used for callback functions.
      * @param sessionFactory The session factory to use for the database calls.
      */
-    public ClassifierExperimentRunnerPanel(Transformation transformation, User user, JFrame parentFrame,
+    public BasicClassifierRunnerPanel(Transformation transformation, User user, JFrame parentFrame,
             SessionFactory sessionFactory) {
         this.username = user.getName();
         this.transformationId = transformation.getTransformationId();
         this.sessionFactory = sessionFactory;
 
         this.parentFrame = parentFrame;
-        this.parentFrame.setTitle(PANEL_TITLE);
+        this.parentFrame.setTitle(getPanelTitle());
 
         this.checkboxes = new JCheckBox[Classifiers.values().length];
         for (int i = 0; i < checkboxes.length; i++) {
@@ -77,7 +75,7 @@ public class ClassifierExperimentRunnerPanel extends JPanel implements ActionLis
         this.numberOfFacesField = new JTextField(NUMBER_OF_FACES_DEFAULT);
         this.numberOfExperimentsField = new JTextField(NUMBER_OF_EXPERIMENTS_DEFAULT);
 
-        JButton runExperimentsButton = new JButton(RUN_EXPERIMENTS_BUTTON_LABEL);
+        JButton runExperimentsButton = new JButton(getButtonLabel());
         runExperimentsButton.addActionListener(this);
 
         this.textArea = new JTextArea();
@@ -118,14 +116,7 @@ public class ClassifierExperimentRunnerPanel extends JPanel implements ActionLis
         new Thread(new Runnable() {
             @Override
             public void run() {
-                ClassifierExperimenter experimenter = new ClassifierExperimenter() {
-                    @Override
-                    protected void appendToOutput(String string) {
-                        textArea.append(string);
-                        textArea.setCaretPosition(textArea.getDocument().getLength());
-                        textArea.update(textArea.getGraphics());
-                    }
-                };
+                ClassifierExperimenter experimenter = getClassifierExperimenter();
                 Classifiers[] classifierArray = new Classifiers[classifiers.size()];
                 for (int i = 0; i < classifierArray.length; i++) {
                     classifierArray[i] = classifiers.get(i);
@@ -136,6 +127,9 @@ public class ClassifierExperimentRunnerPanel extends JPanel implements ActionLis
                         classifierArray, numberOfExperiments, numberOfFaces);
             }
         }).start();
-
     }
+
+    protected abstract ClassifierExperimenter getClassifierExperimenter();
+    protected abstract String getPanelTitle();
+    protected abstract String getButtonLabel();
 }

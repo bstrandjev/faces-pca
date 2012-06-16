@@ -1,0 +1,141 @@
+  4   2 
+  5  19 
+Precision: 0.7666666666666667
+  3   3 
+  3  21 
+Precision: 0.8
+Initial: 0.7666667 Pca: 0.8000000
+  3   3 
+  1  23 
+Precision: 0.8666666666666667
+  3   3 
+  1  23 
+Precision: 0.8666666666666667
+Initial: 0.8666667 Pca: 0.8666667
+  6   1 
+  2  21 
+Precision: 0.9
+  6   1 
+  2  21 
+Precision: 0.9
+Initial: 0.9000000 Pca: 0.9000000
+  3   4 
+  2  21 
+Precision: 0.8
+  3   4 
+  3  20 
+Precision: 0.7666666666666667
+Initial: 0.8000000 Pca: 0.7666667
+  3   3 
+  4  20 
+Precision: 0.7666666666666667
+  3   3 
+  4  20 
+Precision: 0.7666666666666667
+Initial: 0.7666667 Pca: 0.7666667
+  4   3 
+  2  21 
+Precision: 0.8333333333333334
+  1   6 
+  1  22 
+Precision: 0.7666666666666667
+Initial: 0.8333333 Pca: 0.7666667
+  3   3 
+  1  23 
+Precision: 0.8666666666666667
+  3   3 
+  0  24 
+Precision: 0.9
+Initial: 0.8666667 Pca: 0.9000000
+  4   2 
+  3  21 
+Precision: 0.8333333333333334
+  4   2 
+  3  21 
+Precision: 0.8333333333333334
+Initial: 0.8333333 Pca: 0.8333333
+  5   1 
+  2  22 
+Precision: 0.9
+  5   1 
+  2  22 
+Precision: 0.9
+Initial: 0.9000000 Pca: 0.9000000
+  4   2 
+  7  17 
+Precision: 0.7
+  5   1 
+  4  20 
+Precision: 0.8333333333333334
+Initial: 0.7000000 Pca: 0.8333333
+  4   2 
+  4  20 
+Precision: 0.8
+  4   2 
+  4  20 
+Precision: 0.8
+Initial: 0.8000000 Pca: 0.8000000
+  5   2 
+  1  22 
+Precision: 0.9
+  4   3 
+  1  22 
+Precision: 0.8666666666666667
+Initial: 0.9000000 Pca: 0.8666667
+  3   4 
+  5  18 
+Precision: 0.7
+  3   4 
+  5  18 
+Precision: 0.7
+Initial: 0.7000000 Pca: 0.7000000
+  6   1 
+  6  17 
+Precision: 0.7666666666666667
+  5   2 
+  3  20 
+Precision: 0.8333333333333334
+Initial: 0.7666667 Pca: 0.8333333
+  4   3 
+  1  22 
+Precision: 0.8666666666666667
+  2   5 
+  1  22 
+Precision: 0.8
+Initial: 0.8666667 Pca: 0.8000000
+  3   3 
+  2  22 
+Precision: 0.8333333333333334
+  5   1 
+  1  23 
+Precision: 0.9333333333333333
+Initial: 0.8333333 Pca: 0.9333333
+  6   0 
+  3  21 
+Precision: 0.9
+  4   2 
+  2  22 
+Precision: 0.8666666666666667
+Initial: 0.9000000 Pca: 0.8666667
+  4   2 
+  4  20 
+Precision: 0.8
+  4   2 
+  4  20 
+Precision: 0.8
+Initial: 0.8000000 Pca: 0.8000000
+  4   3 
+  2  21 
+Precision: 0.8333333333333334
+  4   3 
+  0  23 
+Precision: 0.9
+Initial: 0.8333333 Pca: 0.9000000
+  6   1 
+  1  22 
+Precision: 0.9333333333333333
+  6   1 
+  1  22 
+Precision: 0.9333333333333333
+Initial: 0.9333333 Pca: 0.9333333
+The total initial precision is: 0.8283333The total pca precision is: 0.8383333The total delta is: -0.0100000The calculated number is: -0.8796338

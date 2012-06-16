@@ -1,5 +1,7 @@
 package com.borisp.faces.classifiers;
 
+import com.borisp.faces.classifiers.examples.Example;
+
 
 /**
  * A interface for the classifiers.

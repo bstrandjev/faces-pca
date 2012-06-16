@@ -1,6 +1,6 @@
 package com.borisp.faces.classifiers.nearest_n;
 
-import com.borisp.faces.classifiers.Example;
+import com.borisp.faces.classifiers.examples.Example;
 
 /**
  * A base class used for all nearest neighbor algorithms based on euclidian distance.

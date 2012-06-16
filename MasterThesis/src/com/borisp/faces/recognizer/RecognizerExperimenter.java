@@ -9,7 +9,7 @@ import com.borisp.faces.beans.ManipulatedImage;
 import com.borisp.faces.beans.Manipulation;
 import com.borisp.faces.beans.PcaCoeficient;
 import com.borisp.faces.beans.Transformation;
-import com.borisp.faces.classifiers.Example;
+import com.borisp.faces.classifiers.examples.Example;
 import com.borisp.faces.database.DatabaseHelper;
 import com.borisp.faces.initial_manipulation.ImageScaler;
 import com.borisp.faces.pca.PcaTransformer;

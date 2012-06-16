@@ -1,7 +1,7 @@
 package com.borisp.faces.classifiers.neural_network;
 
 import com.borisp.faces.classifiers.ClassifierInterface;
-import com.borisp.faces.classifiers.Example;
+import com.borisp.faces.classifiers.examples.Example;
 
 /**
  * A class implementing the double-layered back propagation algorithm

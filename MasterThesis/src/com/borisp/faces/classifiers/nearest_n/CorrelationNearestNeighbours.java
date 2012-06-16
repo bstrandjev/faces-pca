@@ -1,6 +1,6 @@
 package com.borisp.faces.classifiers.nearest_n;
 
-import com.borisp.faces.classifiers.Example;
+import com.borisp.faces.classifiers.examples.Example;
 
 /**
  * Implements nearest neighbors with correlation distance.

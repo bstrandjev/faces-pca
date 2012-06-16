@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.borisp.faces.classifiers.ClassifierInterface;
-import com.borisp.faces.classifiers.Example;
+import com.borisp.faces.classifiers.examples.Example;
 
 /**
  * A class implementing the naive Baies classifier.

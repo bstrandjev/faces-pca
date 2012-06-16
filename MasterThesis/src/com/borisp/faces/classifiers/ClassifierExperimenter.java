@@ -9,6 +9,8 @@ import java.util.Random;
 
 import org.hibernate.SessionFactory;
 
+import com.borisp.faces.classifiers.examples.BasicExample;
+import com.borisp.faces.classifiers.examples.Example;
 import com.borisp.faces.classifiers.identity.IdentityClassifier;
 import com.borisp.faces.classifiers.naive_baies.NaiveBaies;
 import com.borisp.faces.classifiers.nearest_n.CorrelationNearestNeighbours;
@@ -49,8 +51,8 @@ public abstract class ClassifierExperimenter {
     // Naive baies constatns
     private static final int DISCRETE_SEGMENTS = 5;
 
-    private int countedEigenFaces;
-    private Random rand;
+    protected int countedEigenFaces;
+    protected Random rand;
 
     /** Conducts experiment using any of the classifiers defined in {@link Classifiers}. */
     public void evaluateClassifier(String username, int transformationId,
@@ -81,7 +83,7 @@ public abstract class ClassifierExperimenter {
 
     private void evaluateClassifierHelper(List<Example> examples, Classifiers[] classifiers,
             int numberOfExperiments, int countedEigenFaces) {
-        this.rand = new Random(RAND_SEED);
+        this.rand = reinitializeRandom();
         this.countedEigenFaces = countedEigenFaces;
         double totalPrecision = 0;
         for (int o = 0; o < numberOfExperiments; o++) {
@@ -102,14 +104,14 @@ public abstract class ClassifierExperimenter {
      * @param verificationSet An output array for the verification set - it should be resized
      *        accordingly.
      */
-    private void chooseProportionalExperimentSets(List<Example> examples, Example[] trainingSet,
-            Example[] verificationSet) {
-        List<List<Example>> classExamples = new LinkedList<List<Example>>();
+    protected void chooseProportionalExperimentSets(List<? extends BasicExample> examples,
+            BasicExample[] trainingSet, BasicExample[] verificationSet) {
+        List<List<BasicExample>> classExamples = new LinkedList<List<BasicExample>>();
         for (int i = 0; i < OUTPUT_CLASSES; i++) {
-            classExamples.add(new LinkedList<Example>());
+            classExamples.add(new LinkedList<BasicExample>());
         }
         int[] classCounts = new int[OUTPUT_CLASSES];
-        for (Example example : examples) {
+        for (BasicExample example : examples) {
             classExamples.get(example.classification).add(example);
             classCounts[example.classification]++;
         }
@@ -165,7 +167,7 @@ public abstract class ClassifierExperimenter {
      * @param classifierTypes The classifier types which to experiment with.
      * @return The precision found during the experiment.
      */
-    private double conductExperiment(Example[] trainingSet, Example[] verificationSet,
+    protected double conductExperiment(Example[] trainingSet, Example[] verificationSet,
             Classifiers [] classifierTypes) {
         ClassifierInterface [] classifiers = new ClassifierInterface[classifierTypes.length];
         int idx = 0;
@@ -206,6 +208,11 @@ public abstract class ClassifierExperimenter {
         double precision = (double)good / (double)all;
         appendToOutput("Precision: " + precision + "\n");
         return precision;
+    }
+
+    /** Reintializes the pseudo=random generator to be used in the experimenter. */
+    protected Random reinitializeRandom() {
+        return new Random(RAND_SEED);
     }
 
     private ClassifierInterface getClassifierInstance(Classifiers classifier) {
