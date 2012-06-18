@@ -9,6 +9,7 @@ import com.borisp.faces.beans.ManipulatedImage;
 import com.borisp.faces.beans.Manipulation;
 import com.borisp.faces.beans.PcaCoeficient;
 import com.borisp.faces.beans.Transformation;
+import com.borisp.faces.classifiers.ClassifierInputPreparator;
 import com.borisp.faces.classifiers.examples.Example;
 import com.borisp.faces.database.DatabaseHelper;
 import com.borisp.faces.initial_manipulation.ImageScaler;
@@ -26,38 +27,64 @@ public abstract class RecognizerExperimenter {
     /** The manipulation to use in the evaluation. */
     private Manipulation manipulation;
 
-    /** Conducts experiment using the neural network. */
+    /** Conducts a recognizer experiment on both non-transformed image and pca image. */
     public void evaluateRecognizer(int transformationId, SessionFactory sessionFactory,
             double noiseLevel, int countedEigenFaces) {
         this.transformation = DatabaseHelper
                 .getTransformationById(transformationId, sessionFactory);
         this.manipulation = transformation.getManipulation();
-        Example[] recognizerInput = generateRecognizerInput(transformationId, countedEigenFaces,
+        Example[] pcaRecognizerInput = generateRecognizerPcaInput(transformationId,
+                countedEigenFaces, sessionFactory);
+        Example[] initialRecognizerInput = generateRecognizerManipulationInput(transformationId,
                 sessionFactory);
-        NearestNeighbourRecognizer recognizer = new NearestNeighbourRecognizer(recognizerInput);
+        NearestNeighbourRecognizer pcaRecognizer = new NearestNeighbourRecognizer(
+                pcaRecognizerInput);
+        NearestNeighbourRecognizer initialRecognizer = new NearestNeighbourRecognizer(
+                initialRecognizerInput);
+
         PcaTransformer pcaTransformer = new PcaTransformer(ImageScaler.TARGET_HEIGHT,
                 ImageScaler.TARGET_WIDTH, transformation);
 
         int idx = 0;
-        int correctlyClassified = 0;
-        int wronglyClassified = 0;
+        int pcaCorrectlyClassified = 0;
+        int pcaWronglyClassified = 0;
+        int initialCorrectlyClassified = 0;
+        int initialWronglyClassified = 0;
         for (ManipulatedImage image : manipulation.getManipulatedImages()) {
             int[][] imageWithNoise = NoiseGenerator.getImageWithNoise(image, noiseLevel);
             double[] pcaCoeficients = pcaTransformer.getPcaCoeficients(imageWithNoise);
-            Example example = new Example();
-            example.measures = Arrays.copyOf(pcaCoeficients, countedEigenFaces);
-            example.classification = idx;
-            int classification = recognizer.classifyExample(example);
-            if (classification == idx) {
-                correctlyClassified++;
+            Example pcaExample = new Example();
+            pcaExample.measures = Arrays.copyOf(pcaCoeficients, countedEigenFaces);
+            pcaExample.classification = idx;
+            int pcaClassification = pcaRecognizer.classifyExample(pcaExample);
+            if (pcaClassification == idx) {
+                pcaCorrectlyClassified++;
             } else {
-                wronglyClassified++;
+                pcaWronglyClassified++;
             }
+            Example initialExample = new Example();
+            initialExample.measures = ClassifierInputPreparator
+                    .getOneDimensionalVector(imageWithNoise);
+            initialExample.classification = idx;
+            int initialClassification = initialRecognizer.classifyExample(initialExample);
+            if (initialClassification == idx) {
+                initialCorrectlyClassified++;
+            } else {
+                initialWronglyClassified++;
+            }
+            appendToOutput("" + pcaClassification + " " + initialClassification + "\n");
             idx++;
         }
-        appendToOutput("Correctly classified: " + correctlyClassified + "\n");
-        appendToOutput("Wrongly classified: " + wronglyClassified + "\n");
-        appendToOutput("Total precision: " + (double)correctlyClassified / (double)idx + "\n");
+        appendToOutput("---Direct recognition statistics: ----\n");
+        appendToOutput("Correctly classified: " + initialCorrectlyClassified + "\n");
+        appendToOutput("Wrongly classified: " + initialWronglyClassified + "\n");
+        appendToOutput("Total precision: " + (double) initialCorrectlyClassified / (double) idx
+                + "\n");
+
+        appendToOutput("---PCA statistics: ----\n");
+        appendToOutput("Correctly classified: " + pcaCorrectlyClassified + "\n");
+        appendToOutput("Wrongly classified: " + pcaWronglyClassified + "\n");
+        appendToOutput("Total precision: " + (double) pcaCorrectlyClassified / (double) idx + "\n");
     }
 
     /**
@@ -67,7 +94,7 @@ public abstract class RecognizerExperimenter {
      * @param countedEigenFaces The number of dimensions which to include in the analysis
      * @param sessionFactory A session factory to use for the database connections.
      */
-    public Example[] generateRecognizerInput(int transformationId, int countedEigenFaces,
+    public Example[] generateRecognizerPcaInput(int transformationId, int countedEigenFaces,
             SessionFactory sessionFactory) {
 
         Example[] examples = new Example[manipulation.getManipulatedImages().size()];
@@ -79,6 +106,26 @@ public abstract class RecognizerExperimenter {
             for (int j = 0; j < countedEigenFaces; j++) {
                 examples[i].measures[j] = pcaCoeficients.get(j).getCoeficient();
             }
+            examples[i].classification = i;
+        }
+        return examples;
+    }
+
+    /**
+     * Creates an array of {@link Example}s for all classifications of a user for transformation.
+     *
+     * @param transformationId The if of the transformation to use to transform the input
+     * @param countedEigenFaces The number of dimensions which to include in the analysis
+     * @param sessionFactory A session factory to use for the database connections.
+     */
+    public Example[] generateRecognizerManipulationInput(int transformationId,
+            SessionFactory sessionFactory) {
+
+        Example[] examples = new Example[manipulation.getManipulatedImages().size()];
+        for (int i = 0; i < examples.length; i++) {
+            examples[i] = new Example();
+            examples[i].measures = ClassifierInputPreparator.getInitialMeasures(manipulation
+                    .getManipulatedImages().get(i));
             examples[i].classification = i;
         }
         return examples;

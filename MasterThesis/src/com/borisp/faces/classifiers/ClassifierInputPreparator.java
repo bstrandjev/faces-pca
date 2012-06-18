@@ -7,6 +7,7 @@ import java.util.List;
 import org.hibernate.SessionFactory;
 
 import com.borisp.faces.beans.Classification;
+import com.borisp.faces.beans.ManipulatedImage;
 import com.borisp.faces.beans.Manipulation;
 import com.borisp.faces.beans.PcaCoeficient;
 import com.borisp.faces.beans.Transformation;
@@ -131,10 +132,28 @@ public class ClassifierInputPreparator {
      * @param classification The classification from which to fetch the image.
      */
     private static double [] getInitialMeasures(Classification classification) {
-        String manipulatedImagePath = classification.getManipulatedImage()
-                .getManipulatedImagePath();
+        return getInitialMeasures(classification.getManipulatedImage());
+    }
+
+    /**
+     * Creates an array of the pixel of the non-transformed image.
+     *
+     * This array will be used as input to different classifiers.
+     * @param manipulatedImage The manipulated image for which to fetch the measures.
+     */
+    public static double [] getInitialMeasures(ManipulatedImage manipulatedImage) {
+        String manipulatedImagePath = manipulatedImage.getManipulatedImagePath();
         ColorPixel[][] imagePixels = ImageReader.getImagePixels(new File(manipulatedImagePath));
         int[][] grayscales = GrayscaleConverter.getImageGrayscale(imagePixels);
+        return getOneDimensionalVector(grayscales);
+    }
+
+    /**
+     * Converts a two dimensional array of grayscale values to one dimensional double vector.
+     *
+     * @param grayscale The grayscale to transform.
+     */
+    public static double [] getOneDimensionalVector(int [][]grayscales) {
         double [] measures = new double[grayscales.length * grayscales[0].length];
         int idx = 0;
         for (int i = 0; i < grayscales.length; i++) {

@@ -1,5 +1,6 @@
 package com.borisp.faces.ui;
 
+import java.awt.Color;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class ScreePlotVisualizer {
     private static final String X_AXIS_LABEL = "PCA components";
     private static final String Y_AXIS_LABEL = "Associated variation";
     private static final String LINE_LABEL = "Eigen values";
-    private static final int PCA_COMPONENTS_LIMIT = 40;
+    private static final int PCA_COMPONENTS_LIMIT = 102;
 
     /** Creates a frame containing the scree plot of the transformation. */
     public static void createScreePlot(Transformation transformation) {
@@ -43,6 +44,7 @@ public class ScreePlotVisualizer {
                 Y_AXIS_LABEL, dataset, PlotOrientation.VERTICAL, true, true, false);
         ChartFrame chartFrame = new ChartFrame(SCREE_PLOT_LABEL, chart);
         chartFrame.pack();
+        chartFrame.setBackground(Color.WHITE);
         chartFrame.setVisible(true);
     }
 }
