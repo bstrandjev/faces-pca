@@ -9,12 +9,14 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "images")
-/** A bean for the initial images. */
+/** A bean for the raw images. */
 public class Image {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,6 +33,11 @@ public class Image {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "originalImage",
                cascade = { CascadeType.DETACH, CascadeType.REMOVE }, orphanRemoval = true)
     private List<ManipulatedImage> manipulatedImages;
+
+    //bi-directional many-to-one association to image group bean
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="image_group_fk")
+    private ImageGroup imageGroup;
 
     public int getImageId() {
         return imageId;
@@ -62,5 +69,13 @@ public class Image {
 
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
+    }
+
+    public ImageGroup getImageGroup() {
+        return imageGroup;
+    }
+
+    public void setImageGroup(ImageGroup imageGroup) {
+        this.imageGroup = imageGroup;
     }
 }

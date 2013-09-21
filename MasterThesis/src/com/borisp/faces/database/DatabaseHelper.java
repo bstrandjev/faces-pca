@@ -11,6 +11,7 @@ import org.hibernate.classic.Session;
 
 import com.borisp.faces.beans.Classification;
 import com.borisp.faces.beans.EigenFaceEntity;
+import com.borisp.faces.beans.ImageGroup;
 import com.borisp.faces.beans.ManipulatedImage;
 import com.borisp.faces.beans.Manipulation;
 import com.borisp.faces.beans.PcaCoeficient;
@@ -31,6 +32,11 @@ public class DatabaseHelper {
     private static final String SELECT_ALL_TRANSFORMATIONS_SQL_QUERY = "from Transformation t";
     /** A string for selecting all the users from the database. */
     private static final String SELECT_ALL_USERS_SQL_QUERY = "from User u";
+    /** A string for selecting all the image groups from the database. */
+    private static final String SELECT_ALL_IMAGE_GROUPS_SQL_QUERY = "from ImageGroup ig";
+    /** A string for selecting all the image groups from the database. */
+    private static final String SELECT_IMAGE_GROUPS_BY_KEY_SQL_QUERY =
+            "from ImageGroup ig where ig.key = :key";
 
     /** A method for fetching manipulation based on manipulation index. */
     public static Manipulation getManipulationByIndex(int manipulationIndex,
@@ -151,8 +157,38 @@ public class DatabaseHelper {
         return users;
     }
 
-    /** Returns the first transformation from the DB> Throws if no such exists. */
+    /** Returns all the image groups in the database. */
+    public static List<ImageGroup> getAllImageGroups(SessionFactory sessionFactory) {
+        Session session = sessionFactory.getCurrentSession();
+        session.beginTransaction();
+        Query query = session.createQuery(SELECT_ALL_IMAGE_GROUPS_SQL_QUERY);
+        List<ImageGroup> imageGroups = new ArrayList<ImageGroup>();
+        for (Iterator<?> it = query.iterate(); it.hasNext();) {
+            imageGroups.add((ImageGroup) it.next());
+        }
+        return imageGroups;
+    }
+
+    /** Returns image group from the database based on its key. */
+    public static ImageGroup getImageGroupByKey(SessionFactory sessionFactory, String key) {
+        Session session = sessionFactory.getCurrentSession();
+        session.beginTransaction();
+        Query query = session.createQuery(SELECT_IMAGE_GROUPS_BY_KEY_SQL_QUERY);
+        query.setString("key", key);
+        List<ImageGroup> imageGroups = new ArrayList<ImageGroup>();
+        for (Iterator<?> it = query.iterate(); it.hasNext();) {
+            imageGroups.add((ImageGroup) it.next());
+        }
+        return imageGroups.isEmpty() ? null : imageGroups.get(0);
+    }
+
+    /** Returns the first transformation from the DB. Throws if no such exists. */
     public static Transformation getFirstTransformation(SessionFactory sessionFactory) {
         return getAllTransformations(sessionFactory).get(0);
+    }
+
+    /** Returns the first image group from the DB. Throws if no such exists. */
+    public static ImageGroup getFirstImageGroup(SessionFactory sessionFactory) {
+        return getAllImageGroups(sessionFactory).get(0);
     }
 }

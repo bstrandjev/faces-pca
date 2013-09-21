@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.text.ParseException;
 
-import com.borisp.faces.initial_manipulation.ImageManipulator;
 import com.borisp.faces.pca.PcaTransformer;
 import com.borisp.faces.util.ColorPixel;
 import com.borisp.faces.util.GrayscaleConverter;
@@ -49,8 +48,8 @@ public class Main {
 //        findProjectImages(pcaTransformer);
 //        findImageCoeficients(pcaTransformer);
 //        pcaTransformer.printEigenFaces();
-        ImageManipulator imageManipulator = new ImageManipulator();
-        imageManipulator.manipulateImages();
+//        ImageManipulator imageManipulator = new ImageManipulator();
+//        imageManipulator.manipulateImages();
     }
 
     private static void findImageCoeficients(PcaTransformer pcaTransformer) throws IOException {

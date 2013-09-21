@@ -10,13 +10,13 @@ import com.borisp.faces.util.ImageWriter;
 /**
  * Finds the face region of given person's portrait picture.
  *
- * The used algorithm is as follows (main function {@link #findFace(int[][], boolean)}):
+ * The used algorithm is as follows (main function {@link #findFace(int[][], boolean, boolean)}):
  * <ol>
  *  <li>Combined horizontal and vertical contour detection is performed using
  *      {@link #horizontalFilter(int[][])} and {@link #verticalFilter(int[][])}
- *  <li>The resulting pixel values are fit in the range [0, 255] in {@link #findFace(int[][], boolean)}
+ *  <li>The resulting pixel values are fit in the range [0, 255] in {@link #findFace(int[][], boolean, boolean)}
  *  <li>A linear smoothing filter with small rectangular shape is applied in
- *      {@link #smoothItFirst(int[][])}
+ *      {@link Smoother#smoothItFirst(int[][])}
  *  <li>The horizontal characteristic of the obtained picture is calculated in
  *      {@link #aggregatorHorizontal(int[][], int[][])}
  *  <li>The eye line is found in {@link #findEyes(int[][])}, searching the brightest region
@@ -27,7 +27,7 @@ import com.borisp.faces.util.ImageWriter;
  *      {@link #findEyeXs(int[][])}
  *  <li>The x coordinates of the eye bounds are found as the bounds of the brightest regions around
  *      the nose in {@link #findEyeXs(int[][])}
- *  <li>The face bounding box is estimated based on heuristic constants in {@link #findFace(int[][], boolean)}
+ *  <li>The face bounding box is estimated based on heuristic constants in {@link #findFace(int[][], boolean, boolean)}
  *  <li>The face bounding box is rescaled to match the expected ration in
  *      {@link ImageScaler#chooseMostAppropriateRegion(CropRegion, int)}
  * </ol>
@@ -36,7 +36,12 @@ import com.borisp.faces.util.ImageWriter;
  */
 public class FaceDetector {
     private static String DEBUG_IMAGE_OUTPUT_DIRECTORY = "tmp/manipulation/";
+    private static final String TIME_MEASURE_OUTPUT_PATTERN = "Operation '%s' took %.2f seconds";
+
     private static int margin = 10;
+
+    /** Used for time profiling of the algorithms. */
+    private static long lastRecordedTime;
 
     /**
      * Returns the region with the face in the image.
@@ -44,31 +49,50 @@ public class FaceDetector {
      * @param grayscale The grayscale pixels of the image to analyze
      * @param doDebugOutput If set to true images visualizing the different phases of the face
      *        detection will be output in the process of detection.
+     * @param measureTime A flag telling whether the time the different operations are taking should
+     *        be logged
      * @return The region in which the face on the picture is believed to be.
      */
-    public static CropRegion findFace(int [][] grayscale, boolean doDebugOutput) {
+    public static CropRegion findFace(int[][] grayscale, boolean doDebugOutput, boolean measureTime) {
         int[][] debugGrayscale = null; // will be used only if doDebugOutput is true.
 
-        if (doDebugOutput) doDebugOutput("grayscale.jpg", grayscale);
+        if (doDebugOutput) {
+            doDebugOutput("grayscale.jpg", grayscale);
+        }
+
+        if (measureTime) {
+            lastRecordedTime = System.currentTimeMillis();
+        }
 
         int[][] horiz = horizontalFilter(grayscale);
         int[][] vertical = verticalFilter(grayscale);
         int h = grayscale.length;
         int w = grayscale[0].length;
         margin = Math.max(10, Math.min(h / 60, w / 60));
-        int[][] res = new int [h][w];
+        int[][] res = new int[h][w];
         for (int i = 0; i < h; i++) {
             for (int j = 0; j < w; j++) {
                 res[i][j] = (int) Math.sqrt((horiz[i][j] * horiz[i][j] + vertical[i][j]
                         * vertical[i][j]));
             }
         }
-        if (doDebugOutput) doDebugOutput("before_smoothing.jpg", res);
+        if (doDebugOutput) {
+            doDebugOutput("before_smoothing.jpg", res);
+        }
 
-        int[][] res2 = smoothItFirst(res);
-        if (doDebugOutput) doDebugOutput("after_smoothing.jpg", res2);
+        if(measureTime) {
+            printTimeTaken("Linear filters");
+        }
 
-        int[][] aggHoriz = aggregatorHorizontal(res2, new int [][]{{0, w - 1}});
+        int[][] res2 = new Smoother(res).smoothIt();
+        if (doDebugOutput) {
+            doDebugOutput("after_smoothing.jpg", res2);
+        }
+        if(measureTime) {
+            printTimeTaken("Smoothing");
+        }
+
+        int[][] aggHoriz = aggregatorHorizontal(res2, new int[][] { { 0, w - 1 } });
         int eyes = findEyes(aggHoriz);
         if (doDebugOutput) {
             debugGrayscale = Arrays.copyOf(aggHoriz, aggHoriz.length);
@@ -80,87 +104,119 @@ public class FaceDetector {
             doDebugOutput("eye_line.jpg", debugGrayscale);
         }
 
-        int[][] aggVertical  = aggregatorVertical(res2, eyes - h / 20, eyes + h / 20);
-        Integer [] eyeXs = findEyeXs(aggVertical);
+        if(measureTime) {
+            printTimeTaken("Find eyes horizonatal");
+        }
 
-        if (doDebugOutput) {
-            for (int i = 0; i < debugGrayscale.length; i++) {
-                if (i > margin && i < debugGrayscale.length - margin) {
-                    continue;
+        int[][] aggVertical = aggregatorVertical(res2, eyes - h / 20, eyes + h / 20);
+        Integer[] eyeXs = null;
+        try {
+            eyeXs = findEyeXs(aggVertical);
+
+            if (doDebugOutput) {
+                for (int i = 0; i < debugGrayscale.length; i++) {
+                    if (i > margin && i < debugGrayscale.length - margin) {
+                        continue;
+                    }
+                    for (int j = 0; j < debugGrayscale[0].length; j++) {
+                        debugGrayscale[i][j] = aggVertical[i][j];
+                    }
                 }
-                for (int j = 0; j < debugGrayscale[0].length; j++) {
-                    debugGrayscale[i][j] = aggVertical[i][j];
+                for (Integer i : eyeXs) {
+                    for (int j = 0; j < debugGrayscale.length; j++) {
+                        debugGrayscale[j][i] = 255;
+                        debugGrayscale[j][i - 1] = 255;
+                        debugGrayscale[j][i + 1] = 255;
+                    }
+                }
+                doDebugOutput("eye_boxes.jpg", debugGrayscale);
+            }
+
+            if(measureTime) {
+                printTimeTaken("Find eye boxes");
+            }
+
+            aggHoriz = aggregatorHorizontal(res2, new int[][] { { eyeXs[2], eyeXs[0] },
+                    { eyeXs[1], eyeXs[3] } });
+            for (int i = 0; i < h; i++) {
+                for (int j = 0; j < w; j++) {
+                    if (j <= margin || (w - j) <= margin) {
+                        res[i][j] = aggHoriz[i][j];
+                    } else if (i <= margin || (h - i) <= margin) {
+                        res[i][j] = aggVertical[i][j];
+                    }
                 }
             }
-            for (Integer i : eyeXs) {
-                for (int j = 0; j < debugGrayscale.length; j++) {
-                    debugGrayscale[j][i] = 255;
-                    debugGrayscale[j][i - 1] = 255;
-                    debugGrayscale[j][i + 1] = 255;
+            // int top = findTopOfHead(aggHoriz, margin / 2);
+            // top = topHelper(aggHoriz, top + 1, aggHoriz[top][0] * 2);
+            int difference = eyeXs[2] - eyeXs[3];
+            int before = eyeXs[1] - difference / 2;
+            int after = eyeXs[0] + difference / 2;
+            int horizDiff = (9 * (eyeXs[0] - eyeXs[1])) / 10;
+            int beforeHoriz = eyes - horizDiff;
+            int afterHoriz = eyes + (horizDiff * 3) / 2;
+            for (int i = before; i < after; i++) {
+                res[beforeHoriz][i] = 255;
+                res[afterHoriz][i] = 255;
+                res[eyes][i] = 255;
+            }
+            for (int i = beforeHoriz; i < afterHoriz; i++) {
+                res[i][before] = 255;
+                res[i][after] = 255;
+            }
+
+            if (doDebugOutput) {
+                doDebugOutput("detected_face.jpg", res);
+            }
+
+            if(measureTime) {
+                printTimeTaken("Detect face");
+            }
+
+            int faceWidth = after - before;
+            int faceHeight = afterHoriz - beforeHoriz;
+            int upFaceHeight = eyes - beforeHoriz;
+            CropRegion region = new CropRegion();
+            region.x1 = Math.max(margin + 1, beforeHoriz - (2 * upFaceHeight) / 3);
+            region.y1 = Math.max(margin + 1, before - (3 * faceWidth) / 7);
+            region.x2 = Math.min(h - margin - 1, afterHoriz + (3 * faceHeight) / 7);
+            region.y2 = Math.min(w - margin - 1, after + (3 * faceWidth) / 7);
+
+            if (doDebugOutput) {
+                debugGrayscale = Arrays.copyOf(res, res.length);
+                for (int i = region.x1; i < region.x2; i++) {
+                    debugGrayscale[i][region.y1] = 255;
+                    debugGrayscale[i][region.y2] = 255;
                 }
-            }
-            doDebugOutput("eye_boxes.jpg", debugGrayscale);
-        }
-
-        aggHoriz = aggregatorHorizontal(res2, new int[][] { { eyeXs[2], eyeXs[0] },
-                { eyeXs[1], eyeXs[3] } });
-        for (int i = 0; i < h; i++) {
-            for (int j = 0; j < w; j++) {
-                if (j <= margin || (w - j) <= margin) {
-                    res[i][j] = aggHoriz[i][j];
-                } else if (i <= margin || (h - i) <= margin) {
-                    res[i][j] = aggVertical[i][j];
+                for (int i = region.y1; i < region.y2; i++) {
+                    debugGrayscale[region.x1][i] = 255;
+                    debugGrayscale[region.x2][i] = 255;
                 }
+                doDebugOutput("face_region.jpg", debugGrayscale);
             }
-        }
-        //int top = findTopOfHead(aggHoriz, margin / 2);
-        //top = topHelper(aggHoriz, top + 1, aggHoriz[top][0] * 2);
-        int difference = eyeXs[2] - eyeXs[3];
-        int before = eyeXs[1] - difference / 2;
-        int after = eyeXs[0] + difference / 2;
-        int horizDiff = (9 * (eyeXs[0] - eyeXs[1])) / 10;
-        int beforeHoriz = eyes - horizDiff;
-        int afterHoriz = eyes + (horizDiff * 3) / 2;
-        for (int i = before; i < after; i++) {
-            res[beforeHoriz][i] = 255;
-            res[afterHoriz][i] = 255;
-            res[eyes][i] = 255;
-        }
-        for (int i = beforeHoriz; i < afterHoriz; i++) {
-            res[i][before] = 255;
-            res[i][after] = 255;
-        }
 
-        if (doDebugOutput) doDebugOutput("detected_face.jpg", res);
-
-        int faceWidth = after - before;
-        int faceHeight = afterHoriz - beforeHoriz;
-        int upFaceHeight = eyes - beforeHoriz;
-        CropRegion region = new CropRegion();
-        region.x1 = Math.max(margin + 1, beforeHoriz - (2 * upFaceHeight) / 3);
-        region.y1 = Math.max(margin + 1, before - (3 * faceWidth) / 7);
-        region.x2 = Math.min(h - margin - 1, afterHoriz + (3 * faceHeight) / 7);
-        region.y2 = Math.min(w - margin - 1, after + (3 * faceWidth) / 7);
-
-        if (doDebugOutput) {
-            debugGrayscale = Arrays.copyOf(res, res.length);
-            for (int i = region.x1; i < region.x2; i++) {
-                debugGrayscale[i][region.y1] = 255;
-                debugGrayscale[i][region.y2] = 255;
-            }
-            for (int i = region.y1; i < region.y2; i++) {
-                debugGrayscale[region.x1][i] = 255;
-                debugGrayscale[region.x2][i] = 255;
-            }
-            doDebugOutput("face_region.jpg", debugGrayscale);
+            return ImageScaler.chooseMostAppropriateRegion(region, w * h);
+        } catch (RuntimeException e) {
+            CropRegion cropRegion = new CropRegion();
+            cropRegion.x1 = 0;
+            cropRegion.y1 = 0;
+            cropRegion.x2 = 240;
+            cropRegion.y2 = 320;
+            System.err.println("Failed to find the face");
+            return cropRegion;
         }
-
-        return ImageScaler.chooseMostAppropriateRegion(region, w * h);
     }
 
     /** A method that does the debug output of the intermediate images. */
     private static void doDebugOutput(String imageName, int [][] grayscale) {
         ImageWriter.createImage(DEBUG_IMAGE_OUTPUT_DIRECTORY + imageName, grayscale, false);
+    }
+
+    private static void printTimeTaken(String operationName) {
+        long currentTimeMillis = System.currentTimeMillis();
+        double seconds = (currentTimeMillis - lastRecordedTime) / 1000.0;
+        System.out.println(String.format(TIME_MEASURE_OUTPUT_PATTERN, operationName, seconds));
+        lastRecordedTime = currentTimeMillis;
     }
 
     private static int findEyes(int [][] aggHorizontal) {
@@ -180,33 +236,6 @@ public class FaceDetector {
             }
         }
         return eyeLine;
-    }
-
-    /** Applies linear smoothing filter agregating the values in rectangular region. */
-    private static int [][]smoothItFirst(int [][] grayscale) {
-        int h = grayscale.length;
-        int w = grayscale[0].length;
-        int [][] res = new int[h][w];
-        int sideHoriz = w / 120;
-        int sideVertical = h / 120;
-        for (int i = 0; i < h; i++) {
-            for (int j = 0; j < w; j++) {
-                int cnt = 0;
-                for (int k = -sideVertical; k <= sideVertical; k++) {
-                    for (int l = -sideHoriz; l <= sideHoriz; l++) {
-                        if (i + k >= 0 && i + k < h && j + l >= 0 && j + l < w) {
-                            res[i][j] += grayscale[i + k][j + l];
-                            cnt++;
-                        }
-                    }
-                }
-                res[i][j] /= cnt;
-                if (res[i][j] > 255) {
-                    res[i][j] = 255;
-                }
-            }
-        }
-        return res;
     }
 
     @SuppressWarnings("unused")

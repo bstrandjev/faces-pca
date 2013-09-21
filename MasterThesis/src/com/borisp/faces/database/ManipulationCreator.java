@@ -14,6 +14,7 @@ import org.hibernate.classic.Session;
 import org.hibernate.criterion.Projections;
 
 import com.borisp.faces.beans.Image;
+import com.borisp.faces.beans.ImageGroup;
 import com.borisp.faces.beans.ManipulatedImage;
 import com.borisp.faces.beans.Manipulation;
 import com.borisp.faces.initial_manipulation.FaceDetector;
@@ -36,8 +37,8 @@ import com.borisp.faces.util.ImageWriter;
  * @author Boris
  */
 public class ManipulationCreator {
-    private static final String IS_GOOD_FILE_PATTERN = "images/manipulation_%02d/good/%s";
-    private static final String IS_BAD_FILE_PATTERN = "images/manipulation_%02d/bad/%s";
+    private static final String IS_GOOD_FILE_PATTERN = "images/manipulation_%02d/good/%s/%s";
+    private static final String IS_BAD_FILE_PATTERN = "images/manipulation_%02d/bad/%s/%s";
 
     private BufferedImage manipulatedImage;
     private Manipulation manipulation;
@@ -46,29 +47,31 @@ public class ManipulationCreator {
 
     /** A class that is supposed to implement 'iterator' over all initial images. */
     public class ManipulationIterator {
-        private static final String SELECT_ALL_SQL_QUERY = "from Image image";
+        private static final String SELECT_IMAGE_GROUP_IMAGES_SQL_QUERY =
+                "from Image image where image.imageGroup = :imageGroup";
 
-        private List<Image> initialImages;
+        private List<Image> imageGroupImages;
         private int currentImageIdx;
 
-        private ManipulationIterator(Session session ) {
-            this.initialImages = new ArrayList<Image>();
-            Query query = session.createQuery(SELECT_ALL_SQL_QUERY);
+        private ManipulationIterator(Session session, ImageGroup imageGroup) {
+            this.imageGroupImages = new ArrayList<Image>();
+            Query query = session.createQuery(SELECT_IMAGE_GROUP_IMAGES_SQL_QUERY);
+            query.setEntity("imageGroup", imageGroup);
             for (Iterator<?> it = query.iterate(); it.hasNext();) {
-                initialImages.add((Image) it.next());
+                imageGroupImages.add((Image) it.next());
             }
             List<ManipulatedImage> manipulatedImages = manipulation.getManipulatedImages();
             this.currentImageIdx = manipulatedImages != null ? manipulatedImages.size() : 0;
         }
 
         public String getCurrentImageLabel() {
-            return initialImages.get(currentImageIdx).getKey();
+            return imageGroupImages.get(currentImageIdx).getKey();
         }
 
         public BufferedImage getCurrentImage() {
             try {
                 BufferedImage manipulatedImage =
-                        getManipulation(initialImages.get(currentImageIdx));
+                        getManipulation(imageGroupImages.get(currentImageIdx));
                 return manipulatedImage;
             } catch (Throwable t) {
                 t.printStackTrace();
@@ -88,7 +91,7 @@ public class ManipulationCreator {
         }
 
         public boolean moveIterator() {
-            if (currentImageIdx + 1 < initialImages.size()) {
+            if (currentImageIdx + 1 < imageGroupImages.size()) {
                 currentImageIdx++;
                 return true;
             } else {
@@ -97,12 +100,13 @@ public class ManipulationCreator {
         }
 
         public void recordGoodState(boolean isGood) {
-            recordManipulatedImage(initialImages.get(currentImageIdx), isGood);
+            recordManipulatedImage(imageGroupImages.get(currentImageIdx), isGood);
         }
 
     }
 
-    public void createNewManipulation(SessionFactory sessionFactory, boolean newManipulation) {
+    public void createNewManipulation(SessionFactory sessionFactory, boolean newManipulation,
+            ImageGroup imageGroup) {
         this.sessionFactory = sessionFactory;
         Session session = sessionFactory.getCurrentSession();
         session.beginTransaction();
@@ -126,7 +130,7 @@ public class ManipulationCreator {
             manipulation = (Manipulation) query.uniqueResult();
         }
 
-        new ManipulationEvaluatorUI(new ManipulationIterator(session));
+        new ManipulationEvaluatorUI(new ManipulationIterator(session, imageGroup));
     }
 
     private BufferedImage getManipulation(Image image) {
@@ -134,7 +138,7 @@ public class ManipulationCreator {
         File imageFile = new File(imageFilePath);
         ColorPixel[][] imagePixels = ImageReader.getImagePixels(imageFile);
         int[][] grayscale = GrayscaleConverter.getImageGrayscale(imagePixels);
-        faceRegion = FaceDetector.findFace(grayscale, false);
+        faceRegion = FaceDetector.findFace(grayscale, false, false);
 
         ImageCropper cropper = new ImageCropper();
         ColorPixel[][] grayscalePixels = new ColorPixel[grayscale.length][grayscale[0].length];
@@ -143,10 +147,15 @@ public class ManipulationCreator {
                 grayscalePixels[i][j] = GrayscaleConverter.getColorPixel(grayscale[i][j]);
             }
         }
-        ColorPixel[][] croppedImage = cropper.cropImage(grayscalePixels, faceRegion);
-        manipulatedImage =
-                ImageScaler.rescaleImage(ImageConstructor.createImage(croppedImage));
-        return manipulatedImage;
+        if (faceRegion.x2 >= grayscalePixels.length || faceRegion.y2 >= grayscalePixels[0].length) {
+            System.err.println("The image is too small and can not be manipulated!!");
+            return ImageConstructor.createImage(grayscalePixels);
+        } else {
+            ColorPixel[][] croppedImage = cropper.cropImage(grayscalePixels, faceRegion);
+            manipulatedImage =
+                    ImageScaler.rescaleImage(ImageConstructor.createImage(croppedImage));
+            return manipulatedImage;
+        }
     }
 
     private void recordManipulatedImage(Image image, boolean isGood) {
@@ -174,10 +183,10 @@ public class ManipulationCreator {
     private String constructImagePath(Image image, boolean isGood) {
         if (isGood) {
             return String.format(IS_GOOD_FILE_PATTERN, manipulation.getManipulationIndex(),
-                    image.getKey());
+                    image.getImageGroup().getKey(), image.getKey());
         } else {
             return String.format(IS_BAD_FILE_PATTERN, manipulation.getManipulationIndex(),
-                    image.getKey());
+                    image.getImageGroup().getKey(), image.getKey());
         }
     }
 }

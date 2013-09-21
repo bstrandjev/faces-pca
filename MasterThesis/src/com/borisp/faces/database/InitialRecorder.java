@@ -7,6 +7,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
 
 import com.borisp.faces.beans.Image;
+import com.borisp.faces.beans.ImageGroup;
 
 /**
  * This class contains methods that will take the initial versions of the training set pictures and
@@ -15,16 +16,20 @@ import com.borisp.faces.beans.Image;
  * @author Boris
  */
 public class InitialRecorder {
-    private static final String INITIAL_IMAGE_DIRECTORY = "images" + File.separator + "initial";
+    private static final String INITIAL_IMAGE_DIRECTORY = "images" + File.separator + "%s";
 
-    public void recordNewInitialImages(SessionFactory sessionFactory) throws IOException {
-        File initialImagesFolder = new File(INITIAL_IMAGE_DIRECTORY);
+    public void recordNewInitialImages(SessionFactory sessionFactory, ImageGroup imageGroup)
+            throws IOException {
+        File initialImagesFolder =
+                new File(String.format(INITIAL_IMAGE_DIRECTORY,imageGroup.getKey()));
+
         Session session = sessionFactory.getCurrentSession();
         session.beginTransaction();
         for (File initialImage : initialImagesFolder.listFiles()) {
             Image image = new Image();
             image.setImagePath(initialImage.getPath());
             image.setKey(initialImage.getName());
+            image.setImageGroup(imageGroup);
 
             session.save(image);
             System.out.println("Adding: " + image.getKey());

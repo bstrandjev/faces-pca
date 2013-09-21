@@ -9,31 +9,35 @@ import org.hibernate.cfg.AnnotationConfiguration;
 import com.borisp.faces.beans.Classification;
 import com.borisp.faces.beans.EigenFaceEntity;
 import com.borisp.faces.beans.Image;
+import com.borisp.faces.beans.ImageGroup;
 import com.borisp.faces.beans.ManipulatedImage;
 import com.borisp.faces.beans.Manipulation;
 import com.borisp.faces.beans.PcaCoeficient;
 import com.borisp.faces.beans.Transformation;
 import com.borisp.faces.beans.User;
 import com.borisp.faces.database.ClassificationDatabaseHelper;
+import com.borisp.faces.database.DatabaseHelper;
 import com.borisp.faces.database.InitialRecorder;
 import com.borisp.faces.database.ManipulationCreator;
 import com.borisp.faces.database.PcaDatabaseHelper;
-import com.borisp.faces.ui.BasicFrame;
 import com.borisp.faces.weka.WekaContentCreator;
 
 public class DatabaseMain {
     public static void main(String[] args) throws IOException, ParseException {
-//        SessionFactory sessionFactory = initializeSessionFactory();
-//        LongClassifierExperimenter longClassifierExperimenter = new LongClassifierExperimenter();
-//        longClassifierExperimenter.executeExperiments(sessionFactory);
-        new BasicFrame();
-//        SessionFactory sessionFactory = initializeSessionFactory();
-//        doPcaTransform(sessionFactory);
-//        demonstrateTransformation(sessionFactory);
-//        demonstrateProjection(sessionFactory);
-//        recordClassification(sessionFactory);
-//        generateWekaInput(sessionFactory);
-//        neuralExperiment(sessionFactory);
+        // SessionFactory sessionFactory = initializeSessionFactory();
+        // LongClassifierExperimenter longClassifierExperimenter = new LongClassifierExperimenter();
+        // longClassifierExperimenter.executeExperiments(sessionFactory);
+        // new BasicFrame();
+        SessionFactory sessionFactory = initializeSessionFactory();
+        String imageGroupKey = "russia";
+//        doInitialRecording(sessionFactory, imageGroupKey);
+        executeManipulation(sessionFactory, true, imageGroupKey);
+        // doPcaTransform(sessionFactory);
+        // demonstrateTransformation(sessionFactory);
+        // demonstrateProjection(sessionFactory);
+        // recordClassification(sessionFactory);
+        // generateWekaInput(sessionFactory);
+        // neuralExperiment(sessionFactory);
     }
 
     @SuppressWarnings("deprecation")
@@ -42,6 +46,7 @@ public class DatabaseMain {
         configuration.addAnnotatedClass(Classification.class);
         configuration.addAnnotatedClass(EigenFaceEntity.class);
         configuration.addAnnotatedClass(Image.class);
+        configuration.addAnnotatedClass(ImageGroup.class);
         configuration.addAnnotatedClass(ManipulatedImage.class);
         configuration.addAnnotatedClass(Manipulation.class);
         configuration.addAnnotatedClass(PcaCoeficient.class);
@@ -53,15 +58,19 @@ public class DatabaseMain {
         return configuration.buildSessionFactory();
     }
 
-    private static void doInitialRecording(SessionFactory sessionFactory) throws IOException {
+    private static void doInitialRecording(SessionFactory sessionFactory, String imageGroupKey)
+            throws IOException {
         InitialRecorder initialRecorder = new InitialRecorder();
-        initialRecorder.recordNewInitialImages(sessionFactory);
+        ImageGroup imageGroup = DatabaseHelper.getImageGroupByKey(sessionFactory, imageGroupKey);
+        initialRecorder.recordNewInitialImages(sessionFactory, imageGroup);
     }
 
     private static void executeManipulation(SessionFactory sessionFactory,
-            boolean createNewManipulation) {
+            boolean createNewManipulation, String imageGroupKey) {
         ManipulationCreator manipulationCreator = new ManipulationCreator();
-        manipulationCreator.createNewManipulation(sessionFactory, createNewManipulation);
+        ImageGroup imageGroup = DatabaseHelper.getImageGroupByKey(sessionFactory, imageGroupKey);
+        manipulationCreator
+                .createNewManipulation(sessionFactory, createNewManipulation, imageGroup);
     }
 
     private static void doPcaTransform(SessionFactory sessionFactory) {
