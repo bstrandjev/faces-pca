@@ -29,8 +29,8 @@ public class DatabaseMain {
         // longClassifierExperimenter.executeExperiments(sessionFactory);
         // new BasicFrame();
         SessionFactory sessionFactory = initializeSessionFactory();
-        String imageGroupKey = "russia";
-//        doInitialRecording(sessionFactory, imageGroupKey);
+        String imageGroupKey = "turkey";
+        doInitialRecording(sessionFactory, imageGroupKey);
         executeManipulation(sessionFactory, true, imageGroupKey);
         // doPcaTransform(sessionFactory);
         // demonstrateTransformation(sessionFactory);

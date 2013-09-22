@@ -16,19 +16,21 @@ import com.borisp.faces.beans.ImageGroup;
  * @author Boris
  */
 public class InitialRecorder {
-    private static final String INITIAL_IMAGE_DIRECTORY = "images" + File.separator + "%s";
+    private static final String IMAGE_GROUP_DIRECTORY = "images" + File.separator + "%s";
+    private static final String IMAGE_KEY_PATTERN = "%s_%s";
 
     public void recordNewInitialImages(SessionFactory sessionFactory, ImageGroup imageGroup)
             throws IOException {
         File initialImagesFolder =
-                new File(String.format(INITIAL_IMAGE_DIRECTORY,imageGroup.getKey()));
+                new File(String.format(IMAGE_GROUP_DIRECTORY, imageGroup.getKey()));
 
         Session session = sessionFactory.getCurrentSession();
         session.beginTransaction();
         for (File initialImage : initialImagesFolder.listFiles()) {
             Image image = new Image();
             image.setImagePath(initialImage.getPath());
-            image.setKey(initialImage.getName());
+            String key = String.format(IMAGE_KEY_PATTERN, imageGroup.getKey(), initialImage.getName());
+            image.setKey(key);
             image.setImageGroup(imageGroup);
 
             session.save(image);
