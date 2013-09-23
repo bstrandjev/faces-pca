@@ -5,9 +5,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
+import org.hibernate.criterion.Projections;
 
 import com.borisp.faces.beans.Classification;
 import com.borisp.faces.beans.EigenFaceEntity;
@@ -28,6 +30,9 @@ public class DatabaseHelper {
     // Query constants
     /** A string for selecting all the manipulations from the database. */
     private static final String SELECT_ALL_MANIPULATIONS_SQL_QUERY = "from Manipulation m";
+    /** Query for selecting manipulation based on manipulation index, */
+    private static final String SELECT_MANIPULATIONS_BY_INDICES_SQL_QUERY =
+            "from Manipulation m where m.manipulationIndex in (:indices)";
     /** A string for selecting all the transformations from the database. */
     private static final String SELECT_ALL_TRANSFORMATIONS_SQL_QUERY = "from Transformation t";
     /** A string for selecting all the users from the database. */
@@ -74,12 +79,11 @@ public class DatabaseHelper {
 
     /** Retrieves all the classifications of given user for given manipulation. */
     public static List<Classification> getNeededClassifications(User user,
-            Manipulation manipulation, SessionFactory sessionFactory) {
+            List<ManipulatedImage> manipulatedImages, SessionFactory sessionFactory) {
 
         Session session = sessionFactory.getCurrentSession();
         session.beginTransaction();
 
-        List<ManipulatedImage> manipulatedImages = manipulation.getManipulatedImages();
         List<Classification> toReturn = new ArrayList<Classification>();
         for (ManipulatedImage manipulatedImage : manipulatedImages) {
             for (Classification classification:  manipulatedImage.getClassifications()) {
@@ -131,6 +135,45 @@ public class DatabaseHelper {
             manipulations.add((Manipulation) it.next());
         }
         return manipulations;
+    }
+
+    /** Returns the last manipulation created in the database. */
+    public static Integer getLastManipulationIndex(SessionFactory sessionFactory) {
+        Session session = sessionFactory.getCurrentSession();
+        session.beginTransaction();
+
+        Criteria criteria = session.createCriteria(Manipulation.class).setProjection(
+                Projections.max("manipulationIndex"));
+        return (Integer) criteria.uniqueResult();
+    }
+
+    /**
+     * Returns all the good manipulated images from the database result of the given manipulations.
+     *
+     * @param sessionFactory The session factory to use.
+     * @param manipulationIndices The indices of the manipulations to consider.
+     * @return List containing all the good manipulated images.
+     */
+
+    public static List<ManipulatedImage> getGoodManipulationImages(SessionFactory sessionFactory,
+            Integer... manipulationIndices) {
+        Session session = sessionFactory.getCurrentSession();
+        session.beginTransaction();
+
+        Query query = session.createQuery(SELECT_MANIPULATIONS_BY_INDICES_SQL_QUERY);
+        query.setParameterList("indices", manipulationIndices);
+        @SuppressWarnings("unchecked")
+        Iterator<Manipulation> iterator = query.iterate();
+        List<ManipulatedImage> goodManipulatedImages = new ArrayList<ManipulatedImage>();
+        while (iterator.hasNext()) {
+            List<ManipulatedImage> manipulatedImages = iterator.next().getManipulatedImages();
+            for (ManipulatedImage manipulatedImage : manipulatedImages) {
+                if (manipulatedImage.getIsGood() != null && manipulatedImage.getIsGood() != 0) {
+                    goodManipulatedImages.add(manipulatedImage);
+                }
+            }
+        }
+        return goodManipulatedImages;
     }
 
     /** Returns all the transformations in the database. */

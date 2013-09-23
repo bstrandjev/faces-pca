@@ -48,7 +48,7 @@ public class ProjectionVisualizerPanel extends JPanel {
 
     public ProjectionVisualizerPanel(Transformation transformation, JFrame parentFrame) {
         this.eigenFaces = transformation.getEigenFaces();
-        this.manipulatedImages = transformation.getManipulation().getManipulatedImages();
+        this.manipulatedImages = transformation.getAllManipulatedImages();
 
         this.parentFrame = parentFrame;
         this.parentFrame.setTitle(PANEL_TITLE);

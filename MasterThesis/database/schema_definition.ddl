@@ -35,7 +35,7 @@ CREATE TABLE `image_groups` (
   `image_group_key` varchar(15) DEFAULT NULL,
   PRIMARY KEY (`image_group_pk`),
   UNIQUE KEY `image_group_key_UNIQUE` (`image_group_key`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8$$
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8$$
 
 
 delimiter $$
@@ -50,7 +50,7 @@ CREATE TABLE `images` (
   UNIQUE KEY `key_UNIQUE` (`image_key`),
   KEY `image_group_fk` (`image_group_fk`),
   CONSTRAINT `image_group_fk` FOREIGN KEY (`image_group_fk`) REFERENCES `image_groups` (`image_group_pk`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=224 DEFAULT CHARSET=utf8$$
+) ENGINE=InnoDB AUTO_INCREMENT=460 DEFAULT CHARSET=utf8$$
 
 
 delimiter $$
@@ -71,7 +71,7 @@ CREATE TABLE `manipulated_images` (
   KEY `manipulation_fk` (`manipulation_fk`),
   CONSTRAINT `manipulated_image_fk` FOREIGN KEY (`image_fk`) REFERENCES `images` (`images_pk`) ON DELETE CASCADE ON UPDATE NO ACTION,
   CONSTRAINT `manipulation_fk` FOREIGN KEY (`manipulation_fk`) REFERENCES `manipulations` (`manipulations_pk`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=234 DEFAULT CHARSET=utf8$$
+) ENGINE=InnoDB AUTO_INCREMENT=647 DEFAULT CHARSET=utf8$$
 
 
 delimiter $$
@@ -82,7 +82,7 @@ CREATE TABLE `manipulations` (
   `manipulation_index` int(11) NOT NULL,
   PRIMARY KEY (`manipulations_pk`),
   UNIQUE KEY `manipulations_pk_UNIQUE` (`manipulations_pk`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8$$
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8$$
 
 
 delimiter $$
@@ -105,13 +105,24 @@ delimiter $$
 
 CREATE TABLE `transformations` (
   `transformations_pk` int(11) NOT NULL AUTO_INCREMENT,
-  `manipulation_fk` int(11) NOT NULL,
   `average_face` longblob NOT NULL,
   PRIMARY KEY (`transformations_pk`),
-  UNIQUE KEY `transformations_pk_UNIQUE` (`transformations_pk`),
-  KEY `transformation_manipulation_fk` (`manipulation_fk`),
-  CONSTRAINT `transformation_manipulation_fk` FOREIGN KEY (`manipulation_fk`) REFERENCES `manipulations` (`manipulations_pk`) ON DELETE CASCADE ON UPDATE NO ACTION
+  UNIQUE KEY `transformations_pk_UNIQUE` (`transformations_pk`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8$$
+
+
+delimiter $$
+
+CREATE TABLE `transformed_images` (
+  `transformed_images_pk` int(11) NOT NULL AUTO_INCREMENT,
+  `manipulated_image_fk` int(11) NOT NULL,
+  `transformation_fk` int(11) NOT NULL,
+  PRIMARY KEY (`transformed_images_pk`),
+  KEY `transfromed_manipulated_image_fk` (`manipulated_image_fk`),
+  KEY `connected_transformation_fk` (`transformation_fk`),
+  CONSTRAINT `connected_transformation_fk` FOREIGN KEY (`transformation_fk`) REFERENCES `transformations` (`transformations_pk`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  CONSTRAINT `transfromed_manipulated_image_fk` FOREIGN KEY (`manipulated_image_fk`) REFERENCES `manipulated_images` (`manipulated_images_pk`) ON DELETE CASCADE ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=128 DEFAULT CHARSET=utf8$$
 
 
 delimiter $$

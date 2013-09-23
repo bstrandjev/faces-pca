@@ -8,7 +8,6 @@ import org.hibernate.SessionFactory;
 
 import com.borisp.faces.beans.Classification;
 import com.borisp.faces.beans.ManipulatedImage;
-import com.borisp.faces.beans.Manipulation;
 import com.borisp.faces.beans.PcaCoeficient;
 import com.borisp.faces.beans.Transformation;
 import com.borisp.faces.beans.User;
@@ -34,9 +33,8 @@ public class ClassifierInputPreparator {
         User user = DatabaseHelper.getUserByUsername(username, sessionFactory);
         Transformation transformation =
                 DatabaseHelper.getTransformationById(transformationId, sessionFactory);
-        Manipulation manipulation = transformation.getManipulation();
-        List<Classification> classifications =
-                DatabaseHelper.getNeededClassifications(user, manipulation, sessionFactory);
+        List<Classification> classifications = DatabaseHelper.getNeededClassifications(user,
+                transformation.getAllManipulatedImages(), sessionFactory);
 
         List<Example> examples = new ArrayList<Example>();
         for (Classification classification : classifications) {
@@ -61,9 +59,8 @@ public class ClassifierInputPreparator {
         User user = DatabaseHelper.getUserByUsername(username, sessionFactory);
         Transformation transformation =
                 DatabaseHelper.getTransformationById(transformationId, sessionFactory);
-        Manipulation manipulation = transformation.getManipulation();
-        List<Classification> classifications =
-                DatabaseHelper.getNeededClassifications(user, manipulation, sessionFactory);
+        List<Classification> classifications = DatabaseHelper.getNeededClassifications(user,
+                transformation.getAllManipulatedImages(), sessionFactory);
 
         List<Example> examples = new ArrayList<Example>();
         for (Classification classification : classifications) {
@@ -80,7 +77,7 @@ public class ClassifierInputPreparator {
      * transformation.
      *
      * @param username The username of the user that did the classification to use as input
-     * @param transformationId The if of the transformation to use to transform the input
+     * @param transformationId The id of the transformation to use to transform the input
      * @param countedEigenFaces The number of dimensions which to include in the analysis
      * @param sessionFactory A session factory to use for the database connections.
      */
@@ -89,9 +86,8 @@ public class ClassifierInputPreparator {
         User user = DatabaseHelper.getUserByUsername(username, sessionFactory);
         Transformation transformation = DatabaseHelper.getTransformationById(transformationId,
                 sessionFactory);
-        Manipulation manipulation = transformation.getManipulation();
         List<Classification> classifications = DatabaseHelper.getNeededClassifications(user,
-                manipulation, sessionFactory);
+                transformation.getAllManipulatedImages(), sessionFactory);
 
         List<ComplexExample> examples = new ArrayList<ComplexExample>();
         for (Classification classification : classifications) {

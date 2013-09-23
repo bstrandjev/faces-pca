@@ -6,7 +6,6 @@ import java.util.List;
 import org.hibernate.SessionFactory;
 
 import com.borisp.faces.beans.ManipulatedImage;
-import com.borisp.faces.beans.Manipulation;
 import com.borisp.faces.beans.PcaCoeficient;
 import com.borisp.faces.beans.Transformation;
 import com.borisp.faces.classifiers.ClassifierInputPreparator;
@@ -24,15 +23,12 @@ public abstract class RecognizerExperimenter {
 
     /** The transformation to use in the evaluation. */
     private Transformation transformation;
-    /** The manipulation to use in the evaluation. */
-    private Manipulation manipulation;
 
     /** Conducts a recognizer experiment on both non-transformed image and pca image. */
     public void evaluateRecognizer(int transformationId, SessionFactory sessionFactory,
             double noiseLevel, int countedEigenFaces) {
         this.transformation = DatabaseHelper
                 .getTransformationById(transformationId, sessionFactory);
-        this.manipulation = transformation.getManipulation();
         Example[] pcaRecognizerInput = generateRecognizerPcaInput(transformationId,
                 countedEigenFaces, sessionFactory);
         Example[] initialRecognizerInput = generateRecognizerManipulationInput(transformationId,
@@ -50,7 +46,7 @@ public abstract class RecognizerExperimenter {
         int pcaWronglyClassified = 0;
         int initialCorrectlyClassified = 0;
         int initialWronglyClassified = 0;
-        for (ManipulatedImage image : manipulation.getManipulatedImages()) {
+        for (ManipulatedImage image : transformation.getAllManipulatedImages()) {
             int[][] imageWithNoise = NoiseGenerator.getImageWithNoise(image, noiseLevel);
             double[] pcaCoeficients = pcaTransformer.getPcaCoeficients(imageWithNoise);
             Example pcaExample = new Example();
@@ -97,10 +93,12 @@ public abstract class RecognizerExperimenter {
     public Example[] generateRecognizerPcaInput(int transformationId, int countedEigenFaces,
             SessionFactory sessionFactory) {
 
-        Example[] examples = new Example[manipulation.getManipulatedImages().size()];
+        List<ManipulatedImage> manipulatedImages = transformation.getAllManipulatedImages();
+
+        Example[] examples = new Example[manipulatedImages.size()];
         for (int i = 0; i < examples.length; i++) {
             List<PcaCoeficient> pcaCoeficients = DatabaseHelper.getPcaCoeficients(
-                    manipulation.getManipulatedImages().get(i), transformation, sessionFactory);
+                    manipulatedImages.get(i), transformation, sessionFactory);
             examples[i] = new Example();
             examples[i].measures = new double[countedEigenFaces];
             for (int j = 0; j < countedEigenFaces; j++) {
@@ -121,11 +119,12 @@ public abstract class RecognizerExperimenter {
     public Example[] generateRecognizerManipulationInput(int transformationId,
             SessionFactory sessionFactory) {
 
-        Example[] examples = new Example[manipulation.getManipulatedImages().size()];
+        List<ManipulatedImage> manipulatedImages = transformation.getAllManipulatedImages();
+        Example[] examples = new Example[manipulatedImages.size()];
         for (int i = 0; i < examples.length; i++) {
             examples[i] = new Example();
-            examples[i].measures = ClassifierInputPreparator.getInitialMeasures(manipulation
-                    .getManipulatedImages().get(i));
+            examples[i].measures = ClassifierInputPreparator.getInitialMeasures(manipulatedImages
+                    .get(i));
             examples[i].classification = i;
         }
         return examples;

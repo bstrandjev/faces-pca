@@ -3,17 +3,14 @@ package com.borisp.faces.database;
 import java.io.File;
 import java.util.List;
 
-import org.hibernate.Criteria;
-import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
-import org.hibernate.criterion.Projections;
 
 import com.borisp.faces.beans.EigenFaceEntity;
 import com.borisp.faces.beans.ManipulatedImage;
-import com.borisp.faces.beans.Manipulation;
 import com.borisp.faces.beans.PcaCoeficient;
 import com.borisp.faces.beans.Transformation;
+import com.borisp.faces.beans.TransformedImage;
 import com.borisp.faces.initial_manipulation.ImageScaler;
 import com.borisp.faces.pca.PcaTransformer;
 import com.borisp.faces.pca.PcaTransformer.EigenFace;
@@ -29,16 +26,29 @@ import com.borisp.faces.util.ImageWriter;
  */
 public class PcaDatabaseHelper {
     private static final String EGIEN_FACE_FILE_PATTERN =
-            "images/manipulation_%02d/eigen_faces/face%03d.jpg";
+            "images/transformation_%02d/eigen_faces/face%03d.jpg";
 
     private static final String AVERAGE_FACE_FILE_PATTERN =
-            "images/manipulation_%02d/average_image.jpg";
+            "images/transformation_%02d/average_image.jpg";
 
-    private Manipulation manipulation;
+    private Integer transformationIndex;
+
+    public void transformSelectedManipulations(SessionFactory sessionFactory,
+            Integer... manipulationIndices) {
+        List<ManipulatedImage> manipulatedImages =
+                DatabaseHelper.getGoodManipulationImages(sessionFactory, manipulationIndices);
+        conductPcaHelper(sessionFactory, manipulatedImages);
+    }
+
+    public void transformLastManipulation(SessionFactory sessionFactory) {
+        List<ManipulatedImage> manipulatedImages = getLastManipulationImages(sessionFactory);
+        conductPcaHelper(sessionFactory, manipulatedImages);
+    }
 
     /** Does PCA transform on the last manipulation recorded in the database. */
-    public void conductPcaTransform(SessionFactory sessionFactory) {
-        File[] imageFiles = getLastManipulationImages(sessionFactory);
+    private void conductPcaHelper(SessionFactory sessionFactory,
+            List<ManipulatedImage> manipulatedImages) {
+        File[] imageFiles = getManipulatedImagesFiles(manipulatedImages);
         PcaTransformer pcaTransformer = new PcaTransformer(ImageScaler.TARGET_HEIGHT,
                 ImageScaler.TARGET_WIDTH, imageFiles);
         double [] averageFacePixels = pcaTransformer.getAverageFace();
@@ -46,14 +56,12 @@ public class PcaDatabaseHelper {
         Session session = sessionFactory.getCurrentSession();
         session.beginTransaction();
         Transformation transformation = new Transformation();
-        transformation.setManipulation(manipulation);
         transformation.setAverageFacePixels(averageFacePixels);
-        session.save(transformation);
+        transformationIndex = (Integer) session.save(transformation);
         session.getTransaction().commit();
 
         // Outputting the average image for debugging purposes.
-        String averageImageFilePath = String.format(AVERAGE_FACE_FILE_PATTERN,
-                manipulation.getManipulationIndex());
+        String averageImageFilePath = String.format(AVERAGE_FACE_FILE_PATTERN, transformationIndex);
         ImageWriter.createImage(averageImageFilePath, averageFacePixels, ImageScaler.TARGET_HEIGHT,
                 ImageScaler.TARGET_WIDTH, false);
 
@@ -71,7 +79,6 @@ public class PcaDatabaseHelper {
             printEigenFace(eigenFaceEntities[i], i);
         }
 
-        List<ManipulatedImage> manipulatedImages = manipulation.getManipulatedImages();
         for (ManipulatedImage manipulatedImage : manipulatedImages) {
             ColorPixel [][] imagePixels =
                     ImageReader.getImagePixels(new File(manipulatedImage.getManipulatedImagePath()));
@@ -82,27 +89,25 @@ public class PcaDatabaseHelper {
                 pcaCoeficient.setManipulatedImage(manipulatedImage);
                 pcaCoeficient.setEigenFace(eigenFaceEntities[i]);
                 pcaCoeficient.setCoeficient(pcaCoeficients[i]);
-
                 session.save(pcaCoeficient);
             }
+
+            TransformedImage transformedImage = new TransformedImage();
+            transformedImage.setManipulatedImage(manipulatedImage);
+            transformedImage.setTransformation(transformation);
+            session.save(transformedImage);
         }
         session.getTransaction().commit();
     }
 
     /** Constructs an array containing all the images associated with the last successful manipulation. */
-    private File [] getLastManipulationImages(SessionFactory sessionFactory) {
-        Session session = sessionFactory.getCurrentSession();
-        session.beginTransaction();
+    private List<ManipulatedImage> getLastManipulationImages(SessionFactory sessionFactory) {
+        Integer lastManipulationIndex = DatabaseHelper.getLastManipulationIndex(sessionFactory);
+        return DatabaseHelper.getGoodManipulationImages(sessionFactory, lastManipulationIndex);
+    }
 
-        Criteria criteria = session.createCriteria(Manipulation.class).setProjection(
-                Projections.max("manipulationIndex"));
-        Integer maxIndex = (Integer) criteria.uniqueResult();
-
-        Query query =
-                session.createQuery("from Manipulation m where m.manipulationIndex = :index");
-        query.setInteger("index", maxIndex);
-        manipulation = (Manipulation) query.uniqueResult();
-        List<ManipulatedImage> manipulatedImages = manipulation.getManipulatedImages();
+    /** Returns an array holding all the files of the manipulated images in the given array. */
+    private File [] getManipulatedImagesFiles(List<ManipulatedImage> manipulatedImages) {
         File [] imageFiles = new File[manipulatedImages.size()];
         for (int i = 0; i < manipulatedImages.size(); i++) {
             imageFiles[i] = new File(manipulatedImages.get(i).getManipulatedImagePath());
@@ -124,6 +129,6 @@ public class PcaDatabaseHelper {
 
     /** Constructs the path in which the face file will be created. */
     private String constructFaceFilePath(int idx) {
-        return String.format(EGIEN_FACE_FILE_PATTERN, manipulation.getManipulationIndex(), idx);
+        return String.format(EGIEN_FACE_FILE_PATTERN, transformationIndex, idx);
     }
 }

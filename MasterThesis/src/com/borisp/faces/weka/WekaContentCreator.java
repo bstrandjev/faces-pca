@@ -9,7 +9,7 @@ import java.util.List;
 import org.hibernate.SessionFactory;
 
 import com.borisp.faces.beans.Classification;
-import com.borisp.faces.beans.Manipulation;
+import com.borisp.faces.beans.ManipulatedImage;
 import com.borisp.faces.beans.PcaCoeficient;
 import com.borisp.faces.beans.Transformation;
 import com.borisp.faces.beans.User;
@@ -30,22 +30,25 @@ public class WekaContentCreator {
 
     /**
      * Generates file that can be used as input to the weka system
+     * <p>
+     * This method works only for sets associated with single manipulation.
      *
      * @param username The username of the user that did the classification to use as input
+     * @param manipulationIndex The index of the manipulation which to be used as input for weka
      * @param sessionFactory A session factory to use for the database connections.
      * @throws IOException
      */
     public static void generateWekaInput(String username, int transformationId,
-            SessionFactory sessionFactory) throws IOException {
+            int manipulationIndex, SessionFactory sessionFactory) throws IOException {
         User user = DatabaseHelper.getUserByUsername(username, sessionFactory);
         Transformation transformation =
                 DatabaseHelper.getTransformationById(transformationId, sessionFactory);
-        Manipulation manipulation = transformation.getManipulation();
+        List<ManipulatedImage> manipulatedImages = transformation.getAllManipulatedImages();
         List<Classification> classifications =
-                DatabaseHelper.getNeededClassifications(user, manipulation, sessionFactory);
+                DatabaseHelper.getNeededClassifications(user, manipulatedImages, sessionFactory);
 
         String wekaInputFilePath = String.format(WEKA_INPUT_FILE_PATTERN, username,
-                manipulation.getManipulationIndex());
+                manipulationIndex);
         FileOutputStream wekaFile = new FileOutputStream(new File(wekaInputFilePath));
         BufferedOutputStream bufferedWekaStream = new BufferedOutputStream(wekaFile);
 

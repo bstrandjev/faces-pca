@@ -14,6 +14,7 @@ import com.borisp.faces.beans.ManipulatedImage;
 import com.borisp.faces.beans.Manipulation;
 import com.borisp.faces.beans.PcaCoeficient;
 import com.borisp.faces.beans.Transformation;
+import com.borisp.faces.beans.TransformedImage;
 import com.borisp.faces.beans.User;
 import com.borisp.faces.database.ClassificationDatabaseHelper;
 import com.borisp.faces.database.DatabaseHelper;
@@ -29,10 +30,10 @@ public class DatabaseMain {
         // longClassifierExperimenter.executeExperiments(sessionFactory);
         // new BasicFrame();
         SessionFactory sessionFactory = initializeSessionFactory();
-        String imageGroupKey = "turkey";
-        doInitialRecording(sessionFactory, imageGroupKey);
-        executeManipulation(sessionFactory, true, imageGroupKey);
-        // doPcaTransform(sessionFactory);
+//        String imageGroupKey = "turkey";
+//        doInitialRecording(sessionFactory, imageGroupKey);
+//        executeManipulation(sessionFactory, true, imageGroupKey);
+         doPcaTransform(sessionFactory);
         // demonstrateTransformation(sessionFactory);
         // demonstrateProjection(sessionFactory);
         // recordClassification(sessionFactory);
@@ -48,6 +49,7 @@ public class DatabaseMain {
         configuration.addAnnotatedClass(Image.class);
         configuration.addAnnotatedClass(ImageGroup.class);
         configuration.addAnnotatedClass(ManipulatedImage.class);
+        configuration.addAnnotatedClass(TransformedImage.class);
         configuration.addAnnotatedClass(Manipulation.class);
         configuration.addAnnotatedClass(PcaCoeficient.class);
         configuration.addAnnotatedClass(Transformation.class);
@@ -75,7 +77,7 @@ public class DatabaseMain {
 
     private static void doPcaTransform(SessionFactory sessionFactory) {
         PcaDatabaseHelper pcaDatabaseHelper = new PcaDatabaseHelper();
-        pcaDatabaseHelper.conductPcaTransform(sessionFactory);
+        pcaDatabaseHelper.transformSelectedManipulations(sessionFactory, 1);
     }
 
     private static void recordClassification(SessionFactory sessionFactory) {
@@ -84,6 +86,6 @@ public class DatabaseMain {
     }
 
     private static void generateWekaInput(SessionFactory sessionFactory) throws IOException {
-        WekaContentCreator.generateWekaInput("rand", 7, sessionFactory);
+        WekaContentCreator.generateWekaInput("rand", 7, 1, sessionFactory);
     }
 }

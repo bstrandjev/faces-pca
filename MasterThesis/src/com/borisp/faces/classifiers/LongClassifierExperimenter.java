@@ -78,7 +78,7 @@ public class LongClassifierExperimenter {
     public void executeExperiments(SessionFactory sessionFactory) throws IOException {
         this.users = DatabaseHelper.getAllUsers(sessionFactory);
         this.transformation = DatabaseHelper.getFirstTransformation(sessionFactory);
-        this.numberOfFaces = transformation.getManipulation().getManipulatedImages().size();
+        this.numberOfFaces = transformation.getAllManipulatedImages().size();
         prepareExampleCache(sessionFactory);
         for (Classifiers classifier : Classifiers.values()) {
             if (classifier.equals(Classifiers.IDENTITY)
@@ -128,7 +128,7 @@ public class LongClassifierExperimenter {
     private void prepareExampleCache(SessionFactory sessionFactory) {
         for (User user : users) {
             List<Classification> classifications = DatabaseHelper.getNeededClassifications(user,
-                    transformation.getManipulation(), sessionFactory);
+                    transformation.getAllManipulatedImages(), sessionFactory);
 
             List<Example> examples = new ArrayList<Example>();
             for (Classification classification : classifications) {
