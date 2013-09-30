@@ -54,7 +54,7 @@ public class ManipulatedImage {
     // bi-directional many-to-one association to Classification bean
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "manipulatedImage",
                cascade = { CascadeType.DETACH, CascadeType.REMOVE }, orphanRemoval = true)
-    private List<Classification> classifications;
+    private List<ClassifiedImage> classifications;
 
     // bi-directional many-to-one association to PcaCoeficient bean
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "manipulatedImage",
@@ -125,11 +125,11 @@ public class ManipulatedImage {
         this.manipulation = manipulation;
     }
 
-    public List<Classification> getClassifications() {
+    public List<ClassifiedImage> getClassifications() {
         return classifications;
     }
 
-    public void setClassifications(List<Classification> classifications) {
+    public void setClassifications(List<ClassifiedImage> classifications) {
         this.classifications = classifications;
     }
 

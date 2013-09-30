@@ -17,6 +17,8 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
 
 import com.borisp.faces.beans.Classification;
+import com.borisp.faces.beans.ClassificationValue;
+import com.borisp.faces.beans.ClassifiedImage;
 import com.borisp.faces.beans.EigenFaceEntity;
 import com.borisp.faces.beans.Image;
 import com.borisp.faces.beans.ImageGroup;
@@ -24,6 +26,7 @@ import com.borisp.faces.beans.ManipulatedImage;
 import com.borisp.faces.beans.Manipulation;
 import com.borisp.faces.beans.PcaCoeficient;
 import com.borisp.faces.beans.Transformation;
+import com.borisp.faces.beans.TransformedImage;
 import com.borisp.faces.beans.User;
 import com.borisp.faces.database.DatabaseHelper;
 
@@ -297,13 +300,16 @@ public class BasicFrame extends JFrame{
     }
 
     @SuppressWarnings("deprecation")
-    private SessionFactory initializeSessionFactory() {
+    public static SessionFactory initializeSessionFactory() {
         AnnotationConfiguration configuration = new AnnotationConfiguration();
+        configuration.addAnnotatedClass(ClassifiedImage.class);
+        configuration.addAnnotatedClass(ClassificationValue.class);
         configuration.addAnnotatedClass(Classification.class);
         configuration.addAnnotatedClass(EigenFaceEntity.class);
         configuration.addAnnotatedClass(Image.class);
         configuration.addAnnotatedClass(ImageGroup.class);
         configuration.addAnnotatedClass(ManipulatedImage.class);
+        configuration.addAnnotatedClass(TransformedImage.class);
         configuration.addAnnotatedClass(Manipulation.class);
         configuration.addAnnotatedClass(PcaCoeficient.class);
         configuration.addAnnotatedClass(Transformation.class);

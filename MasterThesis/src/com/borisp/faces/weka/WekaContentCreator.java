@@ -8,11 +8,12 @@ import java.util.List;
 
 import org.hibernate.SessionFactory;
 
-import com.borisp.faces.beans.Classification;
+import com.borisp.faces.beans.ClassifiedImage;
 import com.borisp.faces.beans.ManipulatedImage;
 import com.borisp.faces.beans.PcaCoeficient;
 import com.borisp.faces.beans.Transformation;
 import com.borisp.faces.beans.User;
+import com.borisp.faces.database.ClassificationDatabaseHelper;
 import com.borisp.faces.database.DatabaseHelper;
 
 /**
@@ -44,7 +45,7 @@ public class WekaContentCreator {
         Transformation transformation =
                 DatabaseHelper.getTransformationById(transformationId, sessionFactory);
         List<ManipulatedImage> manipulatedImages = transformation.getAllManipulatedImages();
-        List<Classification> classifications =
+        List<ClassifiedImage> classifications =
                 DatabaseHelper.getNeededClassifications(user, manipulatedImages, sessionFactory);
 
         String wekaInputFilePath = String.format(WEKA_INPUT_FILE_PATTERN, username,
@@ -63,14 +64,15 @@ public class WekaContentCreator {
         bufferedWekaStream.write(DATA_STRING.getBytes());
         bufferedWekaStream.write("\n\n".getBytes());
 
-        for (Classification classification : classifications) {
+        for (ClassifiedImage classifiedImage : classifications) {
             List<PcaCoeficient> pcaCoeficients = DatabaseHelper.getPcaCoeficients(
-                    classification.getManipulatedImage(), transformation, sessionFactory);
+                    classifiedImage.getManipulatedImage(), transformation, sessionFactory);
             StringBuffer sb = new StringBuffer();
             for (PcaCoeficient pcaCoeficient : pcaCoeficients) {
                 sb.append(String.format("%.6f,", pcaCoeficient.getCoeficient()));
             }
-            sb.append(classification.getIsBeautiful() == 0 ? "false\n" : "true\n");
+            sb.append(ClassificationDatabaseHelper.checkClassifiedImageBeautiful(
+                    classifiedImage, sessionFactory) == 0 ? "false\n" : "true\n");
             bufferedWekaStream.write(sb.toString().getBytes());
         }
         bufferedWekaStream.close();

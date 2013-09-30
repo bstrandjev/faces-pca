@@ -27,7 +27,7 @@ public class User {
     // bi-directional many-to-one association to Classification bean
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user",
                cascade = { CascadeType.DETACH, CascadeType.REMOVE }, orphanRemoval = true)
-    private List<Classification> classifications;
+    private List<ClassifiedImage> classifications;
 
     @Override
     public String toString() {
@@ -50,11 +50,11 @@ public class User {
         this.name = name;
     }
 
-    public List<Classification> getClassifications() {
+    public List<ClassifiedImage> getClassifications() {
         return classifications;
     }
 
-    public void setClassifications(List<Classification> classifications) {
+    public void setClassifications(List<ClassifiedImage> classifications) {
         this.classifications = classifications;
     }
 }

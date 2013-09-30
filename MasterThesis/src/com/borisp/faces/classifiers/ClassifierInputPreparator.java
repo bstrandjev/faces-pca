@@ -6,13 +6,14 @@ import java.util.List;
 
 import org.hibernate.SessionFactory;
 
-import com.borisp.faces.beans.Classification;
+import com.borisp.faces.beans.ClassifiedImage;
 import com.borisp.faces.beans.ManipulatedImage;
 import com.borisp.faces.beans.PcaCoeficient;
 import com.borisp.faces.beans.Transformation;
 import com.borisp.faces.beans.User;
 import com.borisp.faces.classifiers.examples.ComplexExample;
 import com.borisp.faces.classifiers.examples.Example;
+import com.borisp.faces.database.ClassificationDatabaseHelper;
 import com.borisp.faces.database.DatabaseHelper;
 import com.borisp.faces.util.ColorPixel;
 import com.borisp.faces.util.GrayscaleConverter;
@@ -33,15 +34,16 @@ public class ClassifierInputPreparator {
         User user = DatabaseHelper.getUserByUsername(username, sessionFactory);
         Transformation transformation =
                 DatabaseHelper.getTransformationById(transformationId, sessionFactory);
-        List<Classification> classifications = DatabaseHelper.getNeededClassifications(user,
+        List<ClassifiedImage> classifications = DatabaseHelper.getNeededClassifications(user,
                 transformation.getAllManipulatedImages(), sessionFactory);
 
         List<Example> examples = new ArrayList<Example>();
-        for (Classification classification : classifications) {
+        for (ClassifiedImage classifiedImage : classifications) {
             Example example = new Example();
-            example.measures = getPcaMeasures(countedEigenFaces, classification, transformation,
+            example.measures = getPcaMeasures(countedEigenFaces, classifiedImage, transformation,
                     sessionFactory);
-            example.classification = (classification.getIsBeautiful() == 1) ? 0 : 1;
+            example.classification = ClassificationDatabaseHelper.checkClassifiedImageBeautiful(
+                    classifiedImage, sessionFactory);
             examples.add(example);
         }
         return examples;
@@ -59,14 +61,15 @@ public class ClassifierInputPreparator {
         User user = DatabaseHelper.getUserByUsername(username, sessionFactory);
         Transformation transformation =
                 DatabaseHelper.getTransformationById(transformationId, sessionFactory);
-        List<Classification> classifications = DatabaseHelper.getNeededClassifications(user,
+        List<ClassifiedImage> classifications = DatabaseHelper.getNeededClassifications(user,
                 transformation.getAllManipulatedImages(), sessionFactory);
 
         List<Example> examples = new ArrayList<Example>();
-        for (Classification classification : classifications) {
+        for (ClassifiedImage classifiedImage : classifications) {
             Example example = new Example();
-            example.measures = getInitialMeasures(classification);
-            example.classification = (classification.getIsBeautiful() == 1) ? 0 : 1;
+            example.measures = getInitialMeasures(classifiedImage);
+            example.classification = ClassificationDatabaseHelper.checkClassifiedImageBeautiful(
+                    classifiedImage, sessionFactory);
             examples.add(example);
         }
         return examples;
@@ -86,16 +89,17 @@ public class ClassifierInputPreparator {
         User user = DatabaseHelper.getUserByUsername(username, sessionFactory);
         Transformation transformation = DatabaseHelper.getTransformationById(transformationId,
                 sessionFactory);
-        List<Classification> classifications = DatabaseHelper.getNeededClassifications(user,
+        List<ClassifiedImage> classifications = DatabaseHelper.getNeededClassifications(user,
                 transformation.getAllManipulatedImages(), sessionFactory);
 
         List<ComplexExample> examples = new ArrayList<ComplexExample>();
-        for (Classification classification : classifications) {
+        for (ClassifiedImage classifiedImage : classifications) {
             ComplexExample example = new ComplexExample();
-            example.pcaMeasures = getPcaMeasures(countedEigenFaces, classification, transformation,
+            example.pcaMeasures = getPcaMeasures(countedEigenFaces, classifiedImage, transformation,
                     sessionFactory);
-            example.initialMeasures = getInitialMeasures(classification);
-            example.classification = (classification.getIsBeautiful() == 1) ? 0 : 1;
+            example.initialMeasures = getInitialMeasures(classifiedImage);
+            example.classification = ClassificationDatabaseHelper.checkClassifiedImageBeautiful(
+                    classifiedImage, sessionFactory);
             examples.add(example);
         }
         return examples;
@@ -110,7 +114,7 @@ public class ClassifierInputPreparator {
      * @param transformation The transformation defining the pca coeficients
      * @param sessionFactory The session factory to use.
      */
-    private static double[] getPcaMeasures(int countedEigenFaces, Classification classification,
+    private static double[] getPcaMeasures(int countedEigenFaces, ClassifiedImage classification,
             Transformation transformation, SessionFactory sessionFactory) {
         List<PcaCoeficient> pcaCoeficients = DatabaseHelper.getPcaCoeficients(
                 classification.getManipulatedImage(), transformation, sessionFactory);
@@ -127,7 +131,7 @@ public class ClassifierInputPreparator {
      * This array will be used as input to different classifiers.
      * @param classification The classification from which to fetch the image.
      */
-    private static double [] getInitialMeasures(Classification classification) {
+    private static double [] getInitialMeasures(ClassifiedImage classification) {
         return getInitialMeasures(classification.getManipulatedImage());
     }
 

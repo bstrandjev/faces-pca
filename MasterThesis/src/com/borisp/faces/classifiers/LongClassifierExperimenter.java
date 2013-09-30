@@ -10,12 +10,13 @@ import java.util.Map;
 
 import org.hibernate.SessionFactory;
 
-import com.borisp.faces.beans.Classification;
+import com.borisp.faces.beans.ClassifiedImage;
 import com.borisp.faces.beans.PcaCoeficient;
 import com.borisp.faces.beans.Transformation;
 import com.borisp.faces.beans.User;
 import com.borisp.faces.classifiers.ClassifierExperimenter.Classifiers;
 import com.borisp.faces.classifiers.examples.Example;
+import com.borisp.faces.database.ClassificationDatabaseHelper;
 import com.borisp.faces.database.DatabaseHelper;
 
 /**
@@ -127,19 +128,20 @@ public class LongClassifierExperimenter {
     /** Prepares the cahce of the user examples */
     private void prepareExampleCache(SessionFactory sessionFactory) {
         for (User user : users) {
-            List<Classification> classifications = DatabaseHelper.getNeededClassifications(user,
+            List<ClassifiedImage> classifications = DatabaseHelper.getNeededClassifications(user,
                     transformation.getAllManipulatedImages(), sessionFactory);
 
             List<Example> examples = new ArrayList<Example>();
-            for (Classification classification : classifications) {
+            for (ClassifiedImage classifiedImage : classifications) {
                 List<PcaCoeficient> pcaCoeficients = DatabaseHelper.getPcaCoeficients(
-                        classification.getManipulatedImage(), transformation, sessionFactory);
+                        classifiedImage.getManipulatedImage(), transformation, sessionFactory);
                 Example example = new Example();
                 example.measures = new double[numberOfFaces];
                 for (int i = 0; i < numberOfFaces; i++) {
                     example.measures[i] = pcaCoeficients.get(i).getCoeficient();
                 }
-                example.classification = (classification.getIsBeautiful() == 1) ? 0 : 1;
+                example.classification = ClassificationDatabaseHelper.checkClassifiedImageBeautiful(
+                        classifiedImage, sessionFactory);
                 examples.add(example);
             }
             userExamples.put(user.getName(), examples);

@@ -4,23 +4,14 @@ import java.io.IOException;
 import java.text.ParseException;
 
 import org.hibernate.SessionFactory;
-import org.hibernate.cfg.AnnotationConfiguration;
 
-import com.borisp.faces.beans.Classification;
-import com.borisp.faces.beans.EigenFaceEntity;
-import com.borisp.faces.beans.Image;
 import com.borisp.faces.beans.ImageGroup;
-import com.borisp.faces.beans.ManipulatedImage;
-import com.borisp.faces.beans.Manipulation;
-import com.borisp.faces.beans.PcaCoeficient;
-import com.borisp.faces.beans.Transformation;
-import com.borisp.faces.beans.TransformedImage;
-import com.borisp.faces.beans.User;
 import com.borisp.faces.database.ClassificationDatabaseHelper;
 import com.borisp.faces.database.DatabaseHelper;
 import com.borisp.faces.database.InitialRecorder;
 import com.borisp.faces.database.ManipulationCreator;
 import com.borisp.faces.database.PcaDatabaseHelper;
+import com.borisp.faces.ui.BasicFrame;
 import com.borisp.faces.weka.WekaContentCreator;
 
 public class DatabaseMain {
@@ -28,36 +19,17 @@ public class DatabaseMain {
         // SessionFactory sessionFactory = initializeSessionFactory();
         // LongClassifierExperimenter longClassifierExperimenter = new LongClassifierExperimenter();
         // longClassifierExperimenter.executeExperiments(sessionFactory);
-        // new BasicFrame();
-        SessionFactory sessionFactory = initializeSessionFactory();
+         new BasicFrame();
+//        SessionFactory sessionFactory = BasicFrame.initializeSessionFactory();
 //        String imageGroupKey = "turkey";
 //        doInitialRecording(sessionFactory, imageGroupKey);
 //        executeManipulation(sessionFactory, true, imageGroupKey);
-         doPcaTransform(sessionFactory);
+//         doPcaTransform(sessionFactory);
         // demonstrateTransformation(sessionFactory);
         // demonstrateProjection(sessionFactory);
         // recordClassification(sessionFactory);
         // generateWekaInput(sessionFactory);
         // neuralExperiment(sessionFactory);
-    }
-
-    @SuppressWarnings("deprecation")
-    private static SessionFactory initializeSessionFactory() {
-        AnnotationConfiguration configuration = new AnnotationConfiguration();
-        configuration.addAnnotatedClass(Classification.class);
-        configuration.addAnnotatedClass(EigenFaceEntity.class);
-        configuration.addAnnotatedClass(Image.class);
-        configuration.addAnnotatedClass(ImageGroup.class);
-        configuration.addAnnotatedClass(ManipulatedImage.class);
-        configuration.addAnnotatedClass(TransformedImage.class);
-        configuration.addAnnotatedClass(Manipulation.class);
-        configuration.addAnnotatedClass(PcaCoeficient.class);
-        configuration.addAnnotatedClass(Transformation.class);
-        configuration.addAnnotatedClass(User.class);
-
-        configuration.configure("hibernate.cfg.xml");
-
-        return configuration.buildSessionFactory();
     }
 
     private static void doInitialRecording(SessionFactory sessionFactory, String imageGroupKey)
@@ -77,7 +49,7 @@ public class DatabaseMain {
 
     private static void doPcaTransform(SessionFactory sessionFactory) {
         PcaDatabaseHelper pcaDatabaseHelper = new PcaDatabaseHelper();
-        pcaDatabaseHelper.transformSelectedManipulations(sessionFactory, 1);
+        pcaDatabaseHelper.transformSelectedManipulations(sessionFactory, 1, 2, 3, 4);
     }
 
     private static void recordClassification(SessionFactory sessionFactory) {

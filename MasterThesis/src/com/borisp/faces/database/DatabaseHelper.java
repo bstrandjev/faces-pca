@@ -11,7 +11,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
 import org.hibernate.criterion.Projections;
 
-import com.borisp.faces.beans.Classification;
+import com.borisp.faces.beans.ClassifiedImage;
 import com.borisp.faces.beans.EigenFaceEntity;
 import com.borisp.faces.beans.ImageGroup;
 import com.borisp.faces.beans.ManipulatedImage;
@@ -78,15 +78,15 @@ public class DatabaseHelper {
     }
 
     /** Retrieves all the classifications of given user for given manipulation. */
-    public static List<Classification> getNeededClassifications(User user,
+    public static List<ClassifiedImage> getNeededClassifications(User user,
             List<ManipulatedImage> manipulatedImages, SessionFactory sessionFactory) {
 
         Session session = sessionFactory.getCurrentSession();
         session.beginTransaction();
 
-        List<Classification> toReturn = new ArrayList<Classification>();
+        List<ClassifiedImage> toReturn = new ArrayList<ClassifiedImage>();
         for (ManipulatedImage manipulatedImage : manipulatedImages) {
-            for (Classification classification:  manipulatedImage.getClassifications()) {
+            for (ClassifiedImage classification:  manipulatedImage.getClassifications()) {
                 if (classification.getUser().getName().equals(user.getName())) {
                     toReturn.add(classification);
                 }

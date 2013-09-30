@@ -1,36 +1,36 @@
 package com.borisp.faces.beans;
 
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "classifications")
-/** A bean for representing a classification of single manipulated image executed from a user */
+@Table(name = "t_classifications")
+/** A bean for representing a classification in the database. */
 public class Classification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "classification_pk")
     private Integer classificationId;
 
-    @Column(name="beautiful")
-    private Byte isBeautiful;
+    @Column(name = "classification_key")
+    private String classificationKey;
 
-    //bi-directional many-to-one association to ManipulatedImage bean
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="manipulated_image_fk")
-    private ManipulatedImage manipulatedImage;
+    @Column(name = "classification_name")
+    private String classificationName;
 
-    //bi-directional many-to-one association to User bean
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="user_fk")
-    private User user;
+    // bi-directional many-to-one association to ClassificationValue bean
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "classification",
+               cascade = { CascadeType.DETACH, CascadeType.REMOVE }, orphanRemoval = true)
+    private List<ClassificationValue> classificationValues;
 
     public Integer getClassificationId() {
         return classificationId;
@@ -40,27 +40,27 @@ public class Classification {
         this.classificationId = classificationId;
     }
 
-    public Byte getIsBeautiful() {
-        return isBeautiful;
+    public String getClassificationKey() {
+        return classificationKey;
     }
 
-    public void setIsBeautiful(Byte isBeautiful) {
-        this.isBeautiful = isBeautiful;
+    public void setClassificationKey(String classificationKey) {
+        this.classificationKey = classificationKey;
     }
 
-    public ManipulatedImage getManipulatedImage() {
-        return manipulatedImage;
+    public String getClassificationName() {
+        return classificationName;
     }
 
-    public void setManipulatedImage(ManipulatedImage manipulatedImage) {
-        this.manipulatedImage = manipulatedImage;
+    public void setClassificationName(String classificationName) {
+        this.classificationName = classificationName;
     }
 
-    public User getUser() {
-        return user;
+    public List<ClassificationValue> getClassificationValues() {
+        return classificationValues;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setClassificationValues(List<ClassificationValue> classificationValues) {
+        this.classificationValues = classificationValues;
     }
 }
