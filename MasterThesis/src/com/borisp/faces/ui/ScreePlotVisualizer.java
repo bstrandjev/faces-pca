@@ -35,7 +35,7 @@ public class ScreePlotVisualizer {
         // sorting the eigen faces in descending order of the eigen values
         Collections.sort(eigenFaces, Collections.reverseOrder());
 
-        for (int i = 0; i < Math.min(PCA_COMPONENTS_LIMIT, eigenFaces.size()); i++) {
+        for (int i = 0; i < eigenFaces.size(); i++) {
             xy.add(i, eigenFaces.get(i).getEigenValue());
         }
         dataset.addSeries(xy);

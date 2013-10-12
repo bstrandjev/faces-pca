@@ -17,23 +17,18 @@ public class ClassificationValue {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "classification_value_pk")
-    private Integer classificationValueId;
+    private Integer classificationValuePk;
 
     @Column(name = "classification_value_value")
     private String value;
+
+    @Column(name = "classification_value_id")
+    private int classificationValueId;
 
     // bi-directional many-to-one association to Classification bean
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "classification_fk")
     private Classification classification;
-
-    public Integer getClassificationValueId() {
-        return classificationValueId;
-    }
-
-    public void setClassificationValueId(Integer classificationValueId) {
-        this.classificationValueId = classificationValueId;
-    }
 
     public String getValue() {
         return value;
@@ -49,5 +44,21 @@ public class ClassificationValue {
 
     public void setClassification(Classification classification) {
         this.classification = classification;
+    }
+
+    public int getClassificationValueId() {
+        return classificationValueId;
+    }
+
+    public void setClassificationValueId(int classificationValueId) {
+        this.classificationValueId = classificationValueId;
+    }
+
+    public Integer getClassificationValuePk() {
+        return classificationValuePk;
+    }
+
+    public void setClassificationValuePk(Integer classificationValuePk) {
+        this.classificationValuePk = classificationValuePk;
     }
 }

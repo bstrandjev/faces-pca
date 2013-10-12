@@ -10,10 +10,10 @@ import java.util.Map;
 
 import org.hibernate.SessionFactory;
 
+import com.borisp.faces.beans.Classification;
 import com.borisp.faces.beans.ClassifiedImage;
 import com.borisp.faces.beans.PcaCoeficient;
 import com.borisp.faces.beans.Transformation;
-import com.borisp.faces.beans.User;
 import com.borisp.faces.classifiers.ClassifierExperimenter.Classifiers;
 import com.borisp.faces.classifiers.examples.Example;
 import com.borisp.faces.database.ClassificationDatabaseHelper;
@@ -44,13 +44,13 @@ public class LongClassifierExperimenter {
     private FileWriter outputFile;
 
     /** A list containing all the users in the database. */
-    private List<User> users;
+    private List<Classification> classifications;
     /** The transformation on which to evaluate. */
     private Transformation transformation;
     /** The number of faces in the set associated with the transformation. */
     private int numberOfFaces;
     /** A cache making it possible to cache the example calculation. */
-    private Map<String, List<Example>> userExamples;
+    private Map<String, List<Example>> classificationExamples;
 
     /** The experimenter to use for all the experiments. */
     private ClassifierExperimenter classifierExperimenter = new ClassifierExperimenter() {
@@ -72,12 +72,12 @@ public class LongClassifierExperimenter {
 
     public LongClassifierExperimenter() throws IOException {
         this.outputFile = new FileWriter(new File(OUTPUT_FILE_PATH));
-        this.userExamples = new HashMap<String, List<Example>>();
+        this.classificationExamples = new HashMap<String, List<Example>>();
     }
 
     /** Executes all experiments on all training sets using all classifiers. */
     public void executeExperiments(SessionFactory sessionFactory) throws IOException {
-        this.users = DatabaseHelper.getAllUsers(sessionFactory);
+        this.classifications = ClassificationDatabaseHelper.getAllClassifications(sessionFactory);
         this.transformation = DatabaseHelper.getFirstTransformation(sessionFactory);
         this.numberOfFaces = transformation.getAllManipulatedImages().size();
         prepareExampleCache(sessionFactory);
@@ -98,7 +98,6 @@ public class LongClassifierExperimenter {
         outputFile.append("\n");
         outputFile.append("Classifier: " + classifier.getLabel());
         outputFile.append("\n");
-        System.out.println("Running for classifier " + classifier.getLabel());
         outputFile.append("Train set");
         for (int i = 0; i < NAME_MAX_LENGTH - 9; i++) {
             outputFile.append(" ");
@@ -109,15 +108,15 @@ public class LongClassifierExperimenter {
         outputFile.append("\n");
 
         Classifiers[] classifiers = { classifier };
-        for (User user : users) {
-            System.out.println("the user " + user.getName());
-            outputFile.append(user.getName());
-            for (int i = 0; i < NAME_MAX_LENGTH - user.getName().length(); i++) {
+        for (Classification classification : classifications) {
+            String key = classification.getClassificationKey();
+            outputFile.append(key);
+            for (int i = 0; i < NAME_MAX_LENGTH - key.length(); i++) {
                 outputFile.append(" ");
             }
             for (int i = TEST_START_INDEX; i <= Math.min(TEST_LIMIT_INDEX, numberOfFaces); i++) {
                 System.out.print(i + " ");
-                classifierExperimenter.evaluateClassifier(userExamples.get(user.getName()),
+                classifierExperimenter.evaluateClassifier(classificationExamples.get(key),
                         classifiers, NUMBER_OF_EXPERIMENTS, i);
             }
             System.out.println();
@@ -125,11 +124,11 @@ public class LongClassifierExperimenter {
         }
     }
 
-    /** Prepares the cahce of the user examples */
+    /** Prepares the cache of the user examples */
     private void prepareExampleCache(SessionFactory sessionFactory) {
-        for (User user : users) {
-            List<ClassifiedImage> classifications = DatabaseHelper.getNeededClassifications(user,
-                    transformation.getAllManipulatedImages(), sessionFactory);
+        for (Classification classification : classifications) {
+            List<ClassifiedImage> classifications = DatabaseHelper.getNeededClassifications(
+                    classification, transformation.getAllManipulatedImages(), sessionFactory);
 
             List<Example> examples = new ArrayList<Example>();
             for (ClassifiedImage classifiedImage : classifications) {
@@ -140,11 +139,11 @@ public class LongClassifierExperimenter {
                 for (int i = 0; i < numberOfFaces; i++) {
                     example.measures[i] = pcaCoeficients.get(i).getCoeficient();
                 }
-                example.classification = ClassificationDatabaseHelper.checkClassifiedImageBeautiful(
-                        classifiedImage, sessionFactory);
+                example.classification = classifiedImage.getClassificationValue()
+                        .getClassificationValueId();
                 examples.add(example);
             }
-            userExamples.put(user.getName(), examples);
+            classificationExamples.put(classification.getClassificationKey(), examples);
         }
     }
 }

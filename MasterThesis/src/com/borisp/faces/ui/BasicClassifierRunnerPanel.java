@@ -17,8 +17,8 @@ import javax.swing.JTextField;
 
 import org.hibernate.SessionFactory;
 
+import com.borisp.faces.beans.Classification;
 import com.borisp.faces.beans.Transformation;
-import com.borisp.faces.beans.User;
 import com.borisp.faces.classifiers.ClassifierExperimenter;
 import com.borisp.faces.classifiers.ClassifierExperimenter.Classifiers;
 
@@ -45,7 +45,7 @@ public abstract class BasicClassifierRunnerPanel extends JPanel implements Actio
     private JTextField numberOfFacesField;
     private JTextField numberOfExperimentsField;
 
-    private String username;
+    private String classificationKey;
     private int transformationId;
     private SessionFactory sessionFactory;
 
@@ -57,9 +57,9 @@ public abstract class BasicClassifierRunnerPanel extends JPanel implements Actio
      * @param parentFrame The frame that will contain he panel. Used for callback functions.
      * @param sessionFactory The session factory to use for the database calls.
      */
-    public BasicClassifierRunnerPanel(Transformation transformation, User user, JFrame parentFrame,
-            SessionFactory sessionFactory) {
-        this.username = user.getName();
+    public BasicClassifierRunnerPanel(Transformation transformation, Classification classification,
+            JFrame parentFrame, SessionFactory sessionFactory) {
+        this.classificationKey = classification.getClassificationKey();
         this.transformationId = transformation.getTransformationId();
         this.sessionFactory = sessionFactory;
 
@@ -123,8 +123,8 @@ public abstract class BasicClassifierRunnerPanel extends JPanel implements Actio
                 }
                 int numberOfExperiments = Integer.valueOf(numberOfExperimentsField.getText().trim());
                 int numberOfFaces  = Integer.valueOf(numberOfFacesField.getText().trim());
-                experimenter.evaluateClassifier(username, transformationId, sessionFactory,
-                        classifierArray, numberOfExperiments, numberOfFaces);
+                experimenter.evaluateClassifier(classificationKey, transformationId,
+                        sessionFactory, classifierArray, numberOfExperiments, numberOfFaces);
             }
         }).start();
     }

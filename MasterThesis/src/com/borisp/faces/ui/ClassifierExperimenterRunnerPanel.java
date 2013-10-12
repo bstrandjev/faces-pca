@@ -4,8 +4,8 @@ import javax.swing.JFrame;
 
 import org.hibernate.SessionFactory;
 
+import com.borisp.faces.beans.Classification;
 import com.borisp.faces.beans.Transformation;
-import com.borisp.faces.beans.User;
 import com.borisp.faces.classifiers.ClassifierExperimenter;
 
 /** A panel for classifier experiments. */
@@ -15,9 +15,9 @@ public class ClassifierExperimenterRunnerPanel extends BasicClassifierRunnerPane
     private static final String PANEL_TITLE = "Classification experiments";
     private static final String RUN_EXPERIMENTS_BUTTON_LABEL = "Run experiments";
 
-    public ClassifierExperimenterRunnerPanel(Transformation transformation, User user,
-            JFrame parentFrame, SessionFactory sessionFactory) {
-        super(transformation, user, parentFrame, sessionFactory);
+    public ClassifierExperimenterRunnerPanel(Transformation transformation,
+            Classification classification, JFrame parentFrame, SessionFactory sessionFactory) {
+        super(transformation, classification, parentFrame, sessionFactory);
     }
 
     @Override

@@ -8,11 +8,11 @@ import java.util.List;
 
 import org.hibernate.SessionFactory;
 
+import com.borisp.faces.beans.Classification;
 import com.borisp.faces.beans.ClassifiedImage;
 import com.borisp.faces.beans.ManipulatedImage;
 import com.borisp.faces.beans.PcaCoeficient;
 import com.borisp.faces.beans.Transformation;
-import com.borisp.faces.beans.User;
 import com.borisp.faces.database.ClassificationDatabaseHelper;
 import com.borisp.faces.database.DatabaseHelper;
 
@@ -34,21 +34,22 @@ public class WekaContentCreator {
      * <p>
      * This method works only for sets associated with single manipulation.
      *
-     * @param username The username of the user that did the classification to use as input
+     * @param classificationKey The classification key of the the classification to use as input
      * @param manipulationIndex The index of the manipulation which to be used as input for weka
      * @param sessionFactory A session factory to use for the database connections.
      * @throws IOException
      */
-    public static void generateWekaInput(String username, int transformationId,
+    public static void generateWekaInput(String classificationKey, int transformationId,
             int manipulationIndex, SessionFactory sessionFactory) throws IOException {
-        User user = DatabaseHelper.getUserByUsername(username, sessionFactory);
+        Classification classification = ClassificationDatabaseHelper.getClassificationByKey(
+                sessionFactory, classificationKey);
         Transformation transformation =
                 DatabaseHelper.getTransformationById(transformationId, sessionFactory);
         List<ManipulatedImage> manipulatedImages = transformation.getAllManipulatedImages();
-        List<ClassifiedImage> classifications =
-                DatabaseHelper.getNeededClassifications(user, manipulatedImages, sessionFactory);
+        List<ClassifiedImage> classifications = DatabaseHelper.getNeededClassifications(
+                classification, manipulatedImages, sessionFactory);
 
-        String wekaInputFilePath = String.format(WEKA_INPUT_FILE_PATTERN, username,
+        String wekaInputFilePath = String.format(WEKA_INPUT_FILE_PATTERN, classificationKey,
                 manipulationIndex);
         FileOutputStream wekaFile = new FileOutputStream(new File(wekaInputFilePath));
         BufferedOutputStream bufferedWekaStream = new BufferedOutputStream(wekaFile);

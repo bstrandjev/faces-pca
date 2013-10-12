@@ -28,6 +28,7 @@ import com.borisp.faces.beans.PcaCoeficient;
 import com.borisp.faces.beans.Transformation;
 import com.borisp.faces.beans.TransformedImage;
 import com.borisp.faces.beans.User;
+import com.borisp.faces.database.ClassificationDatabaseHelper;
 import com.borisp.faces.database.DatabaseHelper;
 
 /**
@@ -88,6 +89,9 @@ public class BasicFrame extends JFrame{
     private static final String SELECT_USER_TEXT =
             "Please select the user whose classification to use";
     private static final String SELECT_USER_HEADER = "Select user";
+    private static final String SELECT_CLASSIFICATION_TEXT =
+            "Please select the classification to use";
+    private static final String SELECT_CLASSIFICATION_HEADER = "Select classification";
 
     /** The single instance of the session factory to use for all database calls. */
     private SessionFactory sessionFactory;
@@ -221,12 +225,12 @@ public class BasicFrame extends JFrame{
 
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                User user = chooseUser();
+                Classification classification = chooseClassification();
                 Transformation transformation = chooseTransformation();
                 if (currentPanel != null) {
                     BasicFrame.this.remove(currentPanel);
                 }
-                currentPanel = new ClassifierExperimenterRunnerPanel(transformation, user,
+                currentPanel = new ClassifierExperimenterRunnerPanel(transformation, classification,
                         BasicFrame.this, sessionFactory);
                 currentPanel.setBounds(EXPERIMENTS_BEG_X, EXPERIMENTS_BEG_Y, EXPERIMENTS_WIDTH,
                         EXPERIMENTS_HEIGHT);
@@ -243,12 +247,12 @@ public class BasicFrame extends JFrame{
 
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                User user = chooseUser();
+                Classification classification = chooseClassification();
                 Transformation transformation = chooseTransformation();
                 if (currentPanel != null) {
                     BasicFrame.this.remove(currentPanel);
                 }
-                currentPanel = new AlgorithmComparatorPanel(transformation, user,
+                currentPanel = new AlgorithmComparatorPanel(transformation, classification,
                         BasicFrame.this, sessionFactory);
                 currentPanel.setBounds(EXPERIMENTS_BEG_X, EXPERIMENTS_BEG_Y, EXPERIMENTS_WIDTH,
                         EXPERIMENTS_HEIGHT);
@@ -334,10 +338,11 @@ public class BasicFrame extends JFrame{
                 SELECT_TRANSFORMATION_HEADER);
     }
 
-    /** Creates a dialog for selecting user. */
-    private User chooseUser() {
-        return (User) objectChooserHelper(DatabaseHelper.getAllUsers(sessionFactory),
-                SELECT_USER_TEXT, SELECT_USER_HEADER);
+    /** Creates a dialog for selecting classification. */
+    private Classification chooseClassification() {
+        return (Classification) objectChooserHelper(
+                ClassificationDatabaseHelper.getAllClassifications(sessionFactory),
+                SELECT_CLASSIFICATION_TEXT, SELECT_CLASSIFICATION_HEADER);
     }
 
     private Object objectChooserHelper(List<? extends Object> objects, String text, String header) {

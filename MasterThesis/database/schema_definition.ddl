@@ -4,6 +4,7 @@ CREATE TABLE `classification_values` (
   `classification_value_pk` int(11) NOT NULL AUTO_INCREMENT,
   `classification_value_value` varchar(45) NOT NULL,
   `classification_fk` int(11) NOT NULL,
+  `classification_value_id` int(11) NOT NULL,
   PRIMARY KEY (`classification_value_pk`),
   UNIQUE KEY `classification_value_pk_UNIQUE` (`classification_value_pk`),
   KEY `classification_image_classification_fk` (`classification_fk`),

@@ -4,8 +4,8 @@ import javax.swing.JFrame;
 
 import org.hibernate.SessionFactory;
 
+import com.borisp.faces.beans.Classification;
 import com.borisp.faces.beans.Transformation;
-import com.borisp.faces.beans.User;
 import com.borisp.faces.classifiers.AlgorithmComparator;
 import com.borisp.faces.classifiers.ClassifierExperimenter;
 
@@ -16,9 +16,9 @@ public class AlgorithmComparatorPanel extends BasicClassifierRunnerPanel {
     private static final String PANEL_TITLE = "Algorithm comparator";
     private static final String BUTTON_LABEL = "Compare algorithms";
 
-    public AlgorithmComparatorPanel(Transformation transformation, User user, JFrame parentFrame,
-            SessionFactory sessionFactory) {
-        super(transformation, user, parentFrame, sessionFactory);
+    public AlgorithmComparatorPanel(Transformation transformation, Classification classification,
+            JFrame parentFrame, SessionFactory sessionFactory) {
+        super(transformation, classification, parentFrame, sessionFactory);
     }
 
     @Override

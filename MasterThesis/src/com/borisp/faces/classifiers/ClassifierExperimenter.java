@@ -55,11 +55,11 @@ public abstract class ClassifierExperimenter {
     protected Random rand;
 
     /** Conducts experiment using any of the classifiers defined in {@link Classifiers}. */
-    public void evaluateClassifier(String username, int transformationId,
+    public void evaluateClassifier(String classificationKey, int transformationId,
             SessionFactory sessionFactory, Classifiers[] classifiers, int numberOfExperiments,
             int countedEigenFaces) {
-        List<Example> examples = ClassifierInputPreparator.generateClassifierPcaInput(username,
-                transformationId, countedEigenFaces, sessionFactory);
+        List<Example> examples = ClassifierInputPreparator.generateClassifierPcaInput(
+                classificationKey, transformationId, countedEigenFaces, sessionFactory);
 //        List<Example> examples = ClassifierInputPreparator.generateClassifierManipulationInput(
 //                username, transformationId, sessionFactory);
         evaluateClassifierHelper(examples, classifiers, numberOfExperiments, countedEigenFaces);

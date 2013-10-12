@@ -6,11 +6,11 @@ import java.util.List;
 
 import org.hibernate.SessionFactory;
 
+import com.borisp.faces.beans.Classification;
 import com.borisp.faces.beans.ClassifiedImage;
 import com.borisp.faces.beans.ManipulatedImage;
 import com.borisp.faces.beans.PcaCoeficient;
 import com.borisp.faces.beans.Transformation;
-import com.borisp.faces.beans.User;
 import com.borisp.faces.classifiers.examples.ComplexExample;
 import com.borisp.faces.classifiers.examples.Example;
 import com.borisp.faces.database.ClassificationDatabaseHelper;
@@ -24,26 +24,26 @@ public class ClassifierInputPreparator {
     /**
      * Creates a list of {@link Example}s for all classifications of a user for transformation.
      *
-     * @param username The username of the user that did the classification to use as input
+     * @param classificationKey The classification key of the the classification to use as input
      * @param transformationId The if of the transformation to use to transform the input
      * @param countedEigenFaces The number of dimensions which to include in the analysis
      * @param sessionFactory A session factory to use for the database connections.
      */
-    public static List<Example> generateClassifierPcaInput(String username, int transformationId,
+    public static List<Example> generateClassifierPcaInput(String classificationKey, int transformationId,
             int countedEigenFaces, SessionFactory sessionFactory) {
-        User user = DatabaseHelper.getUserByUsername(username, sessionFactory);
+        Classification classification = ClassificationDatabaseHelper.getClassificationByKey(
+                sessionFactory, classificationKey);
         Transformation transformation =
                 DatabaseHelper.getTransformationById(transformationId, sessionFactory);
-        List<ClassifiedImage> classifications = DatabaseHelper.getNeededClassifications(user,
-                transformation.getAllManipulatedImages(), sessionFactory);
-
+        List<ClassifiedImage> classifiedImages = DatabaseHelper.getNeededClassifications(
+                classification, transformation.getAllManipulatedImages(), sessionFactory);
         List<Example> examples = new ArrayList<Example>();
-        for (ClassifiedImage classifiedImage : classifications) {
+        for (ClassifiedImage classifiedImage : classifiedImages) {
             Example example = new Example();
             example.measures = getPcaMeasures(countedEigenFaces, classifiedImage, transformation,
                     sessionFactory);
-            example.classification = ClassificationDatabaseHelper.checkClassifiedImageBeautiful(
-                    classifiedImage, sessionFactory);
+            example.classification = classifiedImage.getClassificationValue()
+                    .getClassificationValueId();
             examples.add(example);
         }
         return examples;
@@ -52,24 +52,25 @@ public class ClassifierInputPreparator {
     /**
      * Creates a list of {@link Example}s for all classifications of manipulation images
      *
-     * @param username The username of the user that did the classification to use as input
+     * @param classificationKey The classification key of the the classification to use as input
      * @param transformationId The if of the transformation to use to transform the input
      * @param sessionFactory A session factory to use for the database connections.
      */
-    public static List<Example> generateClassifierManipulationInput(String username,
+    public static List<Example> generateClassifierManipulationInput(String classificationKey,
             int transformationId, SessionFactory sessionFactory) {
-        User user = DatabaseHelper.getUserByUsername(username, sessionFactory);
+        Classification classification = ClassificationDatabaseHelper.getClassificationByKey(
+                sessionFactory, classificationKey);
         Transformation transformation =
                 DatabaseHelper.getTransformationById(transformationId, sessionFactory);
-        List<ClassifiedImage> classifications = DatabaseHelper.getNeededClassifications(user,
-                transformation.getAllManipulatedImages(), sessionFactory);
+        List<ClassifiedImage> classifications = DatabaseHelper.getNeededClassifications(
+                classification, transformation.getAllManipulatedImages(), sessionFactory);
 
         List<Example> examples = new ArrayList<Example>();
         for (ClassifiedImage classifiedImage : classifications) {
             Example example = new Example();
             example.measures = getInitialMeasures(classifiedImage);
-            example.classification = ClassificationDatabaseHelper.checkClassifiedImageBeautiful(
-                    classifiedImage, sessionFactory);
+            example.classification = classifiedImage.getClassificationValue()
+                    .getClassificationValueId();
             examples.add(example);
         }
         return examples;
@@ -79,18 +80,19 @@ public class ClassifierInputPreparator {
      * Creates a list of {@link ComplexExample}s for all classifications of a user for
      * transformation.
      *
-     * @param username The username of the user that did the classification to use as input
+     * @param classificationKey The classification key of the the classification to use as input
      * @param transformationId The id of the transformation to use to transform the input
      * @param countedEigenFaces The number of dimensions which to include in the analysis
      * @param sessionFactory A session factory to use for the database connections.
      */
-    public static List<ComplexExample> generateClassifierComplexInput(String username,
+    public static List<ComplexExample> generateClassifierComplexInput(String classificationKey,
             int transformationId, int countedEigenFaces, SessionFactory sessionFactory) {
-        User user = DatabaseHelper.getUserByUsername(username, sessionFactory);
+        Classification classification = ClassificationDatabaseHelper.getClassificationByKey(
+                sessionFactory, classificationKey);
         Transformation transformation = DatabaseHelper.getTransformationById(transformationId,
                 sessionFactory);
-        List<ClassifiedImage> classifications = DatabaseHelper.getNeededClassifications(user,
-                transformation.getAllManipulatedImages(), sessionFactory);
+        List<ClassifiedImage> classifications = DatabaseHelper.getNeededClassifications(
+                classification, transformation.getAllManipulatedImages(), sessionFactory);
 
         List<ComplexExample> examples = new ArrayList<ComplexExample>();
         for (ClassifiedImage classifiedImage : classifications) {
@@ -98,8 +100,8 @@ public class ClassifierInputPreparator {
             example.pcaMeasures = getPcaMeasures(countedEigenFaces, classifiedImage, transformation,
                     sessionFactory);
             example.initialMeasures = getInitialMeasures(classifiedImage);
-            example.classification = ClassificationDatabaseHelper.checkClassifiedImageBeautiful(
-                    classifiedImage, sessionFactory);
+            example.classification = classifiedImage.getClassificationValue()
+                    .getClassificationValueId();
             examples.add(example);
         }
         return examples;

@@ -32,6 +32,11 @@ public class Classification {
                cascade = { CascadeType.DETACH, CascadeType.REMOVE }, orphanRemoval = true)
     private List<ClassificationValue> classificationValues;
 
+    @Override
+    public String toString() {
+        return classificationKey;
+    }
+
     public Integer getClassificationId() {
         return classificationId;
     }
