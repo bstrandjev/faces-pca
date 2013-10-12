@@ -24,11 +24,6 @@ public class ClassifiedImage {
     @JoinColumn(name="manipulated_image_fk")
     private ManipulatedImage manipulatedImage;
 
-    //bi-directional many-to-one association to User bean
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="user_fk")
-    private User user;
-
     //bi-directional many-to-one association to ClassificationValue bean
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="classification_value_fk")
@@ -48,14 +43,6 @@ public class ClassifiedImage {
 
     public void setManipulatedImage(ManipulatedImage manipulatedImage) {
         this.manipulatedImage = manipulatedImage;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     public ClassificationValue getClassificationValue() {

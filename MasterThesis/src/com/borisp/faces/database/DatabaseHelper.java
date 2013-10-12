@@ -19,7 +19,6 @@ import com.borisp.faces.beans.ManipulatedImage;
 import com.borisp.faces.beans.Manipulation;
 import com.borisp.faces.beans.PcaCoeficient;
 import com.borisp.faces.beans.Transformation;
-import com.borisp.faces.beans.User;
 
 /**
  * Auxiliary class defining methods to ease the database access.
@@ -55,18 +54,6 @@ public class DatabaseHelper {
         return (Manipulation) query.uniqueResult();
     }
 
-    /** A method for fetching user based on his username. */
-    public static User getUserByUsername(String username, SessionFactory sessionFactory) {
-        Session session = sessionFactory.getCurrentSession();
-        session.beginTransaction();
-
-        Query query =
-                session.createQuery("from User u where u.name = :username");
-        query.setString("username", username);
-        return (User) query.uniqueResult();
-    }
-
-    /** Retrieves the transformation from the database having the given id */
     public static Transformation getTransformationById(int transformationId,
             SessionFactory sessionFactory) {
         Session session = sessionFactory.getCurrentSession();
@@ -189,18 +176,6 @@ public class DatabaseHelper {
             transformations.add((Transformation) it.next());
         }
         return transformations;
-    }
-
-    /** Returns all the users in the database. */
-    public static List<User> getAllUsers(SessionFactory sessionFactory) {
-        Session session = sessionFactory.getCurrentSession();
-        session.beginTransaction();
-        Query query = session.createQuery(SELECT_ALL_USERS_SQL_QUERY);
-        List<User> users = new ArrayList<User>();
-        for (Iterator<?> it = query.iterate(); it.hasNext();) {
-            users.add((User) it.next());
-        }
-        return users;
     }
 
     /** Returns all the image groups in the database. */

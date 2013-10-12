@@ -9,7 +9,7 @@ CREATE TABLE `classification_values` (
   UNIQUE KEY `classification_value_pk_UNIQUE` (`classification_value_pk`),
   KEY `classification_image_classification_fk` (`classification_fk`),
   CONSTRAINT `classification_image_classification_fk` FOREIGN KEY (`classification_fk`) REFERENCES `t_classifications` (`classification_pk`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8$$
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8$$
 
 
 delimiter $$
@@ -17,19 +17,15 @@ delimiter $$
 CREATE TABLE `classified_images` (
   `classified_image_pk` int(11) NOT NULL AUTO_INCREMENT,
   `manipulated_image_fk` int(11) NOT NULL,
-  `user_fk` int(11) NOT NULL,
   `classification_value_fk` int(11) NOT NULL,
   PRIMARY KEY (`classified_image_pk`),
   UNIQUE KEY `classified_image_pk_UNIQUE` (`classified_image_pk`),
-  KEY `user_fk` (`user_fk`),
   KEY `classification_image_fk` (`manipulated_image_fk`),
   KEY `t_classification_value_fk` (`classification_value_fk`),
-  KEY `t_users_fk` (`user_fk`),
   KEY `t_manipulated_image_fk` (`manipulated_image_fk`),
   KEY `clas_vals_fk` (`classification_value_fk`),
   CONSTRAINT `clas_vals_fk` FOREIGN KEY (`classification_value_fk`) REFERENCES `classification_values` (`classification_value_pk`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `t_manipulated_image_fk` FOREIGN KEY (`manipulated_image_fk`) REFERENCES `manipulated_images` (`manipulated_images_pk`) ON DELETE CASCADE ON UPDATE NO ACTION,
-  CONSTRAINT `t_users_fk` FOREIGN KEY (`user_fk`) REFERENCES `users` (`user_pk`) ON DELETE CASCADE ON UPDATE NO ACTION
+  CONSTRAINT `t_manipulated_image_fk` FOREIGN KEY (`manipulated_image_fk`) REFERENCES `manipulated_images` (`manipulated_images_pk`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=409 DEFAULT CHARSET=utf8$$
 
 
@@ -128,7 +124,7 @@ CREATE TABLE `t_classifications` (
   `classification_name` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`classification_pk`),
   UNIQUE KEY `classification_key_UNIQUE` (`classification_key`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8$$
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8$$
 
 
 delimiter $$
@@ -153,16 +149,5 @@ CREATE TABLE `transformed_images` (
   CONSTRAINT `connected_transformation_fk` FOREIGN KEY (`transformation_fk`) REFERENCES `transformations` (`transformations_pk`) ON DELETE CASCADE ON UPDATE NO ACTION,
   CONSTRAINT `transfromed_manipulated_image_fk` FOREIGN KEY (`manipulated_image_fk`) REFERENCES `manipulated_images` (`manipulated_images_pk`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=10929 DEFAULT CHARSET=utf8$$
-
-
-delimiter $$
-
-CREATE TABLE `users` (
-  `user_pk` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(45) NOT NULL,
-  PRIMARY KEY (`user_pk`),
-  UNIQUE KEY `user_pk_UNIQUE` (`user_pk`),
-  UNIQUE KEY `name_UNIQUE` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8$$
 
 

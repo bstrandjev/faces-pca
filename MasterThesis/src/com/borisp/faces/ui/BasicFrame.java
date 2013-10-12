@@ -27,7 +27,6 @@ import com.borisp.faces.beans.Manipulation;
 import com.borisp.faces.beans.PcaCoeficient;
 import com.borisp.faces.beans.Transformation;
 import com.borisp.faces.beans.TransformedImage;
-import com.borisp.faces.beans.User;
 import com.borisp.faces.database.ClassificationDatabaseHelper;
 import com.borisp.faces.database.DatabaseHelper;
 
@@ -317,7 +316,6 @@ public class BasicFrame extends JFrame{
         configuration.addAnnotatedClass(Manipulation.class);
         configuration.addAnnotatedClass(PcaCoeficient.class);
         configuration.addAnnotatedClass(Transformation.class);
-        configuration.addAnnotatedClass(User.class);
 
         configuration.configure("hibernate.cfg.xml");
 
