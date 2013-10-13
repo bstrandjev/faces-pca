@@ -42,7 +42,6 @@ public abstract class ClassifierExperimenter {
         }
     }
 
-    private static final int OUTPUT_CLASSES = 2;
     private static final int RAND_SEED = 123434;
     // Neural network constants
     private static final int VERIFICATION_EXAMPLE_COUNT = 30;
@@ -51,6 +50,7 @@ public abstract class ClassifierExperimenter {
     // Naive baies constatns
     private static final int DISCRETE_SEGMENTS = 5;
 
+    protected int numberOfOutputClasses;
     protected int countedEigenFaces;
     protected Random rand;
 
@@ -83,6 +83,10 @@ public abstract class ClassifierExperimenter {
 
     private void evaluateClassifierHelper(List<Example> examples, Classifiers[] classifiers,
             int numberOfExperiments, int countedEigenFaces) {
+        this.numberOfOutputClasses = 0;
+        for (Example example : examples) {
+            this.numberOfOutputClasses = Math.max(numberOfOutputClasses, example.classification + 1);
+        }
         this.rand = reinitializeRandom();
         this.countedEigenFaces = countedEigenFaces;
         double totalPrecision = 0;
@@ -107,35 +111,35 @@ public abstract class ClassifierExperimenter {
     protected void chooseProportionalExperimentSets(List<? extends BasicExample> examples,
             BasicExample[] trainingSet, BasicExample[] verificationSet) {
         List<List<BasicExample>> classExamples = new LinkedList<List<BasicExample>>();
-        for (int i = 0; i < OUTPUT_CLASSES; i++) {
+        for (int i = 0; i < numberOfOutputClasses; i++) {
             classExamples.add(new LinkedList<BasicExample>());
         }
-        int[] classCounts = new int[OUTPUT_CLASSES];
+        int[] classCounts = new int[numberOfOutputClasses];
         for (BasicExample example : examples) {
             classExamples.get(example.classification).add(example);
             classCounts[example.classification]++;
         }
-        for (int i = 0; i < OUTPUT_CLASSES; i++) {
+        for (int i = 0; i < numberOfOutputClasses; i++) {
             Collections.shuffle(classExamples.get(i), rand);
         }
 
         // choose the train set elements
         int idx = 0;
-        int[] classIndices = new int[OUTPUT_CLASSES];
-        for (int i = 0; i < OUTPUT_CLASSES; i++) {
+        int[] classIndices = new int[numberOfOutputClasses];
+        for (int i = 0; i < numberOfOutputClasses; i++) {
             for (int j = 0; j < (classCounts[i] * trainingSet.length) / examples.size(); j++) {
                 trainingSet[idx++] = classExamples.get(i).get(classIndices[i]++);
             }
         }
         while (idx < trainingSet.length) {
-            int classIdx = rand.nextInt(OUTPUT_CLASSES);
+            int classIdx = rand.nextInt(numberOfOutputClasses);
             if (classIndices[classIdx] < classCounts[classIdx]) {
                 trainingSet[idx++] = classExamples.get(classIdx).get(classIndices[classIdx]++);
             }
         }
 
         idx = 0;
-        for (int i = 0; i < OUTPUT_CLASSES; i++) {
+        for (int i = 0; i < numberOfOutputClasses; i++) {
             while (classIndices[i] < classCounts[i]) {
                 verificationSet[idx++] = classExamples.get(i).get(classIndices[i]++);
             }
@@ -176,16 +180,16 @@ public abstract class ClassifierExperimenter {
             classifiers[idx].learnExamples(trainingSet);
             idx++;
         }
-        int [][] classifiedCnt = new int [OUTPUT_CLASSES][OUTPUT_CLASSES];
+        int [][] classifiedCnt = new int [numberOfOutputClasses][numberOfOutputClasses];
         for (Example example : verificationSet) {
             int tmpClassification = example.classification;
-            int [] cnts = new int[OUTPUT_CLASSES];
+            int [] cnts = new int[numberOfOutputClasses];
             for (ClassifierInterface classifier: classifiers) {
                 cnts[classifier.classifyExample(example)]++;
             }
             int maxCnt = -1;
             int maxIdx = -1;
-            for (int i = 0; i < OUTPUT_CLASSES; i++) {
+            for (int i = 0; i < numberOfOutputClasses; i++) {
                 if (cnts[i] > maxCnt) {
                     maxCnt = cnts[i];
                     maxIdx = i;
@@ -195,8 +199,8 @@ public abstract class ClassifierExperimenter {
         }
         int good = 0;
         int all = 0;
-        for (int i = 0; i < OUTPUT_CLASSES; i++) {
-            for (int j = 0; j < OUTPUT_CLASSES; j++) {
+        for (int i = 0; i < numberOfOutputClasses; i++) {
+            for (int j = 0; j < numberOfOutputClasses; j++) {
                 if (i == j) {
                     good += classifiedCnt[i][j];
                 }
@@ -229,13 +233,13 @@ public abstract class ClassifierExperimenter {
                 middleLayeredCount++;
             }
             return new DoubleLayeredNeuralNetwork(countedEigenFaces, middleLayeredCount,
-                    OUTPUT_CLASSES, ETA, INERTIA);
+                    numberOfOutputClasses, ETA, INERTIA);
         case NEAREST_NEIGHBOURS:
-            return new NearestNeighbours(OUTPUT_CLASSES);
+            return new NearestNeighbours(numberOfOutputClasses);
         case WEIGHTED_NEAREST_NEIGHBOURS:
-            return new WeightedNearestNeighbours(OUTPUT_CLASSES);
+            return new WeightedNearestNeighbours(numberOfOutputClasses);
         case CORRELATED_NEAREST_NEIGHBOURS:
-            return new CorrelationNearestNeighbours(OUTPUT_CLASSES);
+            return new CorrelationNearestNeighbours(numberOfOutputClasses);
         case NAIVE_BAIES:
             return new NaiveBaies(DISCRETE_SEGMENTS);
         case IDENTITY:

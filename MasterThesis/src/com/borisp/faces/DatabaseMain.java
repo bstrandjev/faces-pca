@@ -6,6 +6,7 @@ import java.text.ParseException;
 import org.hibernate.SessionFactory;
 
 import com.borisp.faces.beans.ImageGroup;
+import com.borisp.faces.classifiers.LongClassifierExperimenter;
 import com.borisp.faces.database.ClassificationDatabaseHelper;
 import com.borisp.faces.database.DatabaseHelper;
 import com.borisp.faces.database.InitialRecorder;
@@ -17,14 +18,15 @@ import com.borisp.faces.weka.WekaContentCreator;
 public class DatabaseMain {
     public static void main(String[] args) throws IOException, ParseException {
         // SessionFactory sessionFactory = initializeSessionFactory();
-        // LongClassifierExperimenter longClassifierExperimenter = new LongClassifierExperimenter();
-        // longClassifierExperimenter.executeExperiments(sessionFactory);
-         new BasicFrame();
-//        SessionFactory sessionFactory = BasicFrame.initializeSessionFactory();
-//        String imageGroupKey = "turkey";
-//        doInitialRecording(sessionFactory, imageGroupKey);
-//        executeManipulation(sessionFactory, true, imageGroupKey);
-//         doPcaTransform(sessionFactory);
+        SessionFactory sessionFactory = BasicFrame.initializeSessionFactory();
+        LongClassifierExperimenter longClassifierExperimenter = new LongClassifierExperimenter(
+                "nationality");
+        longClassifierExperimenter.executeExperiments(sessionFactory);
+        // new BasicFrame();
+        // String imageGroupKey = "turkey";
+        // doInitialRecording(sessionFactory, imageGroupKey);
+        // executeManipulation(sessionFactory, true, imageGroupKey);
+        // doPcaTransform(sessionFactory);
         // demonstrateTransformation(sessionFactory);
         // demonstrateProjection(sessionFactory);
         // recordClassification(sessionFactory);

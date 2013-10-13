@@ -40,6 +40,20 @@ public class PcaDatabaseHelper {
         conductPcaHelper(sessionFactory, manipulatedImages);
     }
 
+    /**
+     * Transforms the manipulated images with the given indices.
+     * @param sessionFactory The session factory to use
+     * @param manipulatedImageIndices the indices of the manipulated images to load
+     * @return The newly created transformation
+     */
+    public Transformation transformSelectedManipulatedImages(SessionFactory sessionFactory,
+            List<Integer> manipulatedImageIndices) {
+        List<ManipulatedImage> manipulatedImages = DatabaseHelper.getManipulatedImagesByIndices(
+                sessionFactory, manipulatedImageIndices);
+        conductPcaHelper(sessionFactory, manipulatedImages);
+        return DatabaseHelper.getTransformationById(transformationIndex, sessionFactory);
+    }
+
     public void transformLastManipulation(SessionFactory sessionFactory) {
         List<ManipulatedImage> manipulatedImages = getLastManipulationImages(sessionFactory);
         conductPcaHelper(sessionFactory, manipulatedImages);

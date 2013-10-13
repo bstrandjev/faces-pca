@@ -85,9 +85,6 @@ public class BasicFrame extends JFrame{
     private static final String SELECT_TRANSFORMATION_TEXT =
             "Please select the appropriate transformation";
     private static final String SELECT_TRANSFORMATION_HEADER = "Select transformation";
-    private static final String SELECT_USER_TEXT =
-            "Please select the user whose classification to use";
-    private static final String SELECT_USER_HEADER = "Select user";
     private static final String SELECT_CLASSIFICATION_TEXT =
             "Please select the classification to use";
     private static final String SELECT_CLASSIFICATION_HEADER = "Select classification";
@@ -225,7 +222,8 @@ public class BasicFrame extends JFrame{
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 Classification classification = chooseClassification();
-                Transformation transformation = chooseTransformation();
+                Transformation transformation = DatabaseHelper.findAppropriateTransformation(
+                        sessionFactory, classification);
                 if (currentPanel != null) {
                     BasicFrame.this.remove(currentPanel);
                 }
@@ -247,7 +245,8 @@ public class BasicFrame extends JFrame{
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 Classification classification = chooseClassification();
-                Transformation transformation = chooseTransformation();
+                Transformation transformation = DatabaseHelper.findAppropriateTransformation(
+                        sessionFactory, classification);
                 if (currentPanel != null) {
                     BasicFrame.this.remove(currentPanel);
                 }
@@ -353,5 +352,4 @@ public class BasicFrame extends JFrame{
             return objects.get(0);
         }
     }
-
 }

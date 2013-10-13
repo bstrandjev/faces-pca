@@ -1,6 +1,9 @@
 package com.borisp.faces.beans;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -67,5 +70,16 @@ public class Classification {
 
     public void setClassificationValues(List<ClassificationValue> classificationValues) {
         this.classificationValues = classificationValues;
+    }
+
+    /** Constructs list of all the ids of manipulated images that are mapped to this classification. */
+    public List<Integer> constructManipualtedImagesIndexList() {
+        Set<Integer> indexSet = new TreeSet<Integer>();
+        for (ClassificationValue classificationValue : getClassificationValues()) {
+            for (ClassifiedImage classifiedImage : classificationValue.getClassifiedImages()) {
+                indexSet.add(classifiedImage.getManipulatedImage().getManipulatedImageId());
+            }
+        }
+        return new ArrayList<Integer>(indexSet);
     }
 }

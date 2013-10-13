@@ -28,6 +28,10 @@ public abstract class AlgorithmComparator extends ClassifierExperimenter {
 
     private void evaluateClassifierHelper(List<ComplexExample> examples, Classifiers[] classifiers,
             int numberOfExperiments, int countedEigenFaces) {
+        numberOfOutputClasses = 0;
+        for (ComplexExample example : examples) {
+            numberOfOutputClasses = Math.max(numberOfOutputClasses, example.classification + 1);
+        }
         this.rand = reinitializeRandom();
         this.countedEigenFaces = countedEigenFaces;
         double totalInitialPrecision = 0;

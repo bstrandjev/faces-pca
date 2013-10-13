@@ -1,5 +1,8 @@
 package com.borisp.faces.beans;
 
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -8,6 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -29,6 +33,11 @@ public class ClassificationValue {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "classification_fk")
     private Classification classification;
+
+    // bi-directional many-to-one association to ClassifiedImages bean
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "classificationValue",
+               cascade = { CascadeType.DETACH, CascadeType.REMOVE }, orphanRemoval = true)
+    private List<ClassifiedImage> classifiedImages;
 
     public String getValue() {
         return value;
@@ -60,5 +69,13 @@ public class ClassificationValue {
 
     public void setClassificationValuePk(Integer classificationValuePk) {
         this.classificationValuePk = classificationValuePk;
+    }
+
+    public List<ClassifiedImage> getClassifiedImages() {
+        return classifiedImages;
+    }
+
+    public void setClassifiedImages(List<ClassifiedImage> classifiedImages) {
+        this.classifiedImages = classifiedImages;
     }
 }

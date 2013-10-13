@@ -28,7 +28,7 @@ import com.borisp.faces.database.DatabaseHelper;
 public class LongClassifierExperimenter {
     /** The file in which all the results will be recorded. */
     private static final String OUTPUT_FILE_PATH = "experiments" + File.separator
-            + "experiment.out";
+            + "nationality_experiments" + File.separator + "experiment.out";
     // Output constants
     private static final int NAME_MAX_LENGTH = 12;
     private static final int RESULT_MAX_LENGTH = 12;
@@ -37,8 +37,8 @@ public class LongClassifierExperimenter {
     private static final String SOUGHT_FOR_STRING = "The total precision is: ";
     private static final int NUMBER_OF_EXPERIMENTS = 40;
     // Restriction constants
-    private static final int TEST_START_INDEX = 20;
-    private static final int TEST_LIMIT_INDEX = 60;
+    private static final int TEST_START_INDEX = 1;
+    private static final int TEST_LIMIT_INDEX = 20;
 
     /** The file in which output is to be added. */
     private FileWriter outputFile;
@@ -51,6 +51,8 @@ public class LongClassifierExperimenter {
     private int numberOfFaces;
     /** A cache making it possible to cache the example calculation. */
     private Map<String, List<Example>> classificationExamples;
+    /** The key of the classification if the long runner is to run for specific classification. */
+    private String classificationKey;
 
     /** The experimenter to use for all the experiments. */
     private ClassifierExperimenter classifierExperimenter = new ClassifierExperimenter() {
@@ -71,25 +73,46 @@ public class LongClassifierExperimenter {
     };
 
     public LongClassifierExperimenter() throws IOException {
-        this.outputFile = new FileWriter(new File(OUTPUT_FILE_PATH));
+        File outputFile = new File(OUTPUT_FILE_PATH);
+        outputFile.getParentFile().mkdirs();
+        this.outputFile = new FileWriter(outputFile);
         this.classificationExamples = new HashMap<String, List<Example>>();
+    }
+
+    public LongClassifierExperimenter(String classificationKey) throws IOException {
+        this();
+        this.classificationKey = classificationKey;
     }
 
     /** Executes all experiments on all training sets using all classifiers. */
     public void executeExperiments(SessionFactory sessionFactory) throws IOException {
-        this.classifications = ClassificationDatabaseHelper.getAllClassifications(sessionFactory);
-        this.transformation = DatabaseHelper.getFirstTransformation(sessionFactory);
-        this.numberOfFaces = transformation.getAllManipulatedImages().size();
+        intializeFields(sessionFactory);
         prepareExampleCache(sessionFactory);
         for (Classifiers classifier : Classifiers.values()) {
             if (classifier.equals(Classifiers.IDENTITY)
-                    || !classifier.equals(Classifiers.NEURAL_NETWORK)) {
+                    /*|| !classifier.equals(Classifiers.NEURAL_NETWORK)*/) {
                 continue;
             }
             solveForClassifier(classifier, sessionFactory);
         }
         outputFile.flush();
         outputFile.close();
+    }
+
+    private void intializeFields(SessionFactory sessionFactory) {
+        if (classificationKey != null) {
+            this.classifications = new ArrayList<Classification>();
+            Classification classification =
+                    ClassificationDatabaseHelper.getClassificationByKey(sessionFactory, classificationKey);
+            this.classifications.add(classification);
+            this.transformation = DatabaseHelper.findAppropriateTransformation(sessionFactory,
+                    classification);
+        } else {
+            this.classifications = ClassificationDatabaseHelper
+                    .getAllClassifications(sessionFactory);
+            this.transformation = DatabaseHelper.getFirstTransformation(sessionFactory);
+        }
+        this.numberOfFaces = transformation.getAllManipulatedImages().size();
     }
 
     /** Runs the experiments for the given classifier only ranging the dimensions and input sets. */

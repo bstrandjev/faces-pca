@@ -2,6 +2,8 @@ package com.borisp.faces.beans;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -92,5 +94,14 @@ public class Transformation {
 
     public void setTransformedImages(List<TransformedImage> transformedImages) {
         this.transformedImages = transformedImages;
+    }
+
+    /** Constructs list of all the ids of manipulated images that are used in the transformation. */
+    public List<Integer> constructManipualtedImagesIndexList() {
+        Set<Integer> indexSet = new TreeSet<Integer>();
+        for (TransformedImage transformedImage : getTransformedImages()) {
+            indexSet.add(transformedImage.getManipulatedImage().getManipulatedImageId());
+        }
+        return new ArrayList<Integer>(indexSet);
     }
 }

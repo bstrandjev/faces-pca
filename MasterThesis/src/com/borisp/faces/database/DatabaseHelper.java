@@ -42,6 +42,8 @@ public class DatabaseHelper {
     /** A string for selecting all the image groups from the database. */
     private static final String SELECT_IMAGE_GROUPS_BY_KEY_SQL_QUERY =
             "from ImageGroup ig where ig.key = :key";
+    private static final String SELECT_MANIPULATED_IMAGES_BY_INDICES_SQL_QUERY =
+            "from ManipulatedImage mi where mi.manipulatedImageId in (:ids)";
 
     /** A method for fetching manipulation based on manipulation index. */
     public static Manipulation getManipulationByIndex(int manipulationIndex,
@@ -65,7 +67,7 @@ public class DatabaseHelper {
         return (Transformation) query.uniqueResult();
     }
 
-    /** Retrieves all the classifications of given user for given manipulation. */
+    /** Retrieves all the classified images for given manipulation. */
     public static List<ClassifiedImage> getNeededClassifications(Classification classification,
             List<ManipulatedImage> manipulatedImages, SessionFactory sessionFactory) {
 
@@ -166,6 +168,24 @@ public class DatabaseHelper {
         return goodManipulatedImages;
     }
 
+    /**
+     * Selects manipulated images by the given indices.
+     *
+     * @param sessionFactory The session factory to use
+     * @param manipulatedImageIndices The indices of the manipulated images to use.
+     * @return The manipulated images loaded from the database.
+     */
+    @SuppressWarnings("unchecked")
+    public static List<ManipulatedImage> getManipulatedImagesByIndices(
+            SessionFactory sessionFactory, List<Integer> manipulatedImageIndices) {
+        Session session = sessionFactory.getCurrentSession();
+        session.beginTransaction();
+
+        Query query = session.createQuery(SELECT_MANIPULATED_IMAGES_BY_INDICES_SQL_QUERY);
+        query.setParameter("ids", manipulatedImageIndices);
+        return query.list();
+    }
+
     /** Returns all the transformations in the database. */
     public static List<Transformation> getAllTransformations(SessionFactory sessionFactory) {
         Session session = sessionFactory.getCurrentSession();
@@ -211,5 +231,49 @@ public class DatabaseHelper {
     /** Returns the first image group from the DB. Throws if no such exists. */
     public static ImageGroup getFirstImageGroup(SessionFactory sessionFactory) {
         return getAllImageGroups(sessionFactory).get(0);
+    }
+
+    /**
+     * Finds transformation the DB that transforms all the classified images of the classification
+     * @param sessionFactory the session factory to use
+     * @param classification The classification for which we search for matching transformation
+     * @return The matching classification or null if no such exists.
+     */
+    public static Transformation findMatchingTransformation(SessionFactory sessionFactory,
+            Classification classification) {
+        List<Integer> classificationManipulatedImages = classification
+                .constructManipualtedImagesIndexList();
+        for (Transformation transformation : getAllTransformations(sessionFactory)) {
+            List<Integer> transformationManipualtedImages = transformation
+                    .constructManipualtedImagesIndexList();
+            if (transformationManipualtedImages.equals(classificationManipulatedImages)) {
+                return transformation;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Finds the matching transformation for a classification, or creates new one if no such exists.
+     *
+     * @param classification The classification for which to find the appropriate transformation.
+     * @return Transformation from the database (might be newly created).
+     */
+    public static Transformation findAppropriateTransformation(SessionFactory sessionFactory,
+            Classification classification) {
+        Transformation transformation = DatabaseHelper.findMatchingTransformation(sessionFactory,
+                classification);
+        if (transformation == null) {
+            System.out.println("INFO: Transformation does not exist, will be created");
+            System.out.println("INFO: Transformation created");
+            PcaDatabaseHelper pcaDatabaseHelper = new PcaDatabaseHelper();
+            List<Integer> manipulatedImageIndices = classification
+                    .constructManipualtedImagesIndexList();
+            transformation = pcaDatabaseHelper.transformSelectedManipulatedImages(sessionFactory,
+                    manipulatedImageIndices);
+        } else {
+            System.out.println("INFO: Transformation already exists, will be reused");
+        }
+        return transformation;
     }
 }
