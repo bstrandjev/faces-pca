@@ -16,6 +16,7 @@ import com.borisp.faces.classifiers.naive_baies.NaiveBaies;
 import com.borisp.faces.classifiers.nearest_n.CorrelationNearestNeighbours;
 import com.borisp.faces.classifiers.nearest_n.NearestNeighbours;
 import com.borisp.faces.classifiers.nearest_n.WeightedNearestNeighbours;
+import com.borisp.faces.classifiers.nearest_n.WeightedNearestNeighboursWithWeightedAttributes;
 import com.borisp.faces.classifiers.neural_network.DoubleLayeredNeuralNetwork;
 
 /**
@@ -28,6 +29,7 @@ public abstract class ClassifierExperimenter {
         NEURAL_NETWORK("Neural network"),
         NEAREST_NEIGHBOURS("Nearest neighbor"),
         WEIGHTED_NEAREST_NEIGHBOURS("Weighted nn"),
+        WEIGHTED_NEAREST_NEIGHBOURS_WITH_WEIGHTED_ATTRIBUTES("Weighted nn with weighted attributes"),        
         CORRELATED_NEAREST_NEIGHBOURS("Correlated nn"),
         NAIVE_BAIES("Naive baies"),
         IDENTITY("Perfect classifier");
@@ -238,6 +240,8 @@ public abstract class ClassifierExperimenter {
             return new NearestNeighbours(numberOfOutputClasses);
         case WEIGHTED_NEAREST_NEIGHBOURS:
             return new WeightedNearestNeighbours(numberOfOutputClasses);
+        case WEIGHTED_NEAREST_NEIGHBOURS_WITH_WEIGHTED_ATTRIBUTES:
+        	return new WeightedNearestNeighboursWithWeightedAttributes(numberOfOutputClasses);
         case CORRELATED_NEAREST_NEIGHBOURS:
             return new CorrelationNearestNeighbours(numberOfOutputClasses);
         case NAIVE_BAIES:
